@@ -1,0 +1,17 @@
+:root {
+  --canvas: #f0f2ed;
+  --sidebar: #f9fbf7;
+  --surface: #fffefa;
+  --text: #223b36;
+  --muted: #62706a;
+  --accent: #17645c;
+  --accent-hover: #12564f;
+  --accent-soft: #e2eee8;
+  --peach: #f4d9c6;
+  --border: #dde5df;
+  --danger: #a33630;
+  --danger-soft: #fff0ec;
+  --success: #24634a;
+  --radius: 24px;
+  --font-sans: 'Manrope', system-ui, sans-serif;
+}

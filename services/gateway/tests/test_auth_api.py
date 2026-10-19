@@ -27,6 +27,8 @@ def test_me_reads_bearer_token_and_returns_current_user() -> None:
         role=Role.STUDENT,
         password_hash="stored-hash",
         is_active=True,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
     users = SimpleNamespace(get_by_id=AsyncMock(return_value=user))
     uow = AsyncMock()
@@ -90,7 +92,8 @@ def test_me_rejects_missing_or_non_bearer_authorization(
     token_service.decode_access.assert_not_called()
 
 
-def test_refresh_uses_cookie_and_rotates_token_pair() -> None:
+@pytest.mark.parametrize("secure", [False, True])
+def test_refresh_uses_cookie_and_rotates_token_pair(secure: bool) -> None:
     user_id = uuid4()
     old_jti = uuid4()
     new_jti = uuid4()
@@ -100,6 +103,8 @@ def test_refresh_uses_cookie_and_rotates_token_pair() -> None:
         role=Role.STUDENT,
         password_hash="stored-hash",
         is_active=True,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
     users = SimpleNamespace(
         get_by_id=AsyncMock(return_value=user),
@@ -122,6 +127,7 @@ def test_refresh_uses_cookie_and_rotates_token_pair() -> None:
         database_url="postgresql+asyncpg://gateway:password@localhost/gateway",
         jwt_secret="test-signing-secret-for-hs256-32-bytes",
         backoffice_service_token="test-backoffice-token",
+        refresh_cookie_secure=secure,
         _env_file=None,
     )
     app = create_app(
@@ -139,7 +145,9 @@ def test_refresh_uses_cookie_and_rotates_token_pair() -> None:
             client.cookies.set(
                 "refresh_token", "old-refresh-token", path="/api/v1/auth"
             )
-            return await client.post("/api/v1/auth/refresh")
+            return await client.post(
+                "/api/v1/auth/refresh", headers={"Origin": "http://localhost:8080"}
+            )
 
     response = asyncio.run(request_refresh())
 
@@ -151,6 +159,7 @@ def test_refresh_uses_cookie_and_rotates_token_pair() -> None:
     assert "samesite=strict" in set_cookie
     assert "path=/api/v1/auth" in set_cookie
     assert "max-age=604800" in set_cookie
+    assert ("secure" in {part.strip() for part in set_cookie.split(";")}) is secure
     token_service.decode_refresh.assert_called_once_with("old-refresh-token")
     users.consume_refresh_token.assert_awaited_once_with(
         token_id=old_jti, user_id=user_id
@@ -166,7 +175,9 @@ def test_refresh_without_cookie_is_rejected_before_handler() -> None:
     )
     app = create_app(settings, AsyncMock(), Mock(), Mock(), Mock())
     handler = SimpleNamespace(
-        handle=AsyncMock(return_value=RefreshResult("access", "refresh"))
+        handle=AsyncMock(
+            return_value=RefreshResult(access_token="access", refresh_token="refresh")
+        )
     )
     app.dependency_overrides[get_refresh_handler] = lambda: handler
 
@@ -174,7 +185,9 @@ def test_refresh_without_cookie_is_rejected_before_handler() -> None:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://testserver"
         ) as client:
-            return await client.post("/api/v1/auth/refresh")
+            return await client.post(
+                "/api/v1/auth/refresh", headers={"Origin": "http://localhost:8080"}
+            )
 
     response = asyncio.run(request_refresh())
 
@@ -198,7 +211,10 @@ def test_refresh_with_invalid_cookie_returns_401_without_replacement() -> None:
         ) as client:
             return await client.post(
                 "/api/v1/auth/refresh",
-                headers={"Cookie": "refresh_token=not-a-jwt"},
+                headers={
+                    "Cookie": "refresh_token=not-a-jwt",
+                    "Origin": "http://localhost:8080",
+                },
             )
 
     response = asyncio.run(request_refresh())
@@ -208,13 +224,16 @@ def test_refresh_with_invalid_cookie_returns_401_without_replacement() -> None:
     assert "set-cookie" not in response.headers
 
 
-def test_login_sets_refresh_cookie_and_returns_only_access_token() -> None:
+@pytest.mark.parametrize("secure", [False, True])
+def test_login_sets_refresh_cookie_and_returns_only_access_token(secure: bool) -> None:
     user = User(
         id=uuid4(),
         email="student@example.com",
         role=Role.STUDENT,
         password_hash="stored-hash",
         is_active=True,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
     users = SimpleNamespace(
         get_by_email=AsyncMock(return_value=user), create_refresh_token=AsyncMock()
@@ -235,6 +254,7 @@ def test_login_sets_refresh_cookie_and_returns_only_access_token() -> None:
         database_url="postgresql+asyncpg://gateway:password@localhost/gateway",
         jwt_secret="test-signing-secret-for-hs256-32-bytes",
         backoffice_service_token="test-backoffice-token",
+        refresh_cookie_secure=secure,
         _env_file=None,
     )
     app = create_app(
@@ -248,6 +268,7 @@ def test_login_sets_refresh_cookie_and_returns_only_access_token() -> None:
             return await client.post(
                 "/api/v1/auth/login",
                 json={"email": "student@example.com", "password": "secret"},
+                headers={"Origin": "http://localhost:8080"},
             )
 
     response = asyncio.run(request_login())
@@ -258,6 +279,10 @@ def test_login_sets_refresh_cookie_and_returns_only_access_token() -> None:
     assert "httponly" in response.headers["set-cookie"].lower()
     assert "samesite=strict" in response.headers["set-cookie"].lower()
     assert "path=/api/v1/auth" in response.headers["set-cookie"].lower()
+    attributes = {
+        part.strip() for part in response.headers["set-cookie"].lower().split(";")
+    }
+    assert ("secure" in attributes) is secure
     assert response.headers["x-request-id"]
     users.create_refresh_token.assert_awaited_once_with(
         token_id=issued.jti, user_id=user.id, expires_at=issued.expires_at
@@ -271,6 +296,8 @@ def test_login_rejects_wrong_password_without_setting_cookie() -> None:
         role=Role.STUDENT,
         password_hash="stored-hash",
         is_active=True,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
     users = SimpleNamespace(
         get_by_email=AsyncMock(return_value=user), create_refresh_token=AsyncMock()
@@ -297,6 +324,7 @@ def test_login_rejects_wrong_password_without_setting_cookie() -> None:
             return await client.post(
                 "/api/v1/auth/login",
                 json={"email": "student@example.com", "password": "wrong"},
+                headers={"Origin": "http://localhost:8080"},
             )
 
     response = asyncio.run(request_login())
@@ -315,6 +343,8 @@ def test_refresh_replay_returns_401_without_issuing_another_token() -> None:
         role=Role.STUDENT,
         password_hash="stored-hash",
         is_active=True,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
     old_jti = uuid4()
     users = SimpleNamespace(
@@ -325,7 +355,9 @@ def test_refresh_replay_returns_401_without_issuing_another_token() -> None:
     uow = AsyncMock()
     uow.__aenter__.return_value = SimpleNamespace(users=users)
     token_service = Mock()
-    token_service.decode_refresh.return_value = DecodedRefresh(user.id, old_jti)
+    token_service.decode_refresh.return_value = DecodedRefresh(
+        user_id=user.id, jti=old_jti
+    )
     issued = IssuedRefresh(
         token="new-refresh-token",
         jti=uuid4(),
@@ -347,11 +379,17 @@ def test_refresh_replay_returns_401_without_issuing_another_token() -> None:
         ) as client:
             first = await client.post(
                 "/api/v1/auth/refresh",
-                headers={"Cookie": "refresh_token=old-refresh-token"},
+                headers={
+                    "Cookie": "refresh_token=old-refresh-token",
+                    "Origin": "http://localhost:8080",
+                },
             )
             replay = await client.post(
                 "/api/v1/auth/refresh",
-                headers={"Cookie": "refresh_token=old-refresh-token"},
+                headers={
+                    "Cookie": "refresh_token=old-refresh-token",
+                    "Origin": "http://localhost:8080",
+                },
             )
             return first, replay
 

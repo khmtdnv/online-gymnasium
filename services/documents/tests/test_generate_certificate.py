@@ -35,6 +35,32 @@ class FakeDocumentRepository:
         self.failed_jobs.append((job_id, error_message))
 
 
+@pytest.mark.parametrize(
+    "payload",
+    [
+        None,
+        [],
+        5,
+        {"student_full_name": 1, "class_name": "7А", "academic_year": "2026/2027"},
+    ],
+)
+def test_invalid_payload_fails_without_rendering_or_upload(payload):
+    """Не оставляет повреждённое задание в processing из-за случайной ошибки типа."""
+    from dataclasses import replace
+
+    job = replace(make_pending_job(), payload=payload)
+    repository = FakeDocumentRepository(job)
+    renderer, storage = FakeCertificateRenderer(), FakeDocumentStorage()
+    handler = GenerateCertificateHandler(
+        lambda: FakeUnitOfWork(repository), renderer, storage
+    )
+    with pytest.raises(PermanentDocumentError):
+        handler.handle(GenerateCertificateCommand(job_id=job.id))
+    assert repository.failed_jobs == [(job.id, "Document generation failed")]
+    assert renderer.rendered_certificates == []
+    assert storage.uploaded_pdfs == []
+
+
 class FakeUnitOfWork:
     def __init__(self, repository: FakeDocumentRepository) -> None:
         self.documents = repository

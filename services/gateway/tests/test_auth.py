@@ -126,6 +126,8 @@ def make_fakes(
         role=Role.STUDENT,
         password_hash="stored-hash",
         is_active=active,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
     users = FakeUserRepository(user, can_consume=can_consume)
     uow = FakeUnitOfWork(users)

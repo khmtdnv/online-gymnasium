@@ -1,3 +1,5 @@
+"""Общий маршрутизатор HTTP-ручек сервиса."""
+
 from fastapi import APIRouter
 
 from document_service.api.documents import router as documents_router

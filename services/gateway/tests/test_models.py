@@ -18,6 +18,7 @@ def test_user_row_has_named_email_and_role_constraints() -> None:
         constraint
         for constraint in constraints
         if isinstance(constraint, CheckConstraint)
+        and constraint.name == "users_valid_role"
     )
 
     assert any(

@@ -1,22 +1,26 @@
 class ApplicationException(Exception):
-    pass
+    """Базовая ошибка сценария приложения."""
 
 
 class ScheduleConflict(ApplicationException):
-    pass
+    """Урок нарушает ограничения расписания в базе данных."""
 
 
 class LessonNotFound(ApplicationException):
-    pass
+    """Урок с указанным ID не найден."""
 
 
 class VersionConflict(ApplicationException):
-    pass
+    """Версия урока изменилась с момента чтения клиентом."""
 
 
 class IdempotencyKeyReuse(ApplicationException):
-    pass
+    """Ключ повторного запроса уже использован с другими данными."""
+
+
+class IdempotencyKeyAlreadyExists(ApplicationException):
+    """Другой запрос уже зарезервировал этот ключ операции."""
 
 
 class ScheduleCacheBusy(ApplicationException):
-    pass
+    """Не удалось получить согласованное расписание за лимит попыток."""

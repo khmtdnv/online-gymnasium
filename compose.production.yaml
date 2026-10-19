@@ -1,0 +1,38 @@
+# Собранный локальный режим. Интернет-deployment требует TLS и завершённых auth задач.
+services:
+  schedule-api:
+    ports: !reset []
+  analytics-api:
+    ports: !reset []
+  document-api:
+    ports: !reset []
+  gateway-api:
+    ports: !reset []
+  journal-api:
+    ports: !reset []
+  journal-postgres:
+    ports: !reset []
+  homework-api:
+    ports: !reset []
+  homework-postgres:
+    ports: !reset []
+  backoffice-api:
+    ports: !reset []
+    volumes: !reset []
+    command: poetry run gunicorn backoffice.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 40 --access-logfile -
+    environment:
+      BACKOFFICE_DEBUG: "False"
+  schedule-postgres:
+    ports: !reset []
+  schedule-kafka:
+    ports: !reset []
+  schedule-redis:
+    ports: !reset []
+  gateway-postgres:
+    ports: !reset []
+  backoffice-postgres:
+    ports: !reset []
+  document-postgres:
+    ports: !reset []
+  analytics-clickhouse:
+    ports: !reset []

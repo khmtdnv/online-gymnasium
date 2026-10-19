@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock
 
@@ -18,14 +19,25 @@ async def test_kafka_publisher_sends_documented_json_envelope_with_lesson_key() 
     event = PendingOutboxEvent(
         id=42,
         event_type="lesson.snapshot",
-        payload={"lesson_id": 501},
+        payload={
+            "lesson_id": 501,
+            "teacher_id": "8df96b7a-7d30-44e7-b577-f6581300e101",
+        },
         created_at=datetime(2026, 9, 13, 12, tzinfo=UTC),
     )
 
     await publisher.publish(event)
 
-    producer.send_and_wait.assert_awaited_once_with(
-        "schedule.lessons",
-        b'{"event_id":42,"event_type":"lesson.snapshot","occurred_at":"2026-09-13T12:00:00+00:00","payload":{"lesson_id":501}}',
-        key=b"501",
-    )
+    call = producer.send_and_wait.await_args
+    assert call.args[0] == "schedule.lessons.v2"
+    assert json.loads(call.args[1]) == {
+        "event_id": 42,
+        "event_type": "lesson.snapshot",
+        "schema_version": 2,
+        "occurred_at": "2026-09-13T12:00:00+00:00",
+        "payload": {
+            "lesson_id": 501,
+            "teacher_id": "8df96b7a-7d30-44e7-b577-f6581300e101",
+        },
+    }
+    assert call.kwargs["key"] == b"501"

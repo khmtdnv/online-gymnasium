@@ -1,5 +1,6 @@
 from datetime import UTC, date, datetime
 from typing import Self
+from uuid import UUID
 
 import pytest
 
@@ -20,7 +21,7 @@ class FakeLessonRepository:
         self.saved = Lesson(
             id=501,
             class_id=10,
-            teacher_id=100,
+            teacher_id=UUID(int=100),
             subject_id=1000,
             starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
             ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -99,7 +100,7 @@ async def test_handler_cancels_planned_lesson() -> None:
         LessonSnapshot(
             lesson_id=501,
             class_id=10,
-            teacher_id=100,
+            teacher_id=UUID(int=100),
             subject_id=1000,
             starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
             ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),

@@ -13,6 +13,37 @@ SIGNING_SECRET = "test-signing-secret-for-hs256-32-bytes"
 OTHER_SECRET = "another-signing-secret-for-hs256-32-bytes"
 
 
+@pytest.mark.parametrize(
+    "kind,field",
+    [
+        ("access", "sub"),
+        ("access", "role"),
+        ("access", "type"),
+        ("refresh", "sub"),
+        ("refresh", "jti"),
+        ("refresh", "type"),
+        ("access", "exp"),
+        ("refresh", "exp"),
+    ],
+)
+@pytest.mark.parametrize("value", [123, [], {}])
+def test_malformed_claim_types_are_authentication_errors(kind, field, value):
+    """Переводит неверные типы подписанных claims в штатную ошибку авторизации."""
+    service = make_service()
+    claims = {
+        "sub": str(uuid4()),
+        "jti": str(uuid4()),
+        "role": "student",
+        "type": kind,
+        "exp": datetime.now(UTC) + timedelta(minutes=5),
+    }
+    claims[field] = value
+    token = jwt.encode(claims, SIGNING_SECRET, algorithm="HS256")
+    decode = service.decode_access if kind == "access" else service.decode_refresh
+    with pytest.raises(AuthenticationError):
+        decode(token)
+
+
 def make_service(*, secret: str = SIGNING_SECRET) -> PyJwtTokenService:
     settings = GatewaySettings(
         database_url="postgresql+asyncpg://gateway:password@localhost/gateway",
@@ -30,6 +61,8 @@ def make_user() -> User:
         role=Role.STUDENT,
         password_hash="stored-hash",
         is_active=True,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
 
 

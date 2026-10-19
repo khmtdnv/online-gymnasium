@@ -1,0 +1,49 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% block content_title %}{% endblock %}
+{% block content %}
+<section class="og1-form-card">
+  <h1>{{ title }}</h1>
+  <p>Найдите преподавателя и выберите класс. Назначения не меняют расписание уроков.</p>
+  {% if service_error %}<p role="alert">{{ service_error }}</p>{% endif %}
+  <form method="get" id="student-class-form" data-search-url="{% url 'backoffice-search-teachers' %}" data-id-field="id_teacher_search_id" data-user-kind="teacher">
+    <label for="student-search">Найти преподавателя</label>
+    <input type="hidden" id="id_teacher_search_id" name="teacher_id" value="{{ teacher_id|default:'' }}">
+    <div id="student-picker" class="og1-student-picker">
+      <input id="student-search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="student-results" aria-describedby="student-search-status" required autocomplete="off" maxlength="200" placeholder="ФИО или email" value="{{ teacher_label }}">
+      <button type="button" id="clear-student" class="og1-clear-student" aria-label="Очистить выбор" hidden>×</button>
+      <ul id="student-results" class="og1-student-results" role="listbox" aria-label="Преподаватели" hidden></ul>
+    </div>
+    <input type="hidden" id="student-label" name="teacher_label" value="{{ teacher_label }}">
+    <p id="student-search-status" role="status" aria-live="polite">Введите минимум 2 символа.</p>
+    <button type="submit">Показать классы</button>
+  </form>
+  {% if teacher_id %}
+    <h2>{{ teacher_label|default:teacher_id }}</h2>
+    <h3>Назначенные классы</h3>
+    {% for school_class in assigned_classes %}
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="teacher_id" value="{{ teacher_id }}">
+        <input type="hidden" name="teacher_label" value="{{ teacher_label }}">
+        <input type="hidden" name="class_id" value="{{ school_class.id }}">
+        <input type="hidden" name="action" value="remove">
+        <span>{{ school_class.name }} · {{ school_class.study_year }}/{{ school_class.study_year|add:1 }}</span>
+        <button type="submit">Снять назначение</button>
+      </form>
+    {% empty %}<p>{% if service_error %}Список назначений недоступен.{% else %}Назначений пока нет.{% endif %}</p>{% endfor %}
+  {% endif %}
+  {{ form.non_field_errors }}{{ form.teacher_id.errors }}{{ form.class_id.errors }}{{ form.action.errors }}
+  {% if teacher_id %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="teacher_id" value="{{ teacher_id }}">
+      <input type="hidden" name="teacher_label" value="{{ teacher_label }}">
+      <input type="hidden" name="action" value="assign">
+      <p>{{ assignment_form.class_id.label_tag }}{{ assignment_form.class_id }}</p>
+      <button type="submit"{% if not can_assign %} disabled{% endif %}>Назначить класс</button>
+    </form>
+  {% endif %}
+</section>
+<script src="{% static 'backoffice_admin/student_search.js' %}?v=3" defer></script>
+{% endblock %}

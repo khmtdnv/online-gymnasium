@@ -1,3 +1,5 @@
+"""Сборка и запуск воркера фоновой обработки сервиса."""
+
 from pathlib import Path
 
 from celery import Celery
@@ -17,6 +19,14 @@ from document_service.infrastructure.unit_of_work import SqlAlchemyDocumentUnitO
 
 
 def create_worker_app(settings: DocumentSettings) -> Celery:
+    """Собирает Celery-воркер с обработчиками генерации и ошибок.
+
+    Args:
+        settings: Настройки текущего сервиса.
+
+    Returns:
+        Приложение Celery с зарегистрированной задачей справки.
+    """
     engine = create_engine(settings.document_database_url)
     sessions = session_factory(engine)
 

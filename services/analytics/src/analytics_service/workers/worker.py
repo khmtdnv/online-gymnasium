@@ -1,3 +1,5 @@
+"""Сборка и запуск воркера фоновой обработки сервиса."""
+
 import asyncio
 import base64
 import json
@@ -17,12 +19,17 @@ logger = logging.getLogger(__name__)
 
 
 async def run() -> None:
+    """Записывает пачки событий в ClickHouse и отправляет битые сообщения в DLQ.
+
+    Подтверждает offsets после записи снимков и отправки DLQ. При сбое прекращает
+    работу; пачка может быть доставлена повторно.
+    """
     settings = AnalyticsSettings()
 
     consumer = AIOKafkaConsumer(
-        "schedule.lessons",
+        settings.schedule_snapshot_topic,
         bootstrap_servers=settings.kafka_bootstrap_servers,
-        group_id="schedule-analytics",
+        group_id=settings.schedule_snapshot_group_id,
         enable_auto_commit=False,
         auto_offset_reset="earliest",
     )
@@ -32,6 +39,7 @@ async def run() -> None:
         port=settings.clickhouse_port,
         username=settings.clickhouse_user,
         password=settings.clickhouse_password,
+        database=settings.clickhouse_database,
     )
     repository = ClickHouseSnapshotRepository(client)
 

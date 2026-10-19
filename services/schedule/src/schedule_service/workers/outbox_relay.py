@@ -16,13 +16,21 @@ logger = logging.getLogger(__name__)
 
 
 async def run() -> None:
+    """Публикует outbox в Kafka в цикле, повторяя работу после ошибки.
+
+    При пустой пачке или ошибке делает паузу одну секунду.
+    """
     settings = RelaySettings()
     engine = create_engine(settings.database_url)
     session_factory = create_session_factory(engine)
     producer = AIOKafkaProducer(
         bootstrap_servers=settings.kafka_bootstrap_servers, acks="all"
     )
-    publisher = KafkaEventPublisher(producer, topic="schedule.lessons")
+    publisher = KafkaEventPublisher(
+        producer,
+        topic="schedule.lessons",
+        snapshot_topic=settings.schedule_snapshot_topic,
+    )
     relay = OutboxRelay(
         uow_factory=lambda: SqlAlchemyUnitOfWork(session_factory), publisher=publisher
     )

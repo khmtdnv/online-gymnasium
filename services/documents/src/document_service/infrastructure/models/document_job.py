@@ -10,6 +10,8 @@ from document_service.infrastructure.models.base import Base
 
 
 class DocumentJobRow(Base):
+    """Запись задания генерации PDF с данными, статусом и ключом файла."""
+
     __tablename__ = "document_jobs"
 
     id: Mapped[UUID] = mapped_column(

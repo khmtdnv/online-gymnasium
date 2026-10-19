@@ -1,7 +1,8 @@
 import asyncio
 import secrets
-from dataclasses import dataclass
 from datetime import date
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from schedule_service.application.errors import ScheduleCacheBusy
 from schedule_service.application.ports.schedule_cache import ScheduleCache
@@ -9,13 +10,18 @@ from schedule_service.application.ports.unit_of_work import UnitOfWorkFactory
 from schedule_service.domain.lesson import Lesson
 
 
-@dataclass(frozen=True, slots=True)
-class ListLessonsQuery:
-    class_id: int
+class ListLessonsQuery(BaseModel):
+    """Класс и день, для которых нужно получить расписание."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
+    class_id: int = Field(gt=0)
     day: date
 
 
 class ListLessonsHandler:
+    """Читает расписание через кеш с блокировкой заполнения и проверкой поколения."""
+
     def __init__(
         self,
         uow_factory: UnitOfWorkFactory,
@@ -25,6 +31,17 @@ class ListLessonsHandler:
         schedule_cache_lock_retry_delay_ms: int,
         schedule_cache_lock_retry_limit: int,
     ) -> None:
+        """Сохраняет зависимости и настройки компонента.
+
+        Args:
+            uow_factory: Фабрика отдельной транзакции с её репозиториями.
+            cache: Кеш дневного расписания.
+            schedule_cache_ttl_seconds: Срок хранения дневного кеша в секундах.
+            schedule_cache_lock_ttl_ms: Срок блокировки заполнения в миллисекундах.
+            schedule_cache_lock_retry_delay_ms: Пауза между попытками в миллисекундах.
+            schedule_cache_lock_retry_limit: Максимальное число попыток чтения и
+                заполнения кеша.
+        """
         self._uow_factory = uow_factory
         self._cache = cache
         self._schedule_cache_ttl_seconds = schedule_cache_ttl_seconds
@@ -36,6 +53,14 @@ class ListLessonsHandler:
         self,
         query: ListLessonsQuery,
     ) -> list[Lesson]:
+        """Читает расписание в отдельной сессии базы данных.
+
+        Args:
+            query: Класс и дата запрашиваемого расписания.
+
+        Returns:
+            Плановые уроки класса на указанный день.
+        """
         async with self._uow_factory() as uow:
             return await uow.lessons.get_class_schedule(
                 class_id=query.class_id,
@@ -43,6 +68,20 @@ class ListLessonsHandler:
             )
 
     async def handle(self, query: ListLessonsQuery) -> list[Lesson]:
+        """Получает расписание из кеша или заполняет его из базы.
+
+        Блокировка ограничивает параллельное заполнение. Поколение запрещает запись
+        данных после инвалидации.
+
+        Args:
+            query: Класс и дата запрашиваемого расписания.
+
+        Returns:
+            Плановые уроки класса на выбранный день.
+
+        Raises:
+            ScheduleCacheBusy: Попытки получить согласованные данные исчерпаны.
+        """
         for _ in range(self._schedule_cache_lock_retry_limit):
             cached_lessons = await self._cache.get(
                 class_id=query.class_id,

@@ -15,6 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 async def run() -> None:
+    """Читает события Kafka и удаляет кеш изменённых дней.
+
+    Подтверждает offset после обработки. При ошибке прекращает работу и закрывает
+    клиентов.
+    """
     settings = InvalidatorSettings()
     consumer = AIOKafkaConsumer(
         "schedule.lessons",

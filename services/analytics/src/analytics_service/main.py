@@ -1,3 +1,5 @@
+"""Точка сборки зависимостей и запуска HTTP-приложения сервиса."""
+
 import clickhouse_connect
 
 from analytics_service.api.app import create_app
@@ -12,6 +14,7 @@ client = clickhouse_connect.get_client(
     port=settings.clickhouse_port,
     username=settings.clickhouse_user,
     password=settings.clickhouse_password,
+    database=settings.clickhouse_database,
 )
 app = create_app(
     repository_factory=lambda: ClickHouseWorkloadRepository(client),

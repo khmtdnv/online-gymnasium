@@ -12,10 +12,25 @@ from document_service.infrastructure.models.document_task_outbox import (
 
 
 class SqlAlchemyDocumentTaskOutboxRepository:
+    """Читает задачи outbox и отмечает отправку без самостоятельного commit."""
+
     def __init__(self, session: Session) -> None:
+        """Сохраняет зависимости и настройки компонента.
+
+        Args:
+            session: Сессия текущей транзакции; commit остаётся за Unit of Work.
+        """
         self._session = session
 
     def get_pending(self, *, limit: int) -> list[PendingDocumentTask]:
+        """Читает ограниченную пачку ещё не опубликованных записей outbox.
+
+        Args:
+            limit: Максимальное число записей в пачке.
+
+        Returns:
+            Непубликованные записи, не больше указанного limit.
+        """
         statement = (
             select(DocumentTaskOutboxRow)
             .where(DocumentTaskOutboxRow.published_at.is_(None))
@@ -35,6 +50,11 @@ class SqlAlchemyDocumentTaskOutboxRepository:
         ]
 
     def mark_published(self, *, task_id: UUID) -> None:
+        """Ставит время публикации записи outbox в текущей транзакции.
+
+        Args:
+            task_id: ID записи задачи в outbox.
+        """
         statement = (
             update(DocumentTaskOutboxRow)
             .where(

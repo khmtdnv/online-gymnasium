@@ -45,6 +45,62 @@ class FakePasswordService:
         return "encoded-password-hash"
 
 
+@pytest.mark.parametrize(
+    "field,value",
+    [("email", ""), ("email", "   "), ("password", ""), ("password", "  ")],
+)
+def test_create_user_rejects_blank_data_before_hash_and_write(field, value):
+    """Не хеширует и не записывает заведомо неполные данные."""
+    from unittest.mock import Mock
+
+    from pydantic import ValidationError
+
+    from gateway_service.application.backoffice import (
+        CreateUserCommand,
+        CreateUserHandler,
+    )
+
+    factory = Mock()
+    passwords = FakePasswordService()
+    data = {
+        "email": "student@example.com",
+        "password": "secret",
+        "role": Role.STUDENT,
+        "first_name": "Тестовый",
+        "last_name": "Пользователь",
+    }
+    data[field] = value
+    with pytest.raises(ValidationError):
+        asyncio.run(
+            CreateUserHandler(factory, passwords).handle(CreateUserCommand(**data))
+        )
+    assert passwords.received_passwords == []
+    factory.assert_not_called()
+
+
+def test_create_user_keeps_password_spaces():
+    """Сохраняет смысл исходного пароля, не нормализуя его."""
+    from gateway_service.application.backoffice import (
+        CreateUserCommand,
+        CreateUserHandler,
+    )
+
+    uow, passwords = FakeUnitOfWork(), FakePasswordService()
+    asyncio.run(
+        CreateUserHandler(lambda: uow, passwords).handle(
+            CreateUserCommand(
+                email="Student@example.com",
+                password=" secret ",
+                role=Role.STUDENT,
+                first_name="Тестовый",
+                last_name="Пользователь",
+            )
+        )
+    )
+    assert passwords.received_passwords == [" secret "]
+    assert uow.users.created[0].email == "Student@example.com"
+
+
 def test_create_user_stores_hash_instead_of_plaintext_password() -> None:
     from gateway_service.application.backoffice import (
         CreateUserCommand,
@@ -63,6 +119,8 @@ def test_create_user_stores_hash_instead_of_plaintext_password() -> None:
                 email="teacher@example.com",
                 password="strong-password",
                 role=Role.TEACHER,
+                first_name="Тестовый",
+                last_name="Пользователь",
             )
         )
     )
@@ -89,15 +147,31 @@ def test_link_parent_student_accepts_correct_roles() -> None:
     users = AsyncMock()
     users.create_parent_student_link.return_value = True
     users.get_by_id.side_effect = [
-        User(parent_id, "parent@example.com", Role.PARENT, "hash", True),
-        User(student_id, "student@example.com", Role.STUDENT, "hash", True),
+        User(
+            parent_id,
+            "parent@example.com",
+            Role.PARENT,
+            "hash",
+            True,
+            first_name="Тестовый",
+            last_name="Пользователь",
+        ),
+        User(
+            student_id,
+            "student@example.com",
+            Role.STUDENT,
+            "hash",
+            True,
+            first_name="Тестовый",
+            last_name="Пользователь",
+        ),
     ]
     uow = FakeUnitOfWork()
     uow.users = users
 
     result = asyncio.run(
         LinkParentStudentHandler(lambda: uow).handle(
-            LinkParentStudentCommand(parent_id, student_id)
+            LinkParentStudentCommand(parent_id=parent_id, student_id=student_id)
         )
     )
 
@@ -124,8 +198,24 @@ def test_link_parent_student_rejects_wrong_role(
     parent_id, student_id = uuid4(), uuid4()
     users = AsyncMock()
     users.get_by_id.side_effect = [
-        User(parent_id, "parent@example.com", parent_role, "hash", True),
-        User(student_id, "student@example.com", student_role, "hash", True),
+        User(
+            parent_id,
+            "parent@example.com",
+            parent_role,
+            "hash",
+            True,
+            first_name="Тестовый",
+            last_name="Пользователь",
+        ),
+        User(
+            student_id,
+            "student@example.com",
+            student_role,
+            "hash",
+            True,
+            first_name="Тестовый",
+            last_name="Пользователь",
+        ),
     ]
     uow = FakeUnitOfWork()
     uow.users = users
@@ -133,7 +223,7 @@ def test_link_parent_student_rejects_wrong_role(
     with pytest.raises(InvalidParentStudentRolesError):
         asyncio.run(
             LinkParentStudentHandler(lambda: uow).handle(
-                LinkParentStudentCommand(parent_id, student_id)
+                LinkParentStudentCommand(parent_id=parent_id, student_id=student_id)
             )
         )
 
@@ -155,7 +245,7 @@ def test_link_parent_student_rejects_missing_user() -> None:
     with pytest.raises(UserNotFoundError):
         asyncio.run(
             LinkParentStudentHandler(lambda: uow).handle(
-                LinkParentStudentCommand(uuid4(), uuid4())
+                LinkParentStudentCommand(parent_id=uuid4(), student_id=uuid4())
             )
         )
 

@@ -1,41 +1,90 @@
-from dataclasses import dataclass
-from datetime import datetime
 from typing import Protocol
 from uuid import UUID
+
+from pydantic import AwareDatetime, BaseModel, ConfigDict
 
 from gateway_service.domain.user import Role, User
 
 
-@dataclass(frozen=True, slots=True)
-class DecodedRefresh:
-    """Результат проверки старого токена."""
+class DecodedRefresh(BaseModel):
+    """ID пользователя и jti после проверки refresh-токена."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
 
     user_id: UUID
     jti: UUID
 
 
-@dataclass(frozen=True, slots=True)
-class DecodedAccess:
-    """Результат проверки access токена."""
+class DecodedAccess(BaseModel):
+    """ID пользователя и роль из проверенного access-токена."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
 
     user_id: UUID
     role: Role
 
 
-@dataclass(frozen=True, slots=True)
-class IssuedRefresh:
-    """Результат выпуска нового токена."""
+class IssuedRefresh(BaseModel):
+    """Подписанный refresh-токен, его jti и срок действия."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
 
     token: str
     jti: UUID
-    expires_at: datetime
+    expires_at: AwareDatetime
 
 
 class TokenService(Protocol):
-    def decode_refresh(self, token: str) -> DecodedRefresh: ...
+    """Контракт проверки и выпуска access- и refresh-токенов."""
 
-    def decode_access(self, token: str) -> DecodedAccess: ...
+    def decode_refresh(self, token: str) -> DecodedRefresh:
+        """Проверяет подпись, срок действия и тип refresh-токена.
 
-    def issue_refresh(self, user: User) -> IssuedRefresh: ...
+        Args:
+            token: Строка JWT для проверки.
 
-    def issue_access(self, user: User) -> str: ...
+        Returns:
+            ID пользователя и jti проверенного токена.
+
+        Raises:
+            AuthenticationError: Токен недействителен или его поля некорректны.
+        """
+        ...
+
+    def decode_access(self, token: str) -> DecodedAccess:
+        """Проверяет подпись, срок действия и тип access-токена.
+
+        Args:
+            token: Строка JWT для проверки.
+
+        Returns:
+            ID пользователя и роль из проверенного токена.
+
+        Raises:
+            AuthenticationError: Токен недействителен или его поля некорректны.
+        """
+        ...
+
+    def issue_refresh(self, user: User) -> IssuedRefresh:
+        """Выпускает подписанный refresh-токен с новым jti.
+
+        Не записывает токен в базу; сохранение выполняет вызывающий обработчик.
+
+        Args:
+            user: Пользователь с данными, нужными для операции.
+
+        Returns:
+            Токен, его jti и время окончания действия.
+        """
+        ...
+
+    def issue_access(self, user: User) -> str:
+        """Выпускает access-токен с ID пользователя и его ролью.
+
+        Args:
+            user: Пользователь с данными, нужными для операции.
+
+        Returns:
+            Подписанная строка JWT.
+        """
+        ...

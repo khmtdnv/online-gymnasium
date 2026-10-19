@@ -5,6 +5,8 @@ from uuid import UUID
 
 
 class DocumentStatus(Enum):
+    """Состояния задания: ожидает, выполняется, завершено или завершилось ошибкой."""
+
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -13,6 +15,8 @@ class DocumentStatus(Enum):
 
 @dataclass(frozen=True, slots=True)
 class DocumentJob:
+    """Состояние задания генерации и ключ готового файла в хранилище."""
+
     id: UUID
     document_type: str
     status: DocumentStatus

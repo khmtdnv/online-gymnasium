@@ -1,10 +1,16 @@
+"""Настройки сервиса из переменных окружения и файла .env."""
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    """Настройки API расписания из переменных окружения и файла .env."""
+
     model_config = SettingsConfigDict(env_file=".env")
     app_name: str = "OG1 Schedule Service"
+    homework_service_token: str | None = Field(default=None, min_length=1)
+    gateway_service_token: str | None = Field(default=None, min_length=1)
 
     database_url: str
     redis_url: str

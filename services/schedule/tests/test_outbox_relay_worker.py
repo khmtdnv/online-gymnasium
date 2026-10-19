@@ -20,6 +20,7 @@ async def test_worker_starts_and_stops_kafka_and_database_resources(
     settings = SimpleNamespace(
         database_url="postgresql+asyncpg://schedule:password@postgres:5432/schedule",
         kafka_bootstrap_servers="kafka:19092",
+        schedule_snapshot_topic="schedule.lessons.v2",
     )
 
     monkeypatch.setattr(outbox_relay, "RelaySettings", lambda: settings)

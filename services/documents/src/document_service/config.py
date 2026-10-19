@@ -1,7 +1,11 @@
+"""Настройки сервиса из переменных окружения и файла .env."""
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DocumentSettings(BaseSettings):
+    """Подключения сервиса документов к PostgreSQL, RabbitMQ и MinIO."""
+
     document_database_url: str
     celery_broker_url: str
     minio_endpoint: str

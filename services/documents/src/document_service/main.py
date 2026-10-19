@@ -1,3 +1,5 @@
+"""Точка сборки зависимостей и запуска HTTP-приложения сервиса."""
+
 from minio import Minio
 
 from document_service.app import create_app
@@ -8,6 +10,14 @@ from document_service.infrastructure.unit_of_work import SqlAlchemyDocumentUnitO
 
 
 def create_runtime_app(settings: DocumentSettings):
+    """Собирает API документов с PostgreSQL и хранилищем MinIO.
+
+    Args:
+        settings: Настройки текущего сервиса.
+
+    Returns:
+        Приложение для запуска через ASGI-сервер.
+    """
     engine = create_engine(settings.document_database_url)
     sessions = session_factory(engine)
     storage = MinioDocumentStorage(

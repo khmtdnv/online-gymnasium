@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from pydantic import BaseModel, ConfigDict, Field
 
 from schedule_service.application.errors import LessonNotFound, VersionConflict
 from schedule_service.application.ports.unit_of_work import UnitOfWorkFactory
@@ -6,17 +6,40 @@ from schedule_service.domain.events import LessonSnapshot, ScheduleChanged
 from schedule_service.domain.lesson import Lesson
 
 
-@dataclass(frozen=True, slots=True)
-class CancelLessonCommand:
-    lesson_id: int
-    expected_version: int
+class CancelLessonCommand(BaseModel):
+    """Данные отмены урока с ожидаемой версией."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
+    lesson_id: int = Field(gt=0)
+    expected_version: int = Field(gt=0)
 
 
 class CancelLessonHandler:
+    """Отменяет урок с проверкой версии и записью событий."""
+
     def __init__(self, uow_factory: UnitOfWorkFactory) -> None:
+        """Сохраняет зависимости и настройки компонента.
+
+        Args:
+            uow_factory: Фабрика отдельной транзакции с её репозиториями.
+        """
         self._uow_factory = uow_factory
 
     async def handle(self, command: CancelLessonCommand) -> Lesson:
+        """Отменяет урок и записывает события изменения расписания.
+
+        Args:
+            command: Входные данные выполняемого сценария.
+
+        Returns:
+            Отменённый урок с новой версией.
+
+        Raises:
+            LessonNotFound: Урок не найден.
+            LessonAlreadyCanceled: Урок уже отменён.
+            VersionConflict: Ожидаемая версия уже не актуальна.
+        """
         async with self._uow_factory() as uow:
             lesson = await uow.lessons.get(lesson_id=command.lesson_id)
 

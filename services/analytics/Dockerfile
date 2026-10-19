@@ -13,5 +13,6 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry install --only main --no-root
 
 COPY src ./src
+COPY sql ./sql
 
 RUN poetry install --only main

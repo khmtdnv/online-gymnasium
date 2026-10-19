@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from typing import Self
+from uuid import UUID
 
 import pytest
 
@@ -18,18 +19,23 @@ class FakeIdempotencyRepository:
     def __init__(self) -> None:
         self.records: dict[tuple[str, str], FakeIdempotencyRecord] = {}
 
-    async def claim(
-        self, operation: str, key: str, request_hash: str
-    ) -> FakeIdempotencyRecord | None:
+    async def claim(self, operation: str, key: str, request_hash: str) -> None:
+        from schedule_service.application.errors import IdempotencyKeyAlreadyExists
+
         record = self.records.get((operation, key))
 
         if record is None:
             self.records[(operation, key)] = FakeIdempotencyRecord(
                 request_hash=request_hash
             )
-            return None
+            return
 
-        return record
+        raise IdempotencyKeyAlreadyExists
+
+    async def get_by_key(
+        self, operation: str, key: str
+    ) -> FakeIdempotencyRecord | None:
+        return self.records.get((operation, key))
 
     async def complete(self, operation: str, key: str, lesson: Lesson) -> None:
         record = self.records.get((operation, key))
@@ -91,7 +97,7 @@ async def test_handler_creates_lesson_through_uow() -> None:
 
     command = CreateLessonCommand(
         class_id=1,
-        teacher_id=2,
+        teacher_id=UUID(int=2),
         subject_id=3,
         starts_at=datetime(2026, 9, 10, 11, 30, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 12, 15, tzinfo=UTC),
@@ -104,7 +110,7 @@ async def test_handler_creates_lesson_through_uow() -> None:
 
     saved = fake_uow.lessons.saved
     assert saved.class_id == 1
-    assert saved.teacher_id == 2
+    assert saved.teacher_id == UUID(int=2)
     assert saved.subject_id == 3
     assert saved.starts_at == command.starts_at
     assert saved.ends_at == command.ends_at
@@ -123,7 +129,7 @@ async def test_handler_queues_lesson_snapshot_after_creating_lesson() -> None:
     handler = CreateLessonHandler(uow_factory=lambda: fake_uow)
     command = CreateLessonCommand(
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 13, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 13, 11, tzinfo=UTC),
@@ -141,7 +147,7 @@ async def test_handler_queues_lesson_snapshot_after_creating_lesson() -> None:
     assert lesson_snapshot == LessonSnapshot(
         lesson_id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=command.starts_at,
         ends_at=command.ends_at,
@@ -162,7 +168,7 @@ async def test_same_requests_are_idempotent() -> None:
 
     first_command = CreateLessonCommand(
         class_id=1,
-        teacher_id=2,
+        teacher_id=UUID(int=2),
         subject_id=3,
         starts_at=datetime(2026, 9, 10, 11, 30, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 12, 15, tzinfo=UTC),
@@ -172,7 +178,7 @@ async def test_same_requests_are_idempotent() -> None:
 
     second_command = CreateLessonCommand(
         class_id=1,
-        teacher_id=2,
+        teacher_id=UUID(int=2),
         subject_id=3,
         starts_at=datetime(2026, 9, 10, 11, 30, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 12, 15, tzinfo=UTC),
@@ -202,7 +208,7 @@ async def test_same_requests_with_different_hash_raises_error() -> None:
 
     first_command = CreateLessonCommand(
         class_id=1,
-        teacher_id=2,
+        teacher_id=UUID(int=2),
         subject_id=3,
         starts_at=datetime(2026, 9, 10, 11, 30, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 12, 15, tzinfo=UTC),
@@ -212,7 +218,7 @@ async def test_same_requests_with_different_hash_raises_error() -> None:
 
     second_command = CreateLessonCommand(
         class_id=1,
-        teacher_id=2,
+        teacher_id=UUID(int=2),
         subject_id=3,
         starts_at=datetime(2026, 9, 10, 11, 30, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 12, 15, tzinfo=UTC),

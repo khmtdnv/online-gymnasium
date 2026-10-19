@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from unittest.mock import Mock
+from uuid import UUID
 
 import pytest
 
@@ -18,7 +19,7 @@ async def test_repository_inserts_snapshot_batch_in_schema_order() -> None:
         occurred_at=datetime(2026, 9, 19, 10, tzinfo=UTC),
         lesson_id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 20, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 20, 11, 30, tzinfo=UTC),
@@ -30,7 +31,7 @@ async def test_repository_inserts_snapshot_batch_in_schema_order() -> None:
         occurred_at=datetime(2026, 9, 19, 10, 1, tzinfo=UTC),
         lesson_id=502,
         class_id=11,
-        teacher_id=101,
+        teacher_id=UUID(int=101),
         subject_id=1001,
         starts_at=datetime(2026, 9, 20, 12, tzinfo=UTC),
         ends_at=datetime(2026, 9, 20, 12, 45, tzinfo=UTC),
@@ -41,14 +42,14 @@ async def test_repository_inserts_snapshot_batch_in_schema_order() -> None:
     await repository.add_many([first_snapshot, second_snapshot])
 
     client.insert.assert_called_once_with(
-        "lesson_snapshots",
+        "lesson_snapshots_v2",
         [
             [
                 42,
                 datetime(2026, 9, 19, 10, tzinfo=UTC),
                 501,
                 10,
-                100,
+                UUID(int=100),
                 1000,
                 datetime(2026, 9, 20, 10, tzinfo=UTC),
                 datetime(2026, 9, 20, 11, 30, tzinfo=UTC),
@@ -60,7 +61,7 @@ async def test_repository_inserts_snapshot_batch_in_schema_order() -> None:
                 datetime(2026, 9, 19, 10, 1, tzinfo=UTC),
                 502,
                 11,
-                101,
+                UUID(int=101),
                 1001,
                 datetime(2026, 9, 20, 12, tzinfo=UTC),
                 datetime(2026, 9, 20, 12, 45, tzinfo=UTC),

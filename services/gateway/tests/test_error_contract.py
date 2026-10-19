@@ -24,7 +24,9 @@ def request(app, path: str, *, json: object = None):
             transport=ASGITransport(app=app, raise_app_exceptions=False),
             base_url="http://testserver",
         ) as client:
-            return await client.post(path, json=json)
+            return await client.post(
+                path, json=json, headers={"Origin": "http://localhost:8080"}
+            )
 
     return asyncio.run(send())
 

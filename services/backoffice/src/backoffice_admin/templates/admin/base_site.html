@@ -1,0 +1,28 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} · OG1 Backoffice{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'backoffice_admin/theme.css' %}?v=3">
+{% endblock %}
+
+{% block branding %}
+  <div id="site-name"><a href="{% url 'admin:index' %}" class="og1-brand"><span class="og1-brand-mark">о</span> OG1 <span class="og1-brand-caption">Backoffice</span></a></div>
+  <span class="og1-staff-badge">Staff-сессия · отдельный вход</span>
+{% endblock %}
+
+{% block nav-global %}
+  {% if user.is_active and user.is_staff %}
+    <nav class="og1-admin-nav" aria-label="Действия Backoffice">
+      <a href="/">В учебный портал ↗</a>
+      {% url 'backoffice-list-users' as users_url %}
+      {% if users_url %}<a href="{{ users_url }}">Пользователи</a>{% endif %}
+      <a href="{% url 'backoffice-create-user' %}">Создать пользователя</a>
+      <a href="{% url 'backoffice-link-parent-student' %}">Связать родителя и ученика</a>
+      <a href="{% url 'backoffice-add-student-to-class' %}">Добавить ученика в класс</a>
+      <a href="{% url 'backoffice-teacher-classes' %}">Преподаватели и классы</a>
+    </nav>
+  {% endif %}
+{% endblock %}

@@ -1,109 +1,79 @@
+# Приложения получают готовые контейнерные адреса из .env/.worker.env.
+# command только запускает процесс; настройки инфраструктуры — в отдельных env.
+# Учётные данные DATABASE_URL должны совпадать с соответствующим .postgres.env.
 services:
-  kafka:
+  schedule-kafka:
     image: apache/kafka:4.3.1
-    hostname: kafka
+    hostname: schedule-kafka
     ports:
-      - "9092:9092"
-    environment:
-      KAFKA_NODE_ID: 1
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT_HOST://localhost:9092,PLAINTEXT://kafka:19092"
-      KAFKA_PROCESS_ROLES: "broker,controller"
-      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
-      KAFKA_LISTENERS: "CONTROLLER://:29093,PLAINTEXT_HOST://:9092,PLAINTEXT://:19092"
-      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
-      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      CLUSTER_ID: "4L6g3nShT-eMCtK--X86sw"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
-      KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      - "127.0.0.1:9092:9092"
+    env_file:
+      - ./services/schedule/.kafka.env
     healthcheck:
       test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
       interval: 5s
       timeout: 3s
       retries: 10
       start_period: 10s
-  redis:
+  schedule-redis:
     image: redis:8.10.1-alpine
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10
       start_period: 5s
-  postgres:
+  schedule-postgres:
     image: postgres:18
     env_file:
       - ./services/schedule/.postgres.env
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - schedule_postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
       start_period: 5s
 
-  migrations:
+  schedule-migrations:
     build:
       context: ./services/schedule
     env_file:
       - ./services/schedule/.env
-      - ./services/schedule/.postgres.env
-    command:
-      - /bin/sh
-      - -c
-      - >
-        DATABASE_URL="postgresql+asyncpg://$${POSTGRES_USER}:$${POSTGRES_PASSWORD}@postgres:5432/$${POSTGRES_DB}"
-        poetry run alembic upgrade head
+    command: ["/app/.venv/bin/alembic", "upgrade", "head"]
     depends_on:
-      postgres:
+      schedule-postgres:
         condition: service_healthy
 
-  outbox-relay:
+  schedule-outbox-relay:
     build:
       context: ./services/schedule
     env_file:
       - ./services/schedule/.env
-      - ./services/schedule/.postgres.env
-    command:
-      - /bin/sh
-      - -c
-      - >
-        DATABASE_URL="postgresql+asyncpg://$${POSTGRES_USER}:$${POSTGRES_PASSWORD}@postgres:5432/$${POSTGRES_DB}"
-        KAFKA_BOOTSTRAP_SERVERS="kafka:19092"
-        exec poetry run python -m schedule_service.workers.outbox_relay
+      - ./services/schedule/.worker.env
+    command: ["poetry", "run", "python", "-m", "schedule_service.workers.outbox_relay"]
     depends_on:
-      migrations:
+      schedule-migrations:
         condition: service_completed_successfully
-      kafka:
+      schedule-kafka:
         condition: service_healthy
 
-  cache-invalidator:
+  schedule-cache-invalidator:
     build:
       context: ./services/schedule
     env_file:
       - ./services/schedule/.env
-    command:
-      - /bin/sh
-      - -c
-      - >
-        KAFKA_BOOTSTRAP_SERVERS="kafka:19092"
-        REDIS_URL="redis://redis:6379/0"
-        exec poetry run python -m schedule_service.workers.cache_invalidator
+      - ./services/schedule/.worker.env
+    command: ["poetry", "run", "python", "-m", "schedule_service.workers.cache_invalidator"]
     depends_on:
-      kafka:
+      schedule-kafka:
         condition: service_healthy
-      redis:
+      schedule-redis:
         condition: service_healthy
     restart: unless-stopped
 
@@ -112,20 +82,13 @@ services:
       context: ./services/schedule
     env_file:
       - ./services/schedule/.env
-      - ./services/schedule/.postgres.env
-    command:
-      - /bin/sh
-      - -c
-      - >
-        DATABASE_URL="postgresql+asyncpg://$${POSTGRES_USER}:$${POSTGRES_PASSWORD}@postgres:5432/$${POSTGRES_DB}"
-        REDIS_URL="redis://redis:6379/0"
-        exec poetry run uvicorn schedule_service.main:app --host 0.0.0.0 --port 8000
+    command: ["poetry", "run", "uvicorn", "schedule_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     depends_on:
-      migrations:
+      schedule-migrations:
         condition: service_completed_successfully
-      redis:
+      schedule-redis:
         condition: service_healthy
     healthcheck:
       test:
@@ -140,14 +103,14 @@ services:
       retries: 5
       start_period: 5s
 
-  clickhouse:
+  analytics-clickhouse:
     env_file:
       - ./services/analytics/.clickhouse.env
     image: clickhouse/clickhouse-server:26.8
     ports:
-      - "8123:8123"
+      - "127.0.0.1:8123:8123"
     volumes:
-      - clickhouse_data:/var/lib/clickhouse
+      - analytics_clickhouse_data:/var/lib/clickhouse
     healthcheck:
       test: ["CMD-SHELL", "clickhouse-client --query 'SELECT 1'"]
       interval: 5s
@@ -160,11 +123,8 @@ services:
       context: ./services/analytics
     env_file:
       - ./services/analytics/.clickhouse.env
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:19092
-      CLICKHOUSE_HOST: clickhouse
-      CLICKHOUSE_PORT: 8123
-      ANALYTICS_DLQ_TOPIC: analytics.lesson-snapshots.dlq
+      - ./services/analytics/.env
+      - ./services/analytics/.worker.env
     command:
       - poetry
       - run
@@ -172,9 +132,9 @@ services:
       - -m
       - analytics_service.workers.worker
     depends_on:
-      kafka:
+      schedule-kafka:
         condition: service_healthy
-      clickhouse:
+      analytics-clickhouse:
         condition: service_healthy
     restart: unless-stopped
 
@@ -183,9 +143,7 @@ services:
       context: ./services/analytics
     env_file:
       - ./services/analytics/.clickhouse.env
-    environment:
-      CLICKHOUSE_HOST: clickhouse
-      CLICKHOUSE_PORT: 8123
+      - ./services/analytics/.env
     command:
       - poetry
       - run
@@ -196,9 +154,9 @@ services:
       - --port
       - "8000"
     ports:
-      - "8001:8000"
+      - "127.0.0.1:8001:8000"
     depends_on:
-      clickhouse:
+      analytics-clickhouse:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -214,28 +172,25 @@ services:
       retries: 5
       start_period: 5s
 
-  documents-postgres:
+  document-postgres:
     image: postgres:18
-    environment:
-      POSTGRES_USER: documents
-      POSTGRES_PASSWORD: documents
-      POSTGRES_DB: documents
+    env_file:
+      - ./services/documents/.postgres.env
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
-      - documents_postgres_data:/var/lib/postgresql
+      - document_postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U documents -d documents"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
       start_period: 5s
 
-  rabbitmq:
+  document-rabbitmq:
     image: rabbitmq:4.1.8-management
-    environment:
-      RABBITMQ_DEFAULT_USER: documents
-      RABBITMQ_DEFAULT_PASS: documents
+    env_file:
+      - ./services/documents/.rabbitmq.env
     healthcheck:
       test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
       interval: 5s
@@ -243,14 +198,13 @@ services:
       retries: 10
       start_period: 10s
 
-  minio:
+  document-minio:
     image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: documents
-      MINIO_ROOT_PASSWORD: documents-password
+    env_file:
+      - ./services/documents/.minio.env
     volumes:
-      - minio_data:/data
+      - document_minio_data:/data
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live"]
       interval: 5s
@@ -258,7 +212,7 @@ services:
       retries: 10
       start_period: 10s
 
-  minio-init:
+  document-minio-init:
     image: quay.io/minio/mc:RELEASE.2025-03-12T17-29-24Z
     env_file:
       - ./services/documents/.env
@@ -267,10 +221,10 @@ services:
       - /bin/sh
       - -c
       - >
-        mc alias set documents http://minio:9000 "$${MINIO_ACCESS_KEY}" "$${MINIO_SECRET_KEY}"
+        mc alias set documents http://document-minio:9000 "$${MINIO_ACCESS_KEY}" "$${MINIO_SECRET_KEY}"
         && mc mb --ignore-existing documents/"$${MINIO_BUCKET}"
     depends_on:
-      minio:
+      document-minio:
         condition: service_healthy
 
   document-migrations:
@@ -278,9 +232,9 @@ services:
       context: ./services/documents
     env_file:
       - ./services/documents/.env
-    command: poetry run alembic upgrade head
+    command: ["/app/.venv/bin/alembic", "upgrade", "head"]
     depends_on:
-      documents-postgres:
+      document-postgres:
         condition: service_healthy
 
   document-api:
@@ -298,11 +252,11 @@ services:
       - --port
       - "8000"
     ports:
-      - "8002:8000"
+      - "127.0.0.1:8002:8000"
     depends_on:
       document-migrations:
         condition: service_completed_successfully
-      minio:
+      document-minio:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -327,7 +281,7 @@ services:
     depends_on:
       document-migrations:
         condition: service_completed_successfully
-      rabbitmq:
+      document-rabbitmq:
         condition: service_healthy
     restart: unless-stopped
 
@@ -347,32 +301,212 @@ services:
     depends_on:
       document-migrations:
         condition: service_completed_successfully
-      rabbitmq:
+      document-rabbitmq:
         condition: service_healthy
-      minio-init:
+      document-minio-init:
         condition: service_completed_successfully
     restart: unless-stopped
 
   gateway-postgres:
     image: postgres:18
-    environment:
-      POSTGRES_USER: gateway
-      POSTGRES_PASSWORD: gateway
-      POSTGRES_DB: gateway
+    env_file:
+      - ./services/gateway/.postgres.env
     ports:
-      - "5434:5432"
+      - "127.0.0.1:5434:5432"
     volumes:
       - gateway_postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gateway -d gateway"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 10
       start_period: 5s
 
+  gateway-migrations:
+    build:
+      context: ./services/gateway
+    env_file:
+      - ./services/gateway/.env
+    command: ["/app/.venv/bin/alembic", "upgrade", "head"]
+    depends_on:
+      gateway-postgres:
+        condition: service_healthy
+
+  gateway-api:
+    build:
+      context: ./services/gateway
+    env_file:
+      - ./services/gateway/.env
+    command: ["poetry", "run", "uvicorn", "gateway_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "127.0.0.1:8003:8000"
+    depends_on:
+      gateway-migrations:
+        condition: service_completed_successfully
+
+  backoffice-postgres:
+    image: postgres:18
+    env_file:
+      - ./services/backoffice/.postgres.env
+    ports:
+      - "127.0.0.1:5435:5432"
+    volumes:
+      - backoffice_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  backoffice-migrations:
+    build:
+      context: ./services/backoffice
+    env_file:
+      - ./services/backoffice/.env
+    command: ["/app/.venv/bin/python", "manage.py", "migrate", "--noinput"]
+    depends_on:
+      backoffice-postgres:
+        condition: service_healthy
+
+  backoffice-api:
+    build:
+      context: ./services/backoffice
+    volumes:
+      - ./services/backoffice/src:/app/src:ro
+      - ./services/backoffice/manage.py:/app/manage.py:ro
+    env_file:
+      - ./services/backoffice/.env
+    command: poetry run gunicorn backoffice.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 40 --access-logfile -
+    ports:
+      - "127.0.0.1:8010:8000"
+    depends_on:
+      backoffice-migrations:
+        condition: service_completed_successfully
+
+  backoffice-static:
+    build:
+      context: ./services/backoffice
+    env_file:
+      - ./services/backoffice/.env
+    command: poetry run python manage.py collectstatic --noinput
+    volumes:
+      - backoffice_static:/app/staticfiles
+
+  journal-postgres:
+    image: postgres:18
+    env_file:
+      - ./services/journal/.postgres.env
+    ports:
+      - "127.0.0.1:5436:5432"
+    volumes:
+      - journal_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  journal-migrations:
+    build:
+      context: ./services/journal
+    env_file:
+      - ./services/journal/.env
+    command: ["/app/.venv/bin/alembic", "upgrade", "head"]
+    depends_on:
+      journal-postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./services/frontend
+
+  journal-api:
+    build:
+      context: ./services/journal
+    env_file:
+      - ./services/journal/.env
+    command: ["poetry", "run", "uvicorn", "journal_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "127.0.0.1:8005:8000"
+    depends_on:
+      journal-migrations:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "/app/.venv/bin/python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/health/ready', timeout=4).close()"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  homework-postgres:
+    image: postgres:18
+    env_file:
+      - ./services/homework/.postgres.env
+    ports:
+      - "127.0.0.1:5437:5432"
+    volumes:
+      - homework_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  homework-migrations:
+    build:
+      context: ./services/homework
+    env_file:
+      - ./services/homework/.env
+    command: ["/app/.venv/bin/alembic", "upgrade", "head"]
+    depends_on:
+      homework-postgres:
+        condition: service_healthy
+
+  homework-api:
+    build:
+      context: ./services/homework
+    env_file:
+      - ./services/homework/.env
+    command: ["poetry", "run", "uvicorn", "homework_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "127.0.0.1:8006:8000"
+    depends_on:
+      homework-migrations:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "/app/.venv/bin/python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/health/ready', timeout=4).close()"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  web:
+    build:
+      context: ./deploy/web
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - backoffice_static:/srv/backoffice-static:ro
+    depends_on:
+      frontend:
+        condition: service_started
+      gateway-api:
+        condition: service_started
+      backoffice-api:
+        condition: service_started
+      backoffice-static:
+        condition: service_completed_successfully
+
 volumes:
-  postgres_data:
-  clickhouse_data:
-  documents_postgres_data:
-  minio_data:
+  schedule_postgres_data:
+  analytics_clickhouse_data:
+  document_postgres_data:
+  document_minio_data:
   gateway_postgres_data:
+  backoffice_postgres_data:
+  backoffice_static:
+  journal_postgres_data:
+  homework_postgres_data:

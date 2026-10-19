@@ -9,6 +9,8 @@ from document_service.infrastructure.models.base import Base
 
 
 class DocumentTaskOutboxRow(Base):
+    """Намерение отправить задачу Celery, записанное вместе с заданием."""
+
     __tablename__ = "document_task_outbox"
 
     id: Mapped[UUID] = mapped_column(

@@ -1,6 +1,7 @@
 from collections.abc import Callable
-from dataclasses import dataclass
 from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict
 
 from gateway_service.application.errors import AuthenticationError
 from gateway_service.application.ports.password_service import PasswordService
@@ -9,27 +10,53 @@ from gateway_service.application.ports.unit_of_work import UnitOfWork
 from gateway_service.domain.user import Role
 
 
-@dataclass(frozen=True, slots=True)
-class RefreshCommand:
+class RefreshCommand(BaseModel):
+    """Refresh-токен, который нужно заменить новой парой токенов."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
     refresh_token: str
 
 
-@dataclass(frozen=True, slots=True)
-class RefreshResult:
+class RefreshResult(BaseModel):
+    """Пара access- и refresh-токенов для текущего пользователя."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
     access_token: str
     refresh_token: str
 
 
 class RefreshHandler:
+    """Заменяет одноразовый refresh-токен и выдаёт новую пару токенов."""
+
     def __init__(
         self,
         uow_factory: Callable[[], UnitOfWork],
         token_service: TokenService,
     ) -> None:
+        """Сохраняет зависимости и настройки компонента.
+
+        Args:
+            uow_factory: Фабрика отдельной транзакции с её репозиториями.
+            token_service: Сервис проверки и выпуска JWT.
+        """
         self._uow_factory = uow_factory
         self._token_service = token_service
 
     async def handle(self, command: RefreshCommand) -> RefreshResult:
+        """Заменяет refresh-токен новой парой в одной транзакции.
+
+        Args:
+            command: Входные данные выполняемого сценария.
+
+        Returns:
+            Новые access- и refresh-токены.
+
+        Raises:
+            AuthenticationError: Токен непригоден либо пользователь отсутствует или
+                неактивен.
+        """
         decoded_refresh = self._token_service.decode_refresh(command.refresh_token)
 
         async with self._uow_factory() as uow:
@@ -57,30 +84,56 @@ class RefreshHandler:
             )
 
 
-@dataclass(frozen=True, slots=True)
-class LoginCommand:
+class LoginCommand(BaseModel):
+    """Email и открытый пароль для проверки входа."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
     email: str
     password: str
 
 
-@dataclass(frozen=True, slots=True)
-class LoginResult:
+class LoginResult(BaseModel):
+    """Пара access- и refresh-токенов для текущего пользователя."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
     access_token: str
     refresh_token: str
 
 
 class LoginHandler:
+    """Проверяет вход и сохраняет новый refresh-токен в базе Gateway."""
+
     def __init__(
         self,
         uow_factory: Callable[[], UnitOfWork],
         password_service: PasswordService,
         token_service: TokenService,
     ) -> None:
+        """Сохраняет зависимости и настройки компонента.
+
+        Args:
+            uow_factory: Фабрика отдельной транзакции с её репозиториями.
+            password_service: Сервис создания и проверки хешей паролей.
+            token_service: Сервис проверки и выпуска JWT.
+        """
         self._uow_factory = uow_factory
         self._password_service = password_service
         self._token_service = token_service
 
     async def handle(self, command: LoginCommand) -> LoginResult:
+        """Проверяет пароль и записывает новый refresh-токен.
+
+        Args:
+            command: Входные данные выполняемого сценария.
+
+        Returns:
+            Access- и refresh-токены пользователя.
+
+        Raises:
+            AuthenticationError: Неверные учётные данные или неактивный пользователь.
+        """
         async with self._uow_factory() as uow:
             user = await uow.users.get_by_email(command.email)
 
@@ -105,28 +158,53 @@ class LoginHandler:
             )
 
 
-@dataclass(frozen=True, slots=True)
-class GetCurrentUserCommand:
+class GetCurrentUserCommand(BaseModel):
+    """Access-токен для получения текущего пользователя."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
     access_token: str
 
 
-@dataclass(frozen=True, slots=True)
-class GetCurrentUserResult:
+class GetCurrentUserResult(BaseModel):
+    """Текущие ID, email и роль активного пользователя."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
     id: UUID
     email: str
     role: Role
 
 
 class GetCurrentUserHandler:
+    """Проверяет access-токен и читает актуальные данные активного пользователя."""
+
     def __init__(
         self,
         uow_factory: Callable[[], UnitOfWork],
         token_service: TokenService,
     ) -> None:
+        """Сохраняет зависимости и настройки компонента.
+
+        Args:
+            uow_factory: Фабрика отдельной транзакции с её репозиториями.
+            token_service: Сервис проверки и выпуска JWT.
+        """
         self._uow_factory = uow_factory
         self._token_service = token_service
 
     async def handle(self, command: GetCurrentUserCommand) -> GetCurrentUserResult:
+        """Проверяет токен и читает текущие данные пользователя из базы.
+
+        Args:
+            command: Входные данные выполняемого сценария.
+
+        Returns:
+            ID, email и актуальная роль пользователя.
+
+        Raises:
+            AuthenticationError: Недействительный токен или недоступный пользователь.
+        """
         decoded_access = self._token_service.decode_access(command.access_token)
         async with self._uow_factory() as uow:
             user = await uow.users.get_by_id(decoded_access.user_id)
@@ -138,4 +216,48 @@ class GetCurrentUserHandler:
                 id=user.id,
                 email=user.email,
                 role=user.role,
+            )
+
+
+class LogoutCommand(BaseModel):
+    """Refresh-токен текущего браузера для отзыва при выходе."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+
+    refresh_token: str
+
+
+class LogoutHandler:
+    """Отзывает текущий refresh-токен, не выпуская новых токенов."""
+
+    def __init__(
+        self, uow_factory: Callable[[], UnitOfWork], token_service: TokenService
+    ) -> None:
+        """Сохраняет зависимости сценария выхода.
+
+        Args:
+            uow_factory: Фабрика UoW для транзакции отзыва токена.
+            token_service: Сервис проверки refresh JWT.
+        """
+        self._uow_factory = uow_factory
+        self._token_service = token_service
+
+    async def handle(self, command: LogoutCommand) -> None:
+        """Проверяет refresh-токен и помечает его запись использованной.
+
+        Непригодный JWT завершает сценарий без обращения к БД. Отсутствующая
+        или уже использованная запись не мешает повторному выходу. Ошибки
+        обращения к БД передаются вызывающему коду. Cookie удаляет HTTP-ручка.
+
+        Args:
+            command: Команда с refresh-токеном текущего браузера.
+        """
+        try:
+            decoded_refresh = self._token_service.decode_refresh(command.refresh_token)
+        except AuthenticationError:
+            return
+
+        async with self._uow_factory() as uow:
+            await uow.users.consume_refresh_token(
+                decoded_refresh.jti, decoded_refresh.user_id
             )

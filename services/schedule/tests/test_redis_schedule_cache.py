@@ -1,6 +1,7 @@
 import json
 from datetime import UTC, date, datetime
 from unittest.mock import AsyncMock
+from uuid import UUID
 
 import pytest
 
@@ -20,7 +21,7 @@ async def test_cache_restores_lessons_from_json_for_class_and_day() -> None:
             {
                 "id": 501,
                 "class_id": 10,
-                "teacher_id": 100,
+                "teacher_id": str(UUID(int=100)),
                 "subject_id": 1000,
                 "starts_at": "2026-09-10T10:00:00+00:00",
                 "ends_at": "2026-09-10T11:00:00+00:00",
@@ -37,7 +38,7 @@ async def test_cache_restores_lessons_from_json_for_class_and_day() -> None:
         Lesson(
             id=501,
             class_id=10,
-            teacher_id=100,
+            teacher_id=UUID(int=100),
             subject_id=1000,
             starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
             ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -45,7 +46,7 @@ async def test_cache_restores_lessons_from_json_for_class_and_day() -> None:
             version=1,
         )
     ]
-    client.get.assert_awaited_once_with("schedule:class:10:date:2026-09-10")
+    client.get.assert_awaited_once_with("schedule:v2:class:10:date:2026-09-10")
 
 
 @pytest.mark.anyio
@@ -56,7 +57,7 @@ async def test_cache_stores_lessons_only_when_generation_matches() -> None:
         Lesson(
             id=501,
             class_id=10,
-            teacher_id=100,
+            teacher_id=UUID(int=100),
             subject_id=1000,
             starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
             ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -81,15 +82,15 @@ async def test_cache_stores_lessons_only_when_generation_matches() -> None:
     )
     assert script == _SET_IF_GENERATION_SCRIPT
     assert key_count == 2
-    assert key == "schedule:class:10:date:2026-09-10"
-    assert generation_key == "schedule:class:10:date:2026-09-10:gen"
+    assert key == "schedule:v2:class:10:date:2026-09-10"
+    assert generation_key == "schedule:v2:class:10:date:2026-09-10:gen"
     assert generation == "4"
     assert ttl == "60"
     assert json.loads(serialized) == [
         {
             "id": 501,
             "class_id": 10,
-            "teacher_id": 100,
+            "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
             "starts_at": "2026-09-10T10:00:00+00:00",
             "ends_at": "2026-09-10T11:00:00+00:00",
@@ -127,7 +128,7 @@ async def test_cache_reads_zero_for_missing_generation() -> None:
     generation = await cache.get_generation(class_id=10, day=date(2026, 9, 10))
 
     assert generation == 0
-    client.get.assert_awaited_once_with("schedule:class:10:date:2026-09-10:gen")
+    client.get.assert_awaited_once_with("schedule:v2:class:10:date:2026-09-10:gen")
 
 
 @pytest.mark.anyio
@@ -145,7 +146,7 @@ async def test_cache_acquires_fill_lock_with_token_and_ttl() -> None:
 
     assert acquired is True
     client.set.assert_awaited_once_with(
-        "schedule:class:10:date:2026-09-10:lock",
+        "schedule:v2:class:10:date:2026-09-10:lock",
         "owner-token",
         nx=True,
         px=5000,
@@ -166,7 +167,7 @@ async def test_cache_releases_fill_lock_only_for_owner_token() -> None:
     client.eval.assert_awaited_once_with(
         _RELEASE_LOCK_SCRIPT,
         1,
-        "schedule:class:10:date:2026-09-10:lock",
+        "schedule:v2:class:10:date:2026-09-10:lock",
         "owner-token",
     )
 

@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+  <section class="og1-form-card">
+    <h1>{{ title }}</h1>
+    <p class="og1-intro">Укажите ID двух пользователей. Их роли и возможность создать связь проверит Gateway.</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Связать родителя и ученика</button>
+    </form>
+  </section>
+{% endblock %}
