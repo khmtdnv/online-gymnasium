@@ -64,7 +64,7 @@ class ListStudentHomeworkHandler:
             query: Доверенный ученик и пагинация.
 
         Returns:
-            Страница заданий либо пустой список при отсутствии класса/заданий.
+            Страница заданий с ожидаемыми и готовыми вложениями либо пустой список.
 
         Raises:
             OwnerLookupUnavailableError: Не удалось подтвердить класс или сроки.
@@ -76,7 +76,12 @@ class ListStudentHomeworkHandler:
             homeworks = await uow.homeworks.list_for_class(
                 class_id, query.limit, query.offset
             )
-        return await _resolve_deadlines(homeworks, self._schedule_reader)
+            files = {}
+            if homeworks:
+                files = await uow.files.list_for_homeworks(
+                    [homework.id for homework in homeworks]
+                )
+        return await _resolve_deadlines(homeworks, self._schedule_reader, files)
 
 
 class GetStudentHomeworkHandler:
@@ -106,7 +111,7 @@ class GetStudentHomeworkHandler:
             query: Доверенный ученик и ID задания.
 
         Returns:
-            Доступное задание с актуальным сроком.
+            Доступное задание с актуальным сроком и публичными метаданными файлов.
 
         Raises:
             HomeworkNotFoundError: Задание отсутствует или вне текущего класса.
@@ -117,6 +122,7 @@ class GetStudentHomeworkHandler:
             raise HomeworkNotFoundError
         async with self._uow_factory() as uow:
             homework = await uow.homeworks.get_by_id(query.homework_id)
-        if homework is None or homework.class_id != class_id:
-            raise HomeworkNotFoundError
-        return (await _resolve_deadlines([homework], self._schedule_reader))[0]
+            if homework is None or homework.class_id != class_id:
+                raise HomeworkNotFoundError
+            files = await uow.files.list_for_homeworks([homework.id])
+        return (await _resolve_deadlines([homework], self._schedule_reader, files))[0]

@@ -13,6 +13,7 @@ class DecodedRefresh(BaseModel):
 
     user_id: UUID
     jti: UUID
+    session_id: UUID | None = None
 
 
 class DecodedAccess(BaseModel):
@@ -22,6 +23,7 @@ class DecodedAccess(BaseModel):
 
     user_id: UUID
     role: Role
+    session_id: UUID | None = None
 
 
 class IssuedRefresh(BaseModel):
@@ -65,7 +67,9 @@ class TokenService(Protocol):
         """
         ...
 
-    def issue_refresh(self, user: User) -> IssuedRefresh:
+    def issue_refresh(
+        self, user: User, *, session_id: UUID | None = None
+    ) -> IssuedRefresh:
         """Выпускает подписанный refresh-токен с новым jti.
 
         Не записывает токен в базу; сохранение выполняет вызывающий обработчик.
@@ -78,7 +82,7 @@ class TokenService(Protocol):
         """
         ...
 
-    def issue_access(self, user: User) -> str:
+    def issue_access(self, user: User, *, session_id: UUID | None = None) -> str:
         """Выпускает access-токен с ID пользователя и его ролью.
 
         Args:

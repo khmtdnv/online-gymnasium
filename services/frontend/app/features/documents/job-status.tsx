@@ -44,11 +44,11 @@ export function JobStatus({
       {job.status === 'failed' ? (
         <>
           <Alert tone="error">
-            Справку не удалось подготовить. Можно создать новое задание; это не повтор текущей
+            Документ не удалось подготовить. Можно создать новое задание; это не повтор текущей
             задачи.
           </Alert>
           <Link to="/documents" className="button button-secondary">
-            К новой справке
+            К новому документу
           </Link>
         </>
       ) : (

@@ -44,6 +44,23 @@ class SqlAlchemyClassRepository:
             created_at=row.created_at,
         )
 
+    async def get_classes_by_ids(self, class_ids: list[int]) -> list[Class]:
+        """Читает существующие классы одним пакетом без запроса на каждый ID."""
+        if not class_ids:
+            return []
+        rows = await self._session.scalars(
+            select(ClassRow).where(ClassRow.id.in_(class_ids)).order_by(ClassRow.id)
+        )
+        return [
+            Class(
+                id=row.id,
+                name=row.name,
+                study_year=row.study_year,
+                created_at=row.created_at,
+            )
+            for row in rows
+        ]
+
     async def create_class(self, school_class: Class) -> Class:
         """Записывает класс и возвращает серверные поля без commit.
 

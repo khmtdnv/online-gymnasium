@@ -59,6 +59,9 @@ services:
       - ./services/homework/alembic.ini:/app/alembic.ini:ro
       - ./services/homework/migrations:/app/migrations
     user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  homework-cleanup:
+    volumes:
+      - ./services/homework/src:/app/src:ro
   homework-api:
     command: ["poetry", "run", "uvicorn", "homework_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     volumes:
@@ -69,6 +72,36 @@ services:
       - ./services/backoffice/manage.py:/app/manage.py:ro
       - ./services/backoffice/src/backoffice_admin/migrations:/app/src/backoffice_admin/migrations
     user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  pen-migrations:
+    volumes:
+      - ./services/pen/src:/app/src:ro
+      - ./services/pen/alembic.ini:/app/alembic.ini:ro
+      - ./services/pen/migrations:/app/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  pen-api:
+    command: ["poetry", "run", "uvicorn", "pen_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./services/pen/src:/app/src:ro
+  notifications-migrations:
+    volumes:
+      - ./services/notifications/src:/app/src:ro
+      - ./services/notifications/alembic.ini:/app/alembic.ini:ro
+      - ./services/notifications/migrations:/app/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  notifications-api:
+    command: ["poetry", "run", "uvicorn", "notifications_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./services/notifications/src:/app/src:ro
+  billing-migrations:
+    volumes:
+      - ./services/billing/src:/app/src:ro
+      - ./services/billing/alembic.ini:/app/alembic.ini:ro
+      - ./services/billing/migrations:/app/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  billing-api:
+    command: ["poetry", "run", "uvicorn", "billing_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./services/billing/src:/app/src:ro
   journal-api:
     command: ["poetry", "run", "uvicorn", "journal_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     volumes:

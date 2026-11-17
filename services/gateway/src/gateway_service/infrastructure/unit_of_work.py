@@ -4,6 +4,8 @@ from typing import Self
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from gateway_service.infrastructure.auth_session_repository import AuthSessionRepository
+from gateway_service.infrastructure.outbox_repository import SqlAlchemyOutboxRepository
 from gateway_service.infrastructure.user_repository import SqlAlchemyUserRepository
 
 
@@ -26,6 +28,8 @@ class SqlAlchemyUnitOfWork:
         """
         self._session = self._session_factory()
         self.users = SqlAlchemyUserRepository(self._session)
+        self.auth_sessions = AuthSessionRepository(self._session)
+        self.outbox = SqlAlchemyOutboxRepository(self._session)
         return self
 
     async def __aexit__(

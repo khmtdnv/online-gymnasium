@@ -1,7 +1,7 @@
 from collections.abc import Callable
-from uuid import UUID
+from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from gateway_service.application.errors import AuthenticationError
 from gateway_service.application.ports.password_service import PasswordService
@@ -64,6 +64,14 @@ class RefreshHandler:
             if user is None or not user.is_active:
                 raise AuthenticationError
 
+            if (
+                decoded_refresh.session_id is not None
+                and not await uow.auth_sessions.is_active(
+                    decoded_refresh.session_id, decoded_refresh.user_id
+                )
+            ):
+                raise AuthenticationError
+
             consumed = await uow.users.consume_refresh_token(
                 token_id=decoded_refresh.jti,
                 user_id=decoded_refresh.user_id,
@@ -71,7 +79,15 @@ class RefreshHandler:
             if not consumed:
                 raise AuthenticationError
 
-            issued_refresh = self._token_service.issue_refresh(user)
+            session_id = decoded_refresh.session_id or uuid4()
+            issued_refresh = self._token_service.issue_refresh(
+                user, session_id=session_id
+            )
+            access_token = self._token_service.issue_access(user, session_id=session_id)
+            if decoded_refresh.session_id is None:
+                await uow.auth_sessions.create(
+                    session_id, user.id, issued_refresh.expires_at
+                )
             await uow.users.create_refresh_token(
                 token_id=issued_refresh.jti,
                 user_id=decoded_refresh.user_id,
@@ -79,7 +95,7 @@ class RefreshHandler:
             )
 
             return RefreshResult(
-                access_token=self._token_service.issue_access(user),
+                access_token=access_token,
                 refresh_token=issued_refresh.token,
             )
 
@@ -91,6 +107,7 @@ class LoginCommand(BaseModel):
 
     email: str
     password: str
+    previous_refresh_token: str | None = Field(default=None, repr=False)
 
 
 class LoginResult(BaseModel):
@@ -103,7 +120,7 @@ class LoginResult(BaseModel):
 
 
 class LoginHandler:
-    """Проверяет вход и сохраняет новый refresh-токен в базе Gateway."""
+    """Проверяет вход и создаёт серверную сессию и refresh-токен."""
 
     def __init__(
         self,
@@ -143,14 +160,38 @@ class LoginHandler:
             if not self._password_service.verify(command.password, user.password_hash):
                 raise AuthenticationError
 
-            access_token = self._token_service.issue_access(user)
-            issued_refresh = self._token_service.issue_refresh(user)
+            if command.previous_refresh_token:
+                try:
+                    previous = self._token_service.decode_refresh(
+                        command.previous_refresh_token
+                    )
+                except AuthenticationError:
+                    previous = None
+                if previous is not None:
+                    await uow.users.consume_refresh_token(
+                        previous.jti, previous.user_id
+                    )
+                    if previous.session_id is not None:
+                        await uow.auth_sessions.revoke(
+                            previous.session_id, previous.user_id
+                        )
+
+            session_id = uuid4()
+            access_token = self._token_service.issue_access(user, session_id=session_id)
+            issued_refresh = self._token_service.issue_refresh(
+                user, session_id=session_id
+            )
+
+            await uow.auth_sessions.create(
+                session_id, user.id, issued_refresh.expires_at
+            )
 
             await uow.users.create_refresh_token(
                 token_id=issued_refresh.jti,
                 user_id=user.id,
                 expires_at=issued_refresh.expires_at,
             )
+            await uow.outbox.add_user_event("gateway.user.logged_in", user)
 
             return LoginResult(
                 access_token=access_token,
@@ -174,6 +215,7 @@ class GetCurrentUserResult(BaseModel):
     id: UUID
     email: str
     role: Role
+    session_id: UUID | None = Field(default=None, exclude=True)
 
 
 class GetCurrentUserHandler:
@@ -212,10 +254,19 @@ class GetCurrentUserHandler:
             if user is None or not user.is_active:
                 raise AuthenticationError
 
+            if (
+                decoded_access.session_id is not None
+                and not await uow.auth_sessions.is_active(
+                    decoded_access.session_id, decoded_access.user_id
+                )
+            ):
+                raise AuthenticationError
+
             return GetCurrentUserResult(
                 id=user.id,
                 email=user.email,
                 role=user.role,
+                session_id=decoded_access.session_id,
             )
 
 
@@ -228,7 +279,7 @@ class LogoutCommand(BaseModel):
 
 
 class LogoutHandler:
-    """Отзывает текущий refresh-токен, не выпуская новых токенов."""
+    """Отзывает refresh-токен и связанную серверную сессию."""
 
     def __init__(
         self, uow_factory: Callable[[], UnitOfWork], token_service: TokenService
@@ -243,11 +294,12 @@ class LogoutHandler:
         self._token_service = token_service
 
     async def handle(self, command: LogoutCommand) -> None:
-        """Проверяет refresh-токен и помечает его запись использованной.
+        """Проверяет refresh-токен и отзывает связанную сессию.
 
         Непригодный JWT завершает сценарий без обращения к БД. Отсутствующая
         или уже использованная запись не мешает повторному выходу. Ошибки
-        обращения к БД передаются вызывающему коду. Cookie удаляет HTTP-ручка.
+        обращения к БД передаются вызывающему коду. Сессия отзывается даже при
+        повторном предъявлении старого токена после ротации. Cookie удаляет ручка.
 
         Args:
             command: Команда с refresh-токеном текущего браузера.
@@ -261,3 +313,7 @@ class LogoutHandler:
             await uow.users.consume_refresh_token(
                 decoded_refresh.jti, decoded_refresh.user_id
             )
+            if decoded_refresh.session_id is not None:
+                await uow.auth_sessions.revoke(
+                    decoded_refresh.session_id, decoded_refresh.user_id
+                )

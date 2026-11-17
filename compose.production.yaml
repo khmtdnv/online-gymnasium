@@ -19,7 +19,7 @@ services:
   backoffice-api:
     ports: !reset []
     volumes: !reset []
-    command: poetry run gunicorn backoffice.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 40 --access-logfile -
+    command: poetry run gunicorn backoffice.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120 --access-logfile -
     environment:
       BACKOFFICE_DEBUG: "False"
   schedule-postgres:

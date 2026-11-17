@@ -23,6 +23,7 @@ if not settings.configured:
             "django.contrib.sessions.middleware.SessionMiddleware",
             "django.middleware.csrf.CsrfViewMiddleware",
             "django.contrib.auth.middleware.AuthenticationMiddleware",
+            "backoffice_admin.sso_middleware.GatewaySessionMiddleware",
             "django.contrib.messages.middleware.MessageMiddleware",
         ],
         TEMPLATES=[

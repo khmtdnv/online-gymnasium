@@ -91,7 +91,7 @@ def teacher_uuid_legacy_database_url():
                 async with engine.begin() as connection:
                     await connection.execute(
                         text(
-                            "DROP TABLE IF EXISTS idempotency_requests, outbox_events, scheduled_lessons, alembic_version"
+                            "DROP TABLE IF EXISTS subjects, idempotency_requests, outbox_events, scheduled_lessons, alembic_version"
                         )
                     )
             finally:

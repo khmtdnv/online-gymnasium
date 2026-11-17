@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import CheckConstraint, DateTime, String, func
+from sqlalchemy import CheckConstraint, DateTime, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PSQLUUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -21,6 +21,8 @@ class DocumentJobRow(Base):
     )
 
     document_type: Mapped[str] = mapped_column(String, nullable=False)
+    creator_id: Mapped[UUID | None] = mapped_column(PSQLUUID(as_uuid=True))
+    request_key: Mapped[UUID | None] = mapped_column(PSQLUUID(as_uuid=True))
     status: Mapped[str] = mapped_column(
         String,
         nullable=False,
@@ -43,6 +45,9 @@ class DocumentJobRow(Base):
     )
 
     __table_args__ = (
+        UniqueConstraint(
+            "creator_id", "request_key", name="document_jobs_creator_request_unique"
+        ),
         CheckConstraint(
             "status IN ('pending', 'processing', 'completed', 'failed')",
             name="document_jobs_valid_status",

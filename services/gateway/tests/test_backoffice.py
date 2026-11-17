@@ -1,4 +1,5 @@
 import asyncio
+from types import SimpleNamespace
 from typing import Self
 from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
@@ -22,6 +23,7 @@ class FakeUserRepository:
 class FakeUnitOfWork:
     def __init__(self) -> None:
         self.users = FakeUserRepository()
+        self.outbox = SimpleNamespace(add_user_event=AsyncMock())
         self.exited = False
 
     async def __aenter__(self) -> Self:

@@ -11,6 +11,11 @@ import {
 export interface ApiClient {
   json<T>(path: string, options: RequestInit, schema: z.ZodType<T>): Promise<T>;
   pdf(path: string, signal?: AbortSignal): Promise<Blob>;
+  downloadHomeworkFile(
+    path: string,
+    expected: { size_bytes: number; content_type: string },
+    signal?: AbortSignal,
+  ): Promise<Blob>;
 }
 
 /** Единственная точка авторизованных запросов; запись повторяется только после auth-401. */
@@ -22,11 +27,11 @@ export function createApiClient({
   session: Pick<SessionManager, 'getAccessToken' | 'getEpoch' | 'refresh' | 'invalidate'>;
 }): ApiClient {
   function checkPath(path: string) {
-    const url = new URL(path, 'https://og1.invalid');
+    const url = new URL(path, 'https://og.invalid');
     if (
       !path.startsWith('/api/v1/') ||
       path.includes('\\') ||
-      url.origin !== 'https://og1.invalid' ||
+      url.origin !== 'https://og.invalid' ||
       !url.pathname.startsWith('/api/v1/')
     )
       throw new ApiProtocolError();
@@ -46,7 +51,11 @@ export function createApiClient({
       assertEpoch(epoch);
       const headers = new Headers(options.headers);
       headers.set('Authorization', `Bearer ${usedToken}`);
-      if (options.body !== undefined && !headers.has('Content-Type'))
+      if (
+        options.body !== undefined &&
+        !(options.body instanceof FormData) &&
+        !headers.has('Content-Type')
+      )
         headers.set('Content-Type', 'application/json');
       let response: Response;
       try {
@@ -121,6 +130,40 @@ export function createApiClient({
       if ((await blob.slice(0, 5).text()) !== '%PDF-') throw new ApiProtocolError(requestId);
       assertEpoch(epoch);
       return blob;
+    },
+    async downloadHomeworkFile(path, expected, signal) {
+      const { response, epoch } = await request(path, { signal });
+      const requestId = response.headers.get('X-Request-ID') ?? undefined;
+      if (
+        response.headers.get('Content-Type')?.split(';')[0].trim() !== expected.content_type ||
+        Number(response.headers.get('Content-Length')) !== expected.size_bytes ||
+        expected.size_bytes < 1 ||
+        expected.size_bytes > 10485760
+      )
+        throw new ApiProtocolError(requestId);
+      const reader = response.body?.getReader();
+      if (!reader) throw new ApiProtocolError(requestId);
+      const chunks: BlobPart[] = [];
+      let size = 0;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          assertEpoch(epoch);
+          signal?.throwIfAborted();
+          if (done) break;
+          size += value.byteLength;
+          if (size > expected.size_bytes) throw new ApiProtocolError(requestId);
+          chunks.push(value);
+        }
+        if (size !== expected.size_bytes) throw new ApiProtocolError(requestId);
+        return new Blob(chunks, { type: expected.content_type });
+      } finally {
+        try {
+          await reader.cancel();
+        } finally {
+          reader.releaseLock();
+        }
+      }
     },
   };
 }

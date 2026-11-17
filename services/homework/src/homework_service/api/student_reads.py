@@ -45,7 +45,7 @@ def get_list_handler(request: Request) -> ListStudentHomeworkHandler:
 
 
 def get_one_handler(request: Request) -> GetStudentHomeworkHandler:
-    """Возвращает чтение задания либо503 при неполной настройке."""
+    """Возвращает чтение задания либо 503 при неполной настройке."""
     handler = request.app.state.get_student_homework_handler
     if handler is None:
         raise unavailable()

@@ -7,7 +7,7 @@ import { AsyncState } from './components/async-state';
 
 export function meta() {
   return [
-    { title: 'OG1 · Онлайн-гимназия' },
+    { title: 'OG · Онлайн-гимназия' },
     { name: 'description', content: 'Расписание, нагрузка и справки об обучении.' },
   ];
 }

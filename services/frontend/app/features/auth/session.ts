@@ -75,7 +75,7 @@ export function createSessionManager({
           'Обновите браузер: для безопасной работы нескольких вкладок требуется Web Locks.',
         ),
       );
-    return locks.request('og1-auth-cookie', operation);
+    return locks.request('og-auth-cookie', operation);
   }
   async function authenticate(accessToken: string, expected: number) {
     assertEpoch(expected);

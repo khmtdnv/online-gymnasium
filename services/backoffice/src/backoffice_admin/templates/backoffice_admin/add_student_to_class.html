@@ -3,20 +3,20 @@
 {% block content_title %}{% endblock %}
 
 {% block content %}
-  <section class="og1-form-card">
+  <section class="og-form-card">
     <h1>{{ title }}</h1>
-    <p class="og1-intro">Найдите ученика по ФИО или email и выберите класс. Роль и возможность добавления проверит Journal через Gateway. Автоматического перевода из другого класса нет.</p>
+    <p class="og-intro">Найдите ученика по ФИО или email и выберите класс. Роль и возможность добавления проверит Journal через Gateway. Автоматического перевода из другого класса нет.</p>
     {% if service_error %}<p role="alert">{{ service_error }}</p>{% endif %}
     <form method="post" id="student-class-form" data-search-url="{% url 'backoffice-search-students' %}">
       {% csrf_token %}
       {{ form.non_field_errors }}
       {{ form.student_id }}{{ form.student_id.errors }}
-      <div class="og1-student-field">
+      <div class="og-student-field">
         <label for="student-search">Ученик</label>
-        <div id="student-picker" class="og1-student-picker">
+        <div id="student-picker" class="og-student-picker">
           <input type="text" id="student-search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="student-results" aria-required="true" maxlength="200" autocomplete="off" spellcheck="false" required aria-describedby="student-search-status" placeholder="Начните вводить ФИО или email" value="{% if form.student_id.value %}{{ request.POST.student_label|default:'Ранее выбранный ученик' }}{% endif %}">
-          <button type="button" id="clear-student" class="og1-clear-student" aria-label="Очистить выбранного ученика" hidden>×</button>
-          <ul id="student-results" class="og1-student-results" role="listbox" aria-label="Найденные ученики" hidden></ul>
+          <button type="button" id="clear-student" class="og-clear-student" aria-label="Очистить выбранного ученика" hidden>×</button>
+          <ul id="student-results" class="og-student-results" role="listbox" aria-label="Найденные ученики" hidden></ul>
         </div>
       </div>
       <p id="student-search-status" role="status" aria-live="polite">Введите минимум 2 символа.</p>

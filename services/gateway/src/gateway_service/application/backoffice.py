@@ -94,6 +94,7 @@ class CreateUserHandler:
         )
         async with self._uow_factory() as uow:
             await uow.users.create_user(user)
+            await uow.outbox.add_user_event("gateway.user.created", user)
 
         return UserSummary(
             id=user.id,

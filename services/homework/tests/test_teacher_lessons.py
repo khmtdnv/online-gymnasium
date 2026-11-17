@@ -36,7 +36,8 @@ def handler(
         yield SimpleNamespace(
             homeworks=SimpleNamespace(
                 list_for_lesson=AsyncMock(return_value=list(rows))
-            )
+            ),
+            files=SimpleNamespace(list_for_homeworks=AsyncMock(return_value={})),
         )
         events.append("closed")
 

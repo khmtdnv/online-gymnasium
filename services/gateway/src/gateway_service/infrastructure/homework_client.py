@@ -12,7 +12,13 @@ from gateway_service.application.homework import (
     HomeworkUnavailableError,
     StudentHomeworkResult,
 )
+from gateway_service.application.homework_files import HomeworkFileInput
+from gateway_service.application.homework_list import (
+    HomeworkPageResult,
+    ListMyHomeworkQuery,
+)
 from gateway_service.application.teacher_lessons import TeacherLessonResult
+from gateway_service.infrastructure.homework_answers_client import HomeworkAnswersClient
 
 BUSINESS_ERRORS = {
     "access_denied": 403,
@@ -35,6 +41,86 @@ class HomeworkClient:
         """
         self._http_client = http_client
         self._service_token = service_token
+        self.answers = HomeworkAnswersClient(http_client, service_token)
+
+    async def _personal_read(
+        self, path: str, student_id: UUID, params: dict | None = None
+    ) -> httpx.Response:
+        """Отправляет только доверенную личность, без автоматических повторов/redirect."""
+        try:
+            response = await self._http_client.get(
+                path,
+                params=params,
+                headers={
+                    "Authorization": f"Bearer {self._service_token}",
+                    "X-Student-ID": str(student_id),
+                },
+                timeout=5.0,
+                follow_redirects=False,
+            )
+        except httpx.HTTPError as exc:
+            raise HomeworkUnavailableError from exc
+        if response.status_code != 200:
+            try:
+                error = response.json().get("error", {})
+                code = error.get("code")
+            except (ValueError, AttributeError) as exc:
+                raise HomeworkUnavailableError from exc
+            if (
+                code in ("lesson_not_found", "invalid_homework_data")
+                and {"lesson_not_found": 404, "invalid_homework_data": 422}[code]
+                == response.status_code
+            ):
+                raise HomeworkRequestError(response.status_code, code)
+            raise HomeworkUnavailableError
+        return response
+
+    async def get_student_lesson(
+        self, *, student_id: UUID, lesson_id: int
+    ) -> TeacherLessonResult:
+        """Читает карточку после актуальной проверки класса в Homework."""
+        response = await self._personal_read(
+            f"/internal/student-lessons/{lesson_id}", student_id
+        )
+        try:
+            result = TeacherLessonResult.model_validate_json(response.content)
+        except ValidationError as exc:
+            raise HomeworkUnavailableError from exc
+        if result.lesson.id != lesson_id:
+            raise HomeworkUnavailableError
+        return result
+
+    async def list_my_homework(self, query: ListMyHomeworkQuery) -> HomeworkPageResult:
+        """Проверяет период, фильтр и границы полученной страницы."""
+        response = await self._personal_read(
+            "/internal/student-homework-view",
+            query.student_id,
+            query.model_dump(mode="json", exclude={"student_id"}),
+        )
+        try:
+            page = HomeworkPageResult.model_validate_json(response.content)
+        except ValidationError as exc:
+            raise HomeworkUnavailableError from exc
+        if (
+            page.date_from != query.date_from
+            or page.date_to != query.date_to
+            or len(page.items) > query.limit
+            or len({row.id for row in page.items}) != len(page.items)
+            or page.total < len(page.items)
+        ):
+            raise HomeworkUnavailableError
+        for row in page.items:
+            if query.state == "needs_action" and row.latest_answer_status not in (
+                None,
+                "returned",
+            ):
+                raise HomeworkUnavailableError
+            if (
+                query.state not in ("all", "needs_action")
+                and row.latest_answer_status != query.state
+            ):
+                raise HomeworkUnavailableError
+        return page
 
     async def get_teacher_lesson(
         self, *, teacher_id: UUID, lesson_id: int
@@ -94,6 +180,7 @@ class HomeworkClient:
         description: str,
         due_lesson_id: int | None,
         manual_due_datetime: datetime | None,
+        files: list[HomeworkFileInput] | None = None,
     ) -> HomeworkResult:
         """Создаёт задание и проверяет совпадение ответа с отправленным запросом.
 
@@ -103,6 +190,7 @@ class HomeworkClient:
             description: Проверенное описание.
             due_lesson_id: Выбранный урок срока либо None.
             manual_due_datetime: Фиксированная дата либо None.
+            files: Описания ожидаемых вложений; байты отправляются отдельно.
 
         Returns:
             Проверенное сохранённое задание.
@@ -112,6 +200,9 @@ class HomeworkClient:
             HomeworkUnavailableError: Сбой сети, статуса или контракта ответа.
                 При таймауте запись могла уже завершиться.
         """
+        expected_files = TypeAdapter(list[HomeworkFileInput]).validate_python(
+            files or []
+        )
         try:
             response = await self._http_client.post(
                 f"/internal/lessons/{issued_lesson_id}/homework",
@@ -125,6 +216,7 @@ class HomeworkClient:
                     "manual_due_datetime": manual_due_datetime.isoformat()
                     if manual_due_datetime is not None
                     else None,
+                    "files": [file.model_dump() for file in expected_files],
                 },
                 timeout=5.0,
                 follow_redirects=False,
@@ -156,6 +248,14 @@ class HomeworkClient:
             or result.description != description
             or result.due_lesson_id != due_lesson_id
             or result.manual_due_datetime != manual_due_datetime
+            or len(result.files) != len(expected_files)
+            or any(
+                actual.file_name != expected.file_name
+                or actual.size_bytes != expected.size_bytes
+                or actual.content_type != expected.content_type
+                or actual.upload_status != "pending"
+                for actual, expected in zip(result.files, expected_files)
+            )
         ):
             raise HomeworkUnavailableError
         return result

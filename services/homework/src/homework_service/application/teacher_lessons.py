@@ -117,7 +117,7 @@ class GetTeacherLessonHandler:
             query: Доверенный преподаватель и запрошенный урок.
 
         Returns:
-            Урок и обе группы заданий с итоговыми сроками.
+            Урок и обе группы заданий со сроками и метаданными вложений.
 
         Raises:
             LessonNotFoundError: Урок не существует.
@@ -135,12 +135,17 @@ class GetTeacherLessonHandler:
             raise HomeworkAccessDeniedError
         async with self._uow_factory() as uow:
             homeworks = await uow.homeworks.list_for_lesson(query.lesson_id)
-        if any(
-            row.class_id != lesson.class_id or row.subject_id != lesson.subject_id
-            for row in homeworks
-        ):
-            raise OwnerLookupUnavailableError("Incompatible homework reference")
-        results = await _resolve_deadlines(homeworks, self._schedule_reader)
+            if any(
+                row.class_id != lesson.class_id or row.subject_id != lesson.subject_id
+                for row in homeworks
+            ):
+                raise OwnerLookupUnavailableError("Incompatible homework reference")
+            files = {}
+            if homeworks:
+                files = await uow.files.list_for_homeworks(
+                    [homework.id for homework in homeworks]
+                )
+        results = await _resolve_deadlines(homeworks, self._schedule_reader, files)
         next_lesson = (
             await self._schedule_reader.get_next_lesson(lesson.id)
             if lesson.status == "planned"

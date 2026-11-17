@@ -45,6 +45,19 @@ def test_refresh_token_row_uses_its_primary_key_as_the_future_jti() -> None:
     assert table.c.created_at.server_default is not None
 
 
+def test_auth_session_row_tracks_user_expiry_and_revocation() -> None:
+    from gateway_service.infrastructure.models.auth_session import AuthSessionRow
+
+    table = AuthSessionRow.__table__
+    assert table.name == "auth_sessions"
+    assert tuple(table.primary_key.columns.keys()) == ("id",)
+    assert next(iter(table.foreign_keys)).target_fullname == "users.id"
+    assert table.c.user_id.nullable is False
+    assert table.c.expires_at.nullable is False
+    assert table.c.revoked_at.nullable is True
+    assert table.c.created_at.server_default is not None
+
+
 def test_parent_student_link_row_prevents_duplicate_links() -> None:
     table = ParentStudentLinkRow.__table__
     unique_constraint = next(

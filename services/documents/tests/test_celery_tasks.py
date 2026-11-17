@@ -39,6 +39,15 @@ def make_task(
     return celery_app.tasks["documents.generate_certificate"]
 
 
+def test_generation_task_uses_late_ack_and_requeues_lost_worker() -> None:
+    """Брокер не должен считать PDF готовым до завершения обработчика."""
+    task = make_task(
+        TemporaryFailingHandler(TemporaryStorageError()), RecordingFailureHandler()
+    )
+    assert task.acks_late is True
+    assert task.reject_on_worker_lost is True
+
+
 def test_task_retries_temporary_storage_error_after_one_second(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

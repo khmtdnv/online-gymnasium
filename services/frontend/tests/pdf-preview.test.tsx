@@ -38,9 +38,9 @@ it('создаёт доступную ссылку на PDF и освобожд�
   const view = setup(vi.fn().mockResolvedValue(blob));
   expect(await screen.findByRole('link', { name: 'Скачать PDF' })).toHaveAttribute(
     'download',
-    `certificate-${id}.pdf`,
+    `document-${id}.pdf`,
   );
-  expect(screen.getByTitle('Справка об обучении — PDF')).toHaveAttribute('src', 'blob:pdf-preview');
+  expect(screen.getByTitle('Учебный документ — PDF')).toHaveAttribute('src', 'blob:pdf-preview');
   view.unmount();
   expect(revokeUrl).toHaveBeenCalledWith('blob:pdf-preview');
 });

@@ -6,6 +6,7 @@ from schedule_service.application.ports.idempotency_repository import (
 )
 from schedule_service.application.ports.lesson_repository import LessonRepository
 from schedule_service.application.ports.outbox_repository import OutboxRepository
+from schedule_service.application.ports.subject_repository import SubjectRepository
 
 
 class UnitOfWork(Protocol):
@@ -14,6 +15,7 @@ class UnitOfWork(Protocol):
     lessons: LessonRepository
     idempotency: IdempotencyRepository
     outbox: OutboxRepository
+    subjects: SubjectRepository
 
     async def __aenter__(self) -> Self:
         """Открывает сессию и предоставляет репозитории одной транзакции.

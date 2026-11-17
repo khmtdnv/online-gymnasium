@@ -1,7 +1,7 @@
 {% extends "admin/base_site.html" %}
 {% block content_title %}{% endblock %}
 {% block content %}
-<section class="og1-form-card">
+<section class="og-form-card">
   <h1>{{ title }}</h1>
   <form method="get">{{ form.as_p }}<button type="submit">Найти</button></form>
   {% if service_error %}<p role="alert">{{ service_error }}</p>{% endif %}

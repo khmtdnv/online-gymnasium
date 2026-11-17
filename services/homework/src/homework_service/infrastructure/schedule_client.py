@@ -1,5 +1,7 @@
 """HTTP-чтения Schedule с явной проверкой внешнего контракта."""
 
+from datetime import datetime
+
 import httpx
 from pydantic import TypeAdapter, ValidationError
 
@@ -49,6 +51,44 @@ class HttpScheduleReader:
             )
         except httpx.HTTPError as exc:
             raise OwnerLookupUnavailableError("Schedule request failed") from exc
+
+    async def list_calendar_lessons(
+        self, *, class_id: int, starts_at_from: datetime, starts_at_until: datetime
+    ) -> list[LessonInfo]:
+        """Читает проверенный диапазон одним запросом без сетевого запроса на карточку."""
+        try:
+            response = await self._http_client.get(
+                "/internal/calendar-lessons",
+                params={
+                    "class_id": class_id,
+                    "starts_at_from": starts_at_from.isoformat(),
+                    "starts_at_until": starts_at_until.isoformat(),
+                },
+                headers={"Authorization": f"Bearer {self._service_token}"},
+                timeout=5.0,
+                follow_redirects=False,
+            )
+            if response.status_code == 422:
+                raise ValueError("Too many lessons; narrow the period")
+            if response.status_code != 200:
+                raise OwnerLookupUnavailableError("Calendar unavailable")
+            lessons = lesson_list_adapter.validate_json(response.content)
+        except (httpx.HTTPError, ValidationError) as exc:
+            raise OwnerLookupUnavailableError("Invalid calendar response") from exc
+        keys = [(row.starts_at, row.id) for row in lessons]
+        if (
+            len(lessons) > 1000
+            or len({row.id for row in lessons}) != len(lessons)
+            or keys != sorted(keys)
+            or any(
+                row.class_id != class_id
+                or row.starts_at >= starts_at_until
+                or row.ends_at <= starts_at_from
+                for row in lessons
+            )
+        ):
+            raise OwnerLookupUnavailableError("Calendar identity mismatch")
+        return lessons
 
     async def get_lesson(self, lesson_id: int) -> LessonInfo | None:
         """Проверяет статус, JSON и совпадение ID запрошенного урока.

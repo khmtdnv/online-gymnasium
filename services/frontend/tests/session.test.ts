@@ -84,7 +84,7 @@ describe('сессия', () => {
     await session.bootstrap();
     let release!: () => void;
     const blocker = locks.request(
-      'og1-auth-cookie',
+      'og-auth-cookie',
       () =>
         new Promise<void>((resolve) => {
           release = resolve;

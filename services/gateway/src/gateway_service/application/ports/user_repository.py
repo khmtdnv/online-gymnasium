@@ -8,6 +8,10 @@ from gateway_service.domain.user import Role, User
 class UserRepository(Protocol):
     """Контракт хранения пользователей, связей и одноразовых refresh-токенов."""
 
+    async def get_by_ids(self, user_ids: list[UUID]) -> list[User]:
+        """Читает пользователей одним пакетом для подписей результатов."""
+        ...
+
     async def get_by_id(self, user_id: UUID) -> User | None:
         """Ищет пользователя по ID.
 
@@ -73,6 +77,14 @@ class UserRepository(Protocol):
         Returns:
             True для новой связи; False для уже существующей пары.
         """
+        ...
+
+    async def has_parent_student_link(self, parent_id: UUID, student_id: UUID) -> bool:
+        """Проверяет актуальную связь, не полагаясь на старые данные интерфейса."""
+        ...
+
+    async def list_children(self, parent_id: UUID, limit: int) -> list[User]:
+        """Читает ограниченный список связанных учеников с ФИО."""
         ...
 
     async def create_refresh_token(

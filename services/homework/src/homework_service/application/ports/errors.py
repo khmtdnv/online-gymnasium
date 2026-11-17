@@ -14,7 +14,7 @@ class LessonNotFoundError(Exception):
 
 
 class HomeworkAccessDeniedError(Exception):
-    """Учитель не вправе выдавать ДЗ из этого урока."""
+    """Преподавателю недоступен урок или больше нет назначения классу."""
 
 
 class InvalidHomeworkDataError(Exception):
@@ -23,3 +23,15 @@ class InvalidHomeworkDataError(Exception):
 
 class HomeworkNotFoundError(Exception):
     """Задание отсутствует или недоступно в текущем классе ученика."""
+
+
+class HomeworkFileNotReadyError(Exception):
+    """Ожидаемое вложение существует, но его байты ещё не готовы к скачиванию."""
+
+
+class HomeworkAnswerConflictError(Exception):
+    """Попытка/проверка уже существует или закрыта; повтор не совпал с исходным."""
+
+
+class HomeworkAnswerNotFoundError(HomeworkNotFoundError):
+    """Ответ или его вложение отсутствуют либо недоступны пользователю."""

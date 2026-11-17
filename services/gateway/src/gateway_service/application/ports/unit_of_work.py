@@ -1,6 +1,10 @@
 from types import TracebackType
 from typing import Protocol, Self
 
+from gateway_service.application.ports.auth_session_repository import (
+    AuthSessionRepository,
+)
+from gateway_service.application.ports.outbox_repository import OutboxRepository
 from gateway_service.application.ports.user_repository import UserRepository
 
 
@@ -8,6 +12,8 @@ class UnitOfWork(Protocol):
     """Граница транзакции и доступа к репозиториям одного сценария."""
 
     users: UserRepository
+    auth_sessions: AuthSessionRepository
+    outbox: OutboxRepository
 
     async def __aenter__(self) -> Self:
         """Открывает сессию и предоставляет репозитории одной транзакции.

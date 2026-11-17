@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { ApiClient } from '../../lib/api/client';
+import { createMyScheduleApi } from './my-schedule-api';
 import {
   daySchema,
   instantSchema,
@@ -40,6 +41,7 @@ export type UpdateLessonInput = z.infer<typeof updateLessonInputSchema>;
 
 export function createScheduleApi(client: ApiClient) {
   return {
+    ...createMyScheduleApi(client),
     listLessons(classId: number, day: string, signal?: AbortSignal) {
       const query = new URLSearchParams({
         class_id: String(positiveIdSchema.parse(classId)),

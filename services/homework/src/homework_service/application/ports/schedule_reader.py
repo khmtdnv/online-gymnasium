@@ -1,5 +1,6 @@
 """Проверенный контракт чтения авторитетных уроков Schedule."""
 
+from datetime import datetime
 from typing import Literal, Protocol, Self
 from uuid import UUID
 
@@ -37,6 +38,12 @@ class LessonInfo(BaseModel):
 
 class ScheduleReader(Protocol):
     """Не смешивает отсутствие урока со сбоем его владельца."""
+
+    async def list_calendar_lessons(
+        self, *, class_id: int, starts_at_from: datetime, starts_at_until: datetime
+    ) -> list[LessonInfo]:
+        """Читает полный ограниченный интервал класса, включая отменённые уроки."""
+        ...
 
     async def get_lessons(self, lesson_ids: list[int]) -> dict[int, LessonInfo]:
         """Получает точный пакет уроков одним запросом.

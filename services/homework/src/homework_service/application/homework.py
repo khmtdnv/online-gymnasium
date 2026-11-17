@@ -15,6 +15,10 @@ from pydantic import (
     model_validator,
 )
 
+from homework_service.application.homework_files import (
+    HomeworkFileInput,
+    HomeworkFileResult,
+)
 from homework_service.application.ports.errors import (
     HomeworkAccessDeniedError,
     InvalidHomeworkDataError,
@@ -35,7 +39,7 @@ Description = Annotated[
 
 
 class CreateHomeworkCommand(BaseModel):
-    """Описание и срок, а также доверенные учитель и урок выдачи."""
+    """Описание, срок и ожидаемые файлы с доверенными учителем и уроком выдачи."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
     teacher_id: UUID
@@ -43,6 +47,9 @@ class CreateHomeworkCommand(BaseModel):
     description: Description
     due_lesson_id: PositiveId | None = None
     manual_due_datetime: AwareDatetime | None = Field(default=None, strict=True)
+    files: list[HomeworkFileInput] = Field(
+        default_factory=list, max_length=5, strict=True
+    )
 
     @model_validator(mode="after")
     def validate_due_mode(self) -> Self:
@@ -60,7 +67,7 @@ class CreateHomeworkCommand(BaseModel):
 
 
 class HomeworkResult(BaseModel):
-    """Сохранённое задание, не вычисляемая копия срока другого сервиса."""
+    """Сохранённое задание с метаданными ожидаемых либо готовых вложений."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
     id: PositiveId
@@ -72,6 +79,7 @@ class HomeworkResult(BaseModel):
     due_lesson_id: PositiveId | None
     manual_due_datetime: AwareDatetime | None
     created_at: AwareDatetime
+    files: list[HomeworkFileResult] = Field(default_factory=list, max_length=5)
 
     @classmethod
     def from_homework(cls, homework: Homework) -> Self:
@@ -90,7 +98,7 @@ class HomeworkResult(BaseModel):
 
 
 class CreateHomeworkHandler:
-    """Создаёт задание после проверки урока, назначения и выбранного срока."""
+    """Сохраняет ДЗ и ожидаемые вложения вместе после проверки урока и прав."""
 
     def __init__(
         self,
@@ -119,7 +127,8 @@ class CreateHomeworkHandler:
             command: Описание, один срок и доверенные ссылки учителя/урока.
 
         Returns:
-            Задание после успешного завершения локальной транзакции.
+            Задание и ожидаемые файлы после общей локальной транзакции.
+            Байты файлов загружаются отдельно и не определяют видимость текста.
 
         Raises:
             LessonNotFoundError: Урок выдачи или выбранного срока отсутствует.
@@ -180,5 +189,13 @@ class CreateHomeworkHandler:
 
         async with self._uow_factory() as uow:
             saved_homework = await uow.homeworks.add(homework)
+            saved_files = (
+                await uow.files.add_files(saved_homework.id, command.files)
+                if command.files
+                else []
+            )
 
-        return HomeworkResult.from_homework(saved_homework)
+        return HomeworkResult(
+            **asdict(saved_homework),
+            files=[HomeworkFileResult.from_file(file) for file in saved_files],
+        )

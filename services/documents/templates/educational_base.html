@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>{% block title %}Учебный документ{% endblock %}</title>
+<style>
+  @page { size: A4; margin: 24mm 23mm 26mm;
+    @bottom-center { content: "OG · учебный образец · страница " counter(page); font-size: 9pt; color: #687b75; } }
+  body { font-family: "DejaVu Sans", sans-serif; color: #223d37; font-size: 11pt; line-height: 1.55; overflow-wrap: anywhere; }
+  .brand { font-size: 21pt; font-weight: bold; color: #176b60; margin-bottom: 3mm; }
+  .subtitle { font-size: 9pt; color: #687b75; margin-bottom: 10mm; }
+  .notice { background: #f8e8db; border-left: 3pt solid #d89f7c; padding: 4mm; font-size: 9pt; margin-bottom: 10mm; }
+  h1 { font-size: 21pt; line-height: 1.25; margin: 0 0 8mm; }
+  h2 { font-size: 12pt; margin: 5mm 0 3mm; }
+  p { margin: 3mm 0; }
+  table { width: 100%; border-collapse: collapse; margin: 6mm 0; table-layout: fixed; }
+  th, td { text-align: left; vertical-align: top; padding: 3mm; border-bottom: 0.3mm solid #dbe4df; overflow-wrap: anywhere; }
+  th { width: 34%; color: #567069; font-weight: normal; }
+  .summary { background: #e7f1ed; padding: 5mm; margin: 9mm 0; font-weight: bold; }
+  .muted { color: #687b75; font-size: 9pt; margin-top: 6mm; }
+</style></head>
+<body>
+<div class="brand">OG</div><div class="subtitle">Онлайн-гимназия · демонстрационный образовательный портал</div>
+<div class="notice">УЧЕБНЫЙ ОБРАЗЕЦ. Не является юридически значимым документом, офертой или фискальным чеком.</div>
+{% block content %}{% endblock %}
+<p class="muted">Документ создан для демонстрации работы портала. Подписи, печати и реальные реквизиты образовательной организации отсутствуют.</p>
+</body></html>

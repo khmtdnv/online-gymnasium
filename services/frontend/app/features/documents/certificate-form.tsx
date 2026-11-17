@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Alert } from '../../components/ui/alert';
 import { Button } from '../../components/ui/button';
@@ -15,11 +15,17 @@ import { certificateInputSchema, type CertificateInput } from './api';
 
 export function CertificateForm({
   onCreate,
+  kind = 'certificate',
 }: {
   onCreate: (input: CertificateInput) => Promise<void>;
+  kind?: 'certificate' | 'contract' | 'act';
 }) {
   const [failure, setFailure] = useState<unknown>(null);
   const [unknownResult, setUnknownResult] = useState(false);
+  const [sending, setSending] = useState(false);
+  const lastInput = useRef<CertificateInput | null>(null);
+  const label =
+    kind === 'contract' ? 'Создать договор' : kind === 'act' ? 'Создать акт' : 'Создать справку';
   const {
     register,
     handleSubmit,
@@ -29,6 +35,9 @@ export function CertificateForm({
     defaultValues: { student_full_name: '', class_name: '', academic_year: '' },
   });
   async function submit(input: CertificateInput) {
+    if (sending) return;
+    lastInput.current = input;
+    setSending(true);
     setFailure(null);
     try {
       await onCreate(input);
@@ -39,6 +48,8 @@ export function CertificateForm({
           error instanceof ApiProtocolError ||
           (error instanceof ApiError && error.status >= 500),
       );
+    } finally {
+      setSending(false);
     }
   }
   const fields = [
@@ -51,7 +62,7 @@ export function CertificateForm({
       {failure !== null && (
         <Alert tone="error" requestId={errorRequestId(failure)}>
           {unknownResult
-            ? 'Результат отправки неизвестен: повтор может создать второе задание. Автоматически запрос не повторяем.'
+            ? 'Результат отправки неизвестен. Повторите с тем же ключом: сервер вернёт уже принятое задание, если оно создано.'
             : explainError(failure)}
         </Alert>
       )}
@@ -62,7 +73,7 @@ export function CertificateForm({
             id={`certificate-${name}`}
             placeholder={placeholder}
             {...register(name)}
-            disabled={isSubmitting || unknownResult}
+            disabled={isSubmitting || sending || unknownResult}
             aria-invalid={!!errors[name]}
             aria-describedby={errors[name] ? `certificate-${name}-error` : undefined}
           />
@@ -73,23 +84,50 @@ export function CertificateForm({
           )}
         </div>
       ))}
+      {kind === 'act' && (
+        <>
+          <div className="field">
+            <label htmlFor="act-from">Начало периода</label>
+            <Input
+              id="act-from"
+              type="date"
+              required
+              disabled={sending || unknownResult}
+              {...register('period_from')}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="act-to">Конец периода</label>
+            <Input
+              id="act-to"
+              type="date"
+              required
+              disabled={sending || unknownResult}
+              {...register('period_to')}
+            />
+          </div>
+          <p className="field-hint">
+            Период до 366 дней. Конец не раньше начала; окончательно проверит сервер.
+          </p>
+        </>
+      )}
       {unknownResult ? (
         <Button
           variant="secondary"
+          disabled={sending}
           onClick={() => {
-            setUnknownResult(false);
-            setFailure(null);
+            if (lastInput.current) void submit(lastInput.current);
           }}
         >
-          Понимаю риск, начать новую попытку
+          Повторить с тем же ключом
         </Button>
       ) : (
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Отправляем…' : 'Создать справку'}
+        <Button type="submit" disabled={isSubmitting || sending}>
+          {isSubmitting || sending ? 'Отправляем…' : label}
         </Button>
       )}
       <p className="field-hint">
-        Справка об обучении будет подготовлена в PDF. После отправки вы получите отдельную ссылку на
+        Учебный документ будет подготовлен в PDF. После отправки вы получите отдельную ссылку на
         задание.
       </p>
     </form>

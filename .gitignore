@@ -6,6 +6,7 @@ __pycache__/
 .worktrees/
 **/docs/superpowers/
 .superpowers/
+.demo-data/
 **/staticfiles/
 
 *.pyc
@@ -19,3 +20,4 @@ __pycache__/
 !*.env.example
 
 *.md
+!/README.md

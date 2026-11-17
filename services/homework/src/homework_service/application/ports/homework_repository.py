@@ -1,12 +1,27 @@
 """Доступ к заданиям в пределах локальной транзакции."""
 
+from datetime import datetime
 from typing import Protocol
+from uuid import UUID
 
 from homework_service.domain.homework import Homework
+from homework_service.domain.homework_answer import HomeworkAnswer
 
 
 class HomeworkRepository(Protocol):
     """Хранит ДЗ, не выполняя commit самостоятельно."""
+
+    async def list_for_period(
+        self,
+        *,
+        class_id: int,
+        student_id: UUID,
+        starts_at_from: datetime,
+        starts_at_until: datetime,
+        due_lesson_ids: list[int],
+    ) -> list[tuple[Homework, HomeworkAnswer | None]]:
+        """Читает до1001кандидата с последней попыткой без отдельного SQL на задание."""
+        ...
 
     async def list_for_lesson(self, lesson_id: int) -> list[Homework]:
         """Читает задания к уроку и из урока по created_at DESC,id DESC.

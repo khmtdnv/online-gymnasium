@@ -14,6 +14,11 @@ from pydantic import (
     model_validator,
 )
 
+from gateway_service.application.homework_files import (
+    HomeworkFileInput,
+    HomeworkFileResult,
+)
+
 PositiveId = Annotated[int, Field(strict=True, ge=1, le=2147483647)]
 Description = Annotated[
     str,
@@ -33,6 +38,9 @@ class CreateHomeworkRequest(BaseModel):
     description: Description
     due_lesson_id: PositiveId | None = None
     manual_due_datetime: AwareDatetime | None = None
+    files: list[HomeworkFileInput] = Field(
+        default_factory=list, max_length=5, strict=True
+    )
 
     @field_validator("manual_due_datetime", mode="before")
     @classmethod
@@ -75,6 +83,24 @@ class HomeworkResult(BaseModel):
     due_lesson_id: PositiveId | None
     manual_due_datetime: AwareDatetime | None
     created_at: AwareDatetime
+    files: list[HomeworkFileResult] = Field(default_factory=list, max_length=5)
+
+    @model_validator(mode="after")
+    def validate_file_ownership(self) -> Self:
+        """Отклоняет чужие, повторные или неупорядоченные вложения в ответе владельца.
+
+        Returns:
+            Задание с вложениями только собственного ID.
+
+        Raises:
+            ValueError: Нарушена связь с заданием или порядок вложений.
+        """
+        ids = [file.id for file in self.files]
+        if ids != sorted(set(ids)) or any(
+            file.homework_id != self.id for file in self.files
+        ):
+            raise ValueError("Homework file ownership or ordering mismatch")
+        return self
 
 
 class HomeworkRequestError(Exception):

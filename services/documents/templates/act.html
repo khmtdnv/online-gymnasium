@@ -1,0 +1,12 @@
+{% extends "educational_base.html" %}
+{% block title %}Учебный акт об оказании услуг{% endblock %}
+{% block content %}
+<h1>Акт об оказании услуг</h1>
+<p>Учебный пример акта по образовательной программе.</p>
+<table><tr><th>Ученик</th><td><strong>{{ student_full_name }}</strong></td></tr>
+<tr><th>Класс</th><td>{{ class_name }}</td></tr>
+<tr><th>Учебный год</th><td>{{ academic_year }}</td></tr>
+<tr><th>Период</th><td>{{ period_from }} - {{ period_to }}</td></tr></table>
+<div class="summary">Доступ к образовательной программе за указанный период.</div>
+<p>Объём фактически оказанных услуг и отсутствие претензий в этом демонстрационном образце не подтверждаются. Документ не заменяет акт, подписанный сторонами.</p>
+{% endblock %}

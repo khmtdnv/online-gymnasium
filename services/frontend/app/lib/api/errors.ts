@@ -6,6 +6,7 @@ export class ApiError extends Error {
     public readonly code: string,
     message: string,
     public readonly requestId?: string,
+    public readonly retryAfterMs?: number,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -35,6 +36,13 @@ export class SessionChangedError extends Error {
 }
 
 export async function responseError(response: Response): Promise<ApiError> {
+  const retryAfter = response.headers.get('Retry-After');
+  const retryAfterMs =
+    retryAfter === null
+      ? undefined
+      : /^\d+$/.test(retryAfter)
+        ? Number(retryAfter) * 1000
+        : Math.max(0, Date.parse(retryAfter) - Date.now());
   let body: unknown;
   try {
     body = await response.json();
@@ -49,6 +57,7 @@ export async function responseError(response: Response): Promise<ApiError> {
     parsed.success
       ? parsed.data.error.request_id
       : (response.headers.get('X-Request-ID') ?? undefined),
+    Number.isFinite(retryAfterMs) ? retryAfterMs : undefined,
   );
 }
 
@@ -56,9 +65,17 @@ export async function responseError(response: Response): Promise<ApiError> {
 export function explainError(error: unknown): string {
   if (error instanceof ApiError) {
     if (error.status === 401) return 'Сессия истекла. Войдите снова.';
-    if (error.status === 403) return 'Для этого действия недостаточно прав.';
+    if (error.status === 403) {
+      if (error.code === 'tuition_payment_required')
+        return 'Доступ к занятиям ограничен. Оплатите текущую четверть в разделе «Оплата».';
+      return 'Для этого действия недостаточно прав.';
+    }
     if (error.status === 404) return 'Запрошенные данные не найдены.';
     if (error.status === 409) {
+      if (error.code === 'homework_answer_conflict')
+        return 'Состояние работы уже изменилось. Обновите ответы: работа могла быть сдана или проверена другим запросом.';
+      if (error.code === 'homework_file_not_ready')
+        return 'Файл ещё не загружен. Обновите работу после завершения загрузки.';
       if (/version/i.test(error.code) || /version/i.test(error.message))
         return 'Урок уже изменён. Сверьте обновлённое расписание; введённые данные сохранены.';
       if (/idempotency/i.test(error.code) || /Idempotency/i.test(error.message))

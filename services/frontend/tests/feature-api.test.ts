@@ -7,6 +7,7 @@ function setup() {
   const client = {
     json: vi.fn().mockResolvedValue({}),
     pdf: vi.fn().mockResolvedValue(new Blob()),
+    downloadHomeworkFile: vi.fn().mockResolvedValue(new Blob()),
   };
   return {
     client,

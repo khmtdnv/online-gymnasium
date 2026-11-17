@@ -38,6 +38,8 @@ def register_certificate_tasks(
         ignore_result=True,
         bind=True,
         shared=False,
+        acks_late=True,
+        reject_on_worker_lost=True,
     )
     def generate_certificate(self, job_id: str) -> None:
         """Запускает генерацию справки и повторяет временную ошибку хранилища.

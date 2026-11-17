@@ -65,7 +65,7 @@ async function mockBackend(context: BrowserContext, role = 'admin') {
     },
   };
 }
-async function login(page: Page) {
+async function login(page: Page, heading = 'Онлайн-гимназия') {
   await page.goto('/login');
   if (
     process.env.QA_SCREENSHOT_DIR &&
@@ -77,7 +77,7 @@ async function login(page: Page) {
   await page.getByLabel('Email', { exact: true }).fill(user.email);
   await page.getByLabel('Пароль', { exact: true }).fill('synthetic-test-password');
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Онлайн-гимназия');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading);
 }
 
 test('UI mock: login/reload/logout и память без persisted JWT', async ({ page, context }) => {
@@ -122,7 +122,7 @@ test('UI mock: ограниченная роль не запрашивает р�
     if (request.url().includes('/schedule/lessons')) operationalRequests++;
   });
   await mockBackend(context, 'student');
-  await login(page);
+  await login(page, 'Моё расписание');
   await page.goto('/schedule?class_id=21&day=2026-10-03');
   await expect(page.getByRole('heading', { name: 'Нет доступа' })).toBeVisible();
   expect(operationalRequests).toBe(0);

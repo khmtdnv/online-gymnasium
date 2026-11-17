@@ -6,9 +6,14 @@ from typing import Literal, Self
 from pydantic import AwareDatetime, model_validator
 
 from homework_service.application.homework import HomeworkResult
+from homework_service.application.homework_files import HomeworkFileResult
 from homework_service.application.ports.errors import OwnerLookupUnavailableError
-from homework_service.application.ports.schedule_reader import ScheduleReader
+from homework_service.application.ports.schedule_reader import (
+    LessonInfo,
+    ScheduleReader,
+)
 from homework_service.domain.homework import Homework
+from homework_service.domain.homework_file import HomeworkFile
 
 
 class StudentHomeworkResult(HomeworkResult):
@@ -40,16 +45,21 @@ class StudentHomeworkResult(HomeworkResult):
 
 
 async def _resolve_deadlines(
-    homeworks: list[Homework], schedule_reader: ScheduleReader
+    homeworks: list[Homework],
+    schedule_reader: ScheduleReader,
+    files: dict[int, list[HomeworkFile]] | None = None,
+    *,
+    due_lessons: dict[int, LessonInfo] | None = None,
 ) -> list[StudentHomeworkResult]:
     """Дополняет результаты одним пакетом Schedule без транзакции Homework.
 
     Args:
         homeworks: Уже разрешённые задания текущего класса.
         schedule_reader: Авторитетные уроки по сохранённым ссылкам.
+        files: Вложения, заранее прочитанные одним пакетом по ID заданий.
 
     Returns:
-        Задания в исходном порядке с актуальными сроками.
+        Задания в исходном порядке с актуальными сроками и публичными вложениями.
 
     Raises:
         OwnerLookupUnavailableError: Связанный урок исчез или несовместим с заданием.
@@ -57,9 +67,12 @@ async def _resolve_deadlines(
     ids = sorted(
         {row.due_lesson_id for row in homeworks if row.due_lesson_id is not None}
     )
-    lessons = {}
-    for offset in range(0, len(ids), 100):
-        lessons.update(await schedule_reader.get_lessons(ids[offset : offset + 100]))
+    lessons = dict(due_lessons) if due_lessons is not None else {}
+    if due_lessons is None:
+        for offset in range(0, len(ids), 100):
+            lessons.update(
+                await schedule_reader.get_lessons(ids[offset : offset + 100])
+            )
     results = []
     for homework in homeworks:
         final_due_datetime, status = homework.manual_due_datetime, "manual"
@@ -83,6 +96,10 @@ async def _resolve_deadlines(
                 **asdict(homework),
                 final_due_datetime=final_due_datetime,
                 due_status=status,
+                files=[
+                    HomeworkFileResult.from_file(file)
+                    for file in (files or {}).get(homework.id, [])
+                ],
             )
         )
     return results

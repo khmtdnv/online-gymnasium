@@ -8,6 +8,10 @@ from journal_service.domain.school_class import Class
 class ClassRepository(Protocol):
     """Предоставляет операции со школьными классами в текущей транзакции."""
 
+    async def get_classes_by_ids(self, class_ids: list[int]) -> list[Class]:
+        """Читает пакет существующих классов по возрастанию ID."""
+        ...
+
     async def get_class_by_id(self, class_id: int) -> Class | None:
         """Получает класс для проверки наличия перед чтением его состава.
 

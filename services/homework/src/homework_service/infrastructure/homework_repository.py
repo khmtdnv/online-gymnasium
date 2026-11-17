@@ -1,12 +1,17 @@
 """SQLAlchemy-хранилище с точным распознаванием дубликата урока."""
 
+from datetime import datetime
+from uuid import UUID
+
 from sqlalchemy import or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from homework_service.application.ports.errors import HomeworkAlreadyExistsError
 from homework_service.domain.homework import Homework
+from homework_service.domain.homework_answer import HomeworkAnswer
 from homework_service.infrastructure.models.homework import HomeworkRow
+from homework_service.infrastructure.models.homework_answer import HomeworkAnswerRow
 
 
 class SqlAlchemyHomeworkRepository:
@@ -19,6 +24,55 @@ class SqlAlchemyHomeworkRepository:
             session: Сессия текущего Unit of Work.
         """
         self._session = session
+
+    async def list_for_period(
+        self,
+        *,
+        class_id: int,
+        student_id: UUID,
+        starts_at_from: datetime,
+        starts_at_until: datetime,
+        due_lesson_ids: list[int],
+    ) -> list[tuple[Homework, HomeworkAnswer | None]]:
+        """Одним SQL читает кандидатов периода и последнюю попытку данного ученика."""
+        latest_id = (
+            select(HomeworkAnswerRow.id)
+            .where(
+                HomeworkAnswerRow.homework_id == HomeworkRow.id,
+                HomeworkAnswerRow.student_id == student_id,
+            )
+            .order_by(HomeworkAnswerRow.attempt_number.desc())
+            .limit(1)
+            .correlate(HomeworkRow)
+            .scalar_subquery()
+        )
+        manual = (HomeworkRow.manual_due_datetime >= starts_at_from) & (
+            HomeworkRow.manual_due_datetime < starts_at_until
+        )
+        result = await self._session.execute(
+            select(HomeworkRow, HomeworkAnswerRow)
+            .outerjoin(HomeworkAnswerRow, HomeworkAnswerRow.id == latest_id)
+            .where(
+                HomeworkRow.class_id == class_id,
+                or_(manual, HomeworkRow.due_lesson_id.in_(due_lesson_ids)),
+            )
+            .order_by(HomeworkRow.id)
+            .limit(1001)
+        )
+        return [
+            (
+                self._to_domain(row),
+                HomeworkAnswer(
+                    **{
+                        name: getattr(answer, name)
+                        for name in HomeworkAnswer.__dataclass_fields__
+                    }
+                )
+                if answer
+                else None,
+            )
+            for row, answer in result
+        ]
 
     async def list_for_lesson(self, lesson_id: int) -> list[Homework]:
         """Читает задания по ссылкам урока выдачи или срока.

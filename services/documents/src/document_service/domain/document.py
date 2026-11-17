@@ -24,3 +24,5 @@ class DocumentJob:
     object_key: str | None
     error_message: str | None
     created_at: datetime
+    creator_id: UUID | None = None
+    request_key: UUID | None = None

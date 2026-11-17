@@ -47,6 +47,40 @@ def make_app(handler, **settings):
     )
 
 
+def test_create_passes_expected_file_metadata_without_bytes():
+    from tests.test_homework_files import file_input
+
+    handler = AsyncMock()
+    handler.handle.return_value = HomeworkResult.model_validate(
+        {
+            **RESULT,
+            "files": [
+                {
+                    "id": 8,
+                    "homework_id": 1,
+                    "file_name": "Задачи.pdf",
+                    "size_bytes": 1024,
+                    "content_type": "application/pdf",
+                    "upload_status": "pending",
+                }
+            ],
+        }
+    )
+    with TestClient(make_app(handler)) as client:
+        response = client.post(
+            PATH,
+            headers=HEADERS,
+            json={
+                "description": "Решить задачу",
+                "due_lesson_id": 12,
+                "files": [file_input()],
+            },
+        )
+    assert response.status_code == 201
+    assert response.json()["files"][0]["upload_status"] == "pending"
+    assert handler.handle.await_args.args[0].files[0].content_sha256 == "a" * 64
+
+
 @pytest.mark.parametrize(
     "due",
     [

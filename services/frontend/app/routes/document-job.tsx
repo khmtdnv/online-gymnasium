@@ -49,12 +49,12 @@ function JobPage({ jobId }: { jobId: string }) {
   return (
     <>
       <PageHeader
-        title="Ваша справка"
+        title="Ваш документ"
         eyebrow="Задание генерации"
         description="Сохраните адрес этой страницы, чтобы вернуться к результату."
         action={
           <Link to="/documents" className="button button-secondary">
-            К справкам
+            К документам
           </Link>
         }
       />
@@ -65,7 +65,7 @@ function JobPage({ jobId }: { jobId: string }) {
           message="В адресе должен быть UUID полученного задания."
         />
       ) : query.isPending ? (
-        <AsyncState state="loading" title="Проверяем статус справки" />
+        <AsyncState state="loading" title="Проверяем статус документа" />
       ) : query.isError ? (
         <AsyncState
           state="error"

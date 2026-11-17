@@ -1,12 +1,21 @@
 from typing import Protocol
 from uuid import UUID
 
+from document_service.application.templates import CreateTemplateCommand
 from document_service.domain.certificate import CertificateData
 from document_service.domain.document import DocumentJob
 
 
 class DocumentRepository(Protocol):
     """Контракт хранения заданий генерации и изменения их статусов."""
+
+    def create_template_job(self, command: CreateTemplateCommand) -> DocumentJob:
+        """Создаёт учебный документ и task-outbox с идемпотентным ключом."""
+        ...
+
+    def list_jobs(self, creator_id: UUID, limit: int, offset: int) -> list[DocumentJob]:
+        """Возвращает страницу заданий одного автора."""
+        ...
 
     def create_job_with_outbox(self, certificate: CertificateData) -> DocumentJob:
         """Записывает задание справки и намерение отправить задачу Celery.

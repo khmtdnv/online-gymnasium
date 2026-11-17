@@ -60,6 +60,44 @@ class SqlAlchemyLessonRepository:
             for row in rows
         ]
 
+    async def list_calendar_lessons(
+        self,
+        *,
+        class_id: int | None,
+        teacher_id: UUID | None,
+        starts_at_from: datetime,
+        starts_at_until: datetime,
+    ) -> list[Lesson]:
+        """Читает максимум1001строку пересекающегося интервала для явного контроля лимита."""
+        owner = (
+            ScheduledLessonRow.class_id == class_id
+            if class_id is not None
+            else ScheduledLessonRow.teacher_id == teacher_id
+        )
+        rows = await self._session.scalars(
+            select(ScheduledLessonRow)
+            .where(
+                owner,
+                ScheduledLessonRow.starts_at < starts_at_until,
+                ScheduledLessonRow.ends_at > starts_at_from,
+            )
+            .order_by(ScheduledLessonRow.starts_at, ScheduledLessonRow.id)
+            .limit(1001)
+        )
+        return [
+            Lesson(
+                id=row.id,
+                class_id=row.class_id,
+                teacher_id=row.teacher_id,
+                subject_id=row.subject_id,
+                starts_at=row.starts_at,
+                ends_at=row.ends_at,
+                status=row.status,
+                version=row.version,
+            )
+            for row in rows
+        ]
+
     async def add(self, lesson: Lesson) -> Lesson:
         """Добавляет урок и получает ID после flush.
 

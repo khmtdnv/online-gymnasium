@@ -120,3 +120,27 @@ def test_only_known_read_not_found_is_forwarded():
 def test_network_failure_is_unavailable():
     with pytest.raises(HomeworkUnavailableError):
         call({}, failure=True)
+
+
+@pytest.mark.parametrize("many", [True, False])
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"homework_id": 2},
+        {"storage_key": "private"},
+        {"content_sha256": "a" * 64},
+        {"upload_status": "failed"},
+    ],
+)
+def test_file_contract_rejects_foreign_or_private_metadata(many, change):
+    file = {
+        "id": 8,
+        "homework_id": 1,
+        "file_name": "task.pdf",
+        "size_bytes": 32,
+        "content_type": "application/pdf",
+        "upload_status": "pending",
+    } | change
+    row = ROW | {"files": [file]}
+    with pytest.raises(HomeworkUnavailableError):
+        call([row] if many else row, many=many)

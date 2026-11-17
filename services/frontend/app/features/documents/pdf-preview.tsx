@@ -39,19 +39,19 @@ export function PdfPreview({ jobId }: { jobId: string }) {
       />
     );
   if (query.isPending || !preview || preview.jobId !== jobId)
-    return <AsyncState state="loading" title="Загружаем справку" />;
+    return <AsyncState state="loading" title="Загружаем PDF" />;
   return (
     <section className="card">
       <div className="page-header">
         <div>
           <span className="eyebrow">Документ готов</span>
-          <h2>Справка об обучении</h2>
+          <h2>Учебный документ</h2>
         </div>
         <div className="form-actions">
           <a
             className="button button-primary"
             href={preview.url}
-            download={`certificate-${jobId}.pdf`}
+            download={`document-${jobId}.pdf`}
           >
             <Download size={18} aria-hidden="true" />
             Скачать PDF
@@ -67,7 +67,7 @@ export function PdfPreview({ jobId }: { jobId: string }) {
           </a>
         </div>
       </div>
-      <iframe className="pdf-frame" title="Справка об обучении — PDF" src={preview.url} />
+      <iframe className="pdf-frame" title="Учебный документ — PDF" src={preview.url} />
       <p className="field-hint">
         Если встроенный просмотр не поддерживается браузером, скачайте файл или откройте отдельно.
       </p>

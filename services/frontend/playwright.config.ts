@@ -3,8 +3,17 @@ import { defineConfig, devices } from '@playwright/test';
 const real = process.env.E2E_REAL === '1';
 export default defineConfig({
   testDir: './tests/e2e',
-  testMatch: real ? ['proxy-routing.spec.ts', 'real-flow.spec.ts'] : 'ui-*.spec.ts',
+  testMatch: real
+    ? ['proxy-routing.spec.ts', 'real-flow.spec.ts', 'real-sso.spec.ts']
+    : [
+        'ui-*.spec.ts',
+        'homework-files.spec.ts',
+        'homework-answers.spec.ts',
+        'weekly-schedule.spec.ts',
+      ],
   fullyParallel: true,
+  // Полный Docker-стек и Firefox делят память/CPU локальной машины.
+  workers: 2,
   retries: 0,
   reporter: 'list',
   use: {

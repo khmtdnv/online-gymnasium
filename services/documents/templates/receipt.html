@@ -1,0 +1,12 @@
+{% extends "educational_base.html" %}
+{% block title %}Квитанция тестовой оплаты{% endblock %}
+{% block content %}
+<h1>Квитанция тестовой оплаты</h1>
+<p>Снимок подтверждённого тестового платежа в учебном портале.</p>
+<table><tr><th>Ученик</th><td><strong>{{ student_full_name }}</strong></td></tr>
+<tr><th>Платёж портала</th><td>№ {{ payment_id }}</td></tr>
+<tr><th>Учебный период</th><td>{% if period_type == 'quarter' %}Четверть с {% else %}Месяц: {% endif %}{{ study_month[:7] }}</td></tr>
+<tr><th>Сумма</th><td>{{ "%.2f" | format(amount_kopecks / 100) }} ₽</td></tr></table>
+<div class="summary">Тестовая оплата подтверждена. Настоящего списания денежных средств не было.</div>
+<p>Это не кассовый чек и не подтверждение реального банковского перевода. Сведения соответствуют состоянию тестового платежа в момент создания задания.</p>
+{% endblock %}

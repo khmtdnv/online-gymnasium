@@ -4,12 +4,18 @@ from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 
+from analytics_service.api.audit import router as audit_router
 from analytics_service.api.dependencies import get_workload_repository
 from analytics_service.application.ports.workload_repository import WorkloadRepository
 from analytics_service.application.workload import ClassDailyWorkload
 
 
-def create_app(repository_factory: Callable[[], WorkloadRepository]) -> FastAPI:
+def create_app(
+    repository_factory: Callable[[], WorkloadRepository],
+    *,
+    audit_repository_factory: Callable | None = None,
+    audit_service_token: str | None = None,
+) -> FastAPI:
     """Собирает HTTP-приложение с переданными зависимостями.
 
     Args:
@@ -20,6 +26,9 @@ def create_app(repository_factory: Callable[[], WorkloadRepository]) -> FastAPI:
     """
     app = FastAPI()
     app.state.workload_repository_factory = repository_factory
+    app.state.audit_repository_factory = audit_repository_factory
+    app.state.audit_service_token = audit_service_token
+    app.include_router(audit_router)
 
     @app.get("/health/live")
     async def live() -> dict[str, str]:

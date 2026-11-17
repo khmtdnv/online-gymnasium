@@ -22,7 +22,7 @@ SAVED = {
 }
 
 
-def call_client(respond, *, due=None):
+def call_client(respond, *, due=None, files=None):
     from gateway_service.infrastructure.homework_client import HomeworkClient
 
     async def run():
@@ -37,9 +37,75 @@ def call_client(respond, *, due=None):
                 description="Решить задачу",
                 due_lesson_id=12 if due is None else None,
                 manual_due_datetime=due,
+                **({"files": files} if files is not None else {}),
             )
 
     return asyncio.run(run())
+
+
+def expected_file(**changes):
+    return {
+        "file_name": "Задачи.pdf",
+        "size_bytes": 1024,
+        "content_type": "application/pdf",
+        "content_sha256": "a" * 64,
+    } | changes
+
+
+def saved_file(**changes):
+    return {
+        "id": 8,
+        "homework_id": 1,
+        "file_name": "Задачи.pdf",
+        "size_bytes": 1024,
+        "content_type": "application/pdf",
+        "upload_status": "pending",
+    } | changes
+
+
+def test_client_forwards_expected_files_and_checks_reserved_result():
+    def respond(request):
+        assert json.loads(request.content)["files"] == [expected_file()]
+        return httpx.Response(201, json={**SAVED, "files": [saved_file()]})
+
+    result = call_client(respond, files=[expected_file()])
+    assert result.files[0].id == 8
+    assert result.files[0].upload_status == "pending"
+
+
+@pytest.mark.parametrize(
+    "files",
+    [
+        [],
+        [saved_file(homework_id=999)],
+        [saved_file(size_bytes=1)],
+        [saved_file(file_name="Другое.pdf")],
+        [saved_file(upload_status="ready")],
+        [saved_file(id=True)],
+        [saved_file(storage_key="private")],
+    ],
+)
+def test_reserved_file_response_must_match_request(files):
+    from gateway_service.application.homework import HomeworkUnavailableError
+
+    with pytest.raises(HomeworkUnavailableError):
+        call_client(
+            lambda request: httpx.Response(201, json={**SAVED, "files": files}),
+            files=[expected_file()],
+        )
+
+
+def test_gateway_input_rejects_unsafe_file_metadata():
+    from pydantic import ValidationError
+
+    from gateway_service.application.homework import CreateHomeworkRequest
+
+    with pytest.raises(ValidationError):
+        CreateHomeworkRequest(
+            description="Решить",
+            due_lesson_id=12,
+            files=[expected_file(file_name="../x.pdf")],
+        )
 
 
 @pytest.mark.parametrize("due", [None, datetime(2026, 10, 20, tzinfo=UTC)])

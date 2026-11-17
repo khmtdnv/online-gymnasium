@@ -1,6 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import {
   CalendarDays,
+  Bell,
   ChartNoAxesCombined,
   Files,
   GraduationCap,
@@ -26,12 +27,12 @@ export const roleLabels = {
 
 export function Brand() {
   return (
-    <Link to="/" className="brand" aria-label="OG1 · Онлайн-гимназия">
+    <Link to="/" className="brand" aria-label="OG · Онлайн-гимназия">
       <span className="brand-mark">
         <GraduationCap size={27} aria-hidden="true" />
       </span>
       <div>
-        <strong>OG1</strong>
+        <strong>OG</strong>
         <span>Онлайн-гимназия</span>
       </div>
     </Link>
@@ -43,24 +44,51 @@ export function AppShell({
   user,
   children,
   onLogout,
+  onEnterAdmin,
 }: {
   user: CurrentUser;
   children: ReactNode;
   onLogout: () => Promise<void>;
+  onEnterAdmin?: (target: string) => Promise<void>;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [logoutError, setLogoutError] = useState(false);
+  const [adminError, setAdminError] = useState(false);
+  async function openAdmin(event: React.MouseEvent<HTMLAnchorElement>, target: string) {
+    if (!onEnterAdmin) return;
+    event.preventDefault();
+    setAdminError(false);
+    try {
+      await onEnterAdmin(target);
+    } catch {
+      setAdminError(true);
+    }
+  }
   const links = [
     { to: '/', label: 'Главная', icon: LayoutDashboard },
     ...(user.role === 'admin'
       ? [
           { to: '/schedule', label: 'Расписание', icon: CalendarDays },
           { to: '/workload', label: 'Нагрузка', icon: ChartNoAxesCombined },
-          { to: '/documents', label: 'Справки', icon: Files },
+          { to: '/documents', label: 'Документы', icon: Files },
         ]
       : []),
     { to: '/profile', label: 'Профиль', icon: UserRound },
+    { to: '/notifications', label: 'Уведомления', icon: Bell },
+    ...(['student', 'parent'].includes(user.role)
+      ? [{ to: '/billing', label: 'Оплата обучения', icon: Files }]
+      : []),
+    ...(['teacher', 'student'].includes(user.role)
+      ? [
+          { to: '/my-schedule', label: 'Моё расписание', icon: CalendarDays },
+          {
+            to: '/homework',
+            label: user.role === 'teacher' ? 'Уроки и проверка ДЗ' : 'Домашние задания',
+            icon: Files,
+          },
+        ]
+      : []),
   ];
   const navigation = (
     <nav aria-label="Основные разделы" className="nav-links">
@@ -77,11 +105,34 @@ export function AppShell({
         </NavLink>
       ))}
       {user.role === 'admin' && (
-        <a href="/admin/" className="nav-link">
-          <Settings size={21} aria-hidden="true" />
-          Администрирование
-        </a>
+        <>
+          <a
+            href="/admin/analytics/"
+            className="nav-link"
+            onClick={(event) => void openAdmin(event, '/admin/analytics/')}
+          >
+            <ChartNoAxesCombined size={21} aria-hidden="true" />
+            Успеваемость и аудит
+          </a>
+          <a
+            href="/admin/payments/"
+            className="nav-link"
+            onClick={(event) => void openAdmin(event, '/admin/payments/')}
+          >
+            <Files size={21} aria-hidden="true" />
+            История платежей
+          </a>
+          <a
+            href="/admin/"
+            className="nav-link"
+            onClick={(event) => void openAdmin(event, '/admin/')}
+          >
+            <Settings size={21} aria-hidden="true" />
+            Администрирование
+          </a>
+        </>
       )}
+      {adminError && <p role="alert">Не удалось войти в админку. Проверьте права и соединение.</p>}
     </nav>
   );
   async function logout() {
@@ -149,7 +200,7 @@ export function AppShell({
               </Dialog.Content>
             </Dialog.Portal>
           </Dialog.Root>
-          <span className="topbar-label">OG1 / ваше пространство</span>
+          <span className="topbar-label">OG / ваше пространство</span>
           <div className="account">
             <div className="account-info">
               <strong>{user.email}</strong>

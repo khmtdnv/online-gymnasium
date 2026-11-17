@@ -9,9 +9,13 @@ describe('единый origin и режимы запуска', () => {
   it('не превращает ошибки API в SPA и запрещает private API', () => {
     for (const name of ['nginx.conf', 'nginx.dev.conf']) {
       const config = read(`deploy/web/${name}`);
-      expect(config).toContain('location ^~ /api/v1/');
+      expect(config).toContain('location /api/v1/');
+      expect(config).toContain(
+        'location ~ ^/api/v1/homework/[0-9]+/(answers/[0-9]+/)?files/[0-9]+$',
+      );
+      expect(config).not.toMatch(/location\s+\^~\s+\/api\/v1\/\s*\{/);
       expect(config).toContain('location ^~ /internal/');
-      expect(config).toContain('include /etc/nginx/og1-proxy-headers.conf');
+      expect(config).toContain('include /etc/nginx/og-proxy-headers.conf');
       const headers = read('deploy/web/proxy-headers.conf');
       expect(headers).toContain('proxy_intercept_errors off');
       expect(headers).toContain('proxy_next_upstream off');
@@ -21,7 +25,8 @@ describe('единый origin и режимы запуска', () => {
   });
   it('разделяет Vite HMR и статическую production сборку', () => {
     expect(read('deploy/web/nginx.dev.conf')).toContain('proxy_set_header Upgrade $http_upgrade');
-    expect(read('deploy/web/nginx.conf')).not.toContain('proxy_set_header Upgrade');
+    // Production тоже поддерживает WebSocket ручки, но не проксирует Vite.
+    expect(read('deploy/web/nginx.conf')).not.toContain('frontend-dev:5173');
     expect(read('services/frontend/nginx.conf')).toContain('try_files $uri $uri/ /index.html');
     const image = read('services/frontend/Dockerfile');
     expect(image).toContain('--frozen-lockfile');

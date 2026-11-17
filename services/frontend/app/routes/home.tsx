@@ -6,7 +6,7 @@ import {
   GraduationCap,
   UserRound,
 } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, Navigate } from 'react-router';
 import { PageHeader } from '../components/page-header';
 import { Alert } from '../components/ui/alert';
 import { useSession } from '../features/auth/session-context';
@@ -70,7 +70,7 @@ export function HomeContent({ user }: { user: CurrentUser }) {
           <p>
             {admin
               ? 'Выберите школьную задачу. За расписание, расчёты и документы отвечают ваши работающие сервисы.'
-              : 'Учётная запись готова. Личные школьные данные будут подключены после настройки принадлежности к классу и прав доступа.'}
+              : 'Откройте своё расписание или домашние задания. Здесь находятся ваши школьные дела.'}
           </p>
           <Link to={admin ? '/schedule' : '/profile'} className="button button-primary">
             {admin ? 'Перейти к урокам' : 'Посмотреть профиль'}
@@ -81,7 +81,12 @@ export function HomeContent({ user }: { user: CurrentUser }) {
           <GraduationCap size={90} strokeWidth={1.2} />
         </div>
       </section>
-      {!admin && (
+      {['teacher', 'student'].includes(user.role) && (
+        <Link to="/homework" className="button button-primary">
+          {user.role === 'teacher' ? 'Мои уроки и ДЗ' : 'Домашние задания'}
+        </Link>
+      )}
+      {user.role === 'parent' && (
         <Alert>
           Сейчас доступен профиль. Мы не показываем чужие классы и документы, пока нет настройки
           личного доступа.
@@ -109,5 +114,7 @@ export function HomeContent({ user }: { user: CurrentUser }) {
 
 export default function Home() {
   const { state } = useSession();
+  if (state.status === 'authenticated' && ['student', 'teacher'].includes(state.user.role))
+    return <Navigate to="/my-schedule" replace />;
   return state.status === 'authenticated' ? <HomeContent user={state.user} /> : null;
 }

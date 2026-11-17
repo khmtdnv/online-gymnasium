@@ -16,7 +16,9 @@ function setup(
   entry = '/documents',
 ) {
   const getDocument = vi.fn();
-  const features = { documents: { createCertificate, getDocument } } as unknown as Features;
+  const features = {
+    documents: { createCertificate, getDocument, listJobs: vi.fn().mockResolvedValue([]) },
+  } as unknown as Features;
   render(
     <MemoryRouter initialEntries={[entry]}>
       <QueryClientProvider
@@ -61,10 +63,11 @@ describe('справки', () => {
     setup(createCertificate);
     await fill();
     await userEvent.click(screen.getByRole('button', { name: 'Создать справку' }));
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'повтор может создать второе задание',
-    );
+    expect(await screen.findByRole('alert')).toHaveTextContent('Повторите с тем же ключом');
     expect(createCertificate).toHaveBeenCalledOnce();
+    await userEvent.click(screen.getByRole('button', { name: 'Повторить с тем же ключом' }));
+    expect(createCertificate).toHaveBeenCalledTimes(2);
+    expect(createCertificate.mock.calls[0][1]).toBe(createCertificate.mock.calls[1][1]);
   });
   it('не запрашивает задание по некорректному UUID', () => {
     const { getDocument } = setup(undefined, '/documents/broken');

@@ -48,6 +48,7 @@ def test_student_reads_through_both_services_and_authoritative_http(
     )
     from homework_service.config import HomeworkSettings
     from homework_service.domain.homework import Homework
+    from homework_service.domain.homework_file import HomeworkFile
     from homework_service.infrastructure.journal_client import HttpJournalReader
     from homework_service.infrastructure.schedule_client import HttpScheduleReader
 
@@ -78,12 +79,39 @@ def test_student_reads_through_both_services_and_authoritative_http(
     async def get_by_id(id):
         return next((row for row in rows if row.id == id), None)
 
+    async def list_files(ids):
+        if 1 not in ids:
+            return {}
+        return {
+            1: [
+                HomeworkFile(
+                    id=8,
+                    homework_id=1,
+                    file_name="task.pdf",
+                    size_bytes=32,
+                    content_type="application/pdf",
+                    content_sha256="a" * 64,
+                ),
+                HomeworkFile(
+                    id=9,
+                    homework_id=1,
+                    file_name="solution.pdf",
+                    size_bytes=64,
+                    content_type="application/pdf",
+                    content_sha256="b" * 64,
+                    upload_status="ready",
+                    storage_key="homework/private-object",
+                ),
+            ]
+        }
+
     @asynccontextmanager
     async def homework_uow():
         yield SimpleNamespace(
             homeworks=SimpleNamespace(
                 list_for_class=list_for_class, get_by_id=get_by_id
-            )
+            ),
+            files=SimpleNamespace(list_for_homeworks=list_files),
         )
 
     def journal_response(request):
@@ -227,6 +255,13 @@ def test_student_reads_through_both_services_and_authoritative_http(
                         return
                     data = response.json()
                     assert [row["id"] for row in data] == [2, 1]
+                    assert data[0]["files"] == []
+                    assert [
+                        (file["file_name"], file["upload_status"])
+                        for file in data[1]["files"]
+                    ] == [("task.pdf", "pending"), ("solution.pdf", "ready")]
+                    assert "storage_key" not in response.text
+                    assert "content_sha256" not in response.text
                     assert calls["schedule"] == 1
                     assert data[1]["due_status"] == "manual"
                     if scenario == "cancelled":
@@ -238,9 +273,9 @@ def test_student_reads_through_both_services_and_authoritative_http(
                             datetime.fromisoformat(data[0]["final_due_datetime"])
                             == expected
                         )
-                    assert (
-                        await public.get("/api/v1/homework/1", headers=headers)
-                    ).status_code == 200
+                    single = await public.get("/api/v1/homework/1", headers=headers)
+                    assert single.status_code == 200
+                    assert single.json()["files"] == data[1]["files"]
                     before = calls["schedule"]
                     state["class_id"] = 8
                     assert (
@@ -248,6 +283,7 @@ def test_student_reads_through_both_services_and_authoritative_http(
                     ).status_code == 404
                     after = await public.get("/api/v1/homework", headers=headers)
                     assert [row["id"] for row in after.json()] == [3]
+                    assert after.json()[0]["files"] == []
                     assert calls["schedule"] == before
 
     asyncio.run(run())

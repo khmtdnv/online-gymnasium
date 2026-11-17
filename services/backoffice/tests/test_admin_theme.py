@@ -39,7 +39,7 @@ def test_staff_pages_include_shared_theme_and_navigation(
 def test_login_has_theme_but_not_staff_actions(client):
     response = client.get(reverse("admin:login"))
     assert "backoffice_admin/theme.css" in response.content.decode()
-    assert 'class="og1-admin-nav"' not in response.content.decode()
+    assert 'class="og-admin-nav"' not in response.content.decode()
 
 
 def test_theme_tokens_match_frontend():

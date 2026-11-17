@@ -38,7 +38,7 @@ export const workloadSchema = z.object({
 export const documentStatusSchema = z.enum(['pending', 'processing', 'completed', 'failed']);
 export const createdDocumentSchema = z.object({
   id: uuidSchema,
-  document_type: z.literal('certificate'),
+  document_type: z.enum(['certificate', 'contract', 'act', 'receipt']),
   status: documentStatusSchema,
 });
 export const documentJobSchema = createdDocumentSchema.extend({

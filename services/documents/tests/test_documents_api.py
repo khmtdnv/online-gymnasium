@@ -3,11 +3,18 @@ from typing import Self
 from uuid import UUID, uuid4
 
 import pytest
-from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient as FastAPITestClient
 
 from document_service.config import DocumentSettings
 from document_service.domain.certificate import CertificateData
 from document_service.domain.document import DocumentJob, DocumentStatus
+
+
+def TestClient(app, **kwargs):
+    """Старые сценарии продолжают проверять API, теперь со служебной авторизацией."""
+    return FastAPITestClient(
+        app, headers={"Authorization": "Bearer docs-test-only"}, **kwargs
+    )
 
 
 class FakeDocumentRepository:
@@ -69,6 +76,7 @@ def create_test_app(
         document_database_url="postgresql+psycopg://documents:documents@localhost/documents",
         celery_broker_url="amqp://documents:documents@localhost:5672//",
         minio_endpoint="localhost:9000",
+        gateway_service_token="docs-test-only",
     )
     document_repository = repository or FakeDocumentRepository()
     document_storage = storage or FakeDocumentStorage()

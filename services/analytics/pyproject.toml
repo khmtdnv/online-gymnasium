@@ -1,7 +1,7 @@
 [project]
 name = "analytics-service"
 version = "0.1.0"
-description = "OG1 analytics service"
+description = "OG analytics service"
 requires-python = ">=3.12,<3.15"
 dependencies = [
     "pydantic (>=2.13.5,<3.0.0)",

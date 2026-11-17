@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import Annotated
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator
 
@@ -59,6 +60,44 @@ class ClassResult(BaseModel):
     name: str
     study_year: int
     created_at: AwareDatetime
+
+
+class LookupClassesQuery(BaseModel):
+    """Ограниченный пакет классов без произвольных дополнительных параметров."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    ids: list[Annotated[int, Field(strict=True, ge=1, le=2147483647)]] = Field(
+        max_length=1000
+    )
+
+    @field_validator("ids")
+    @classmethod
+    def unique_ids(cls, value):
+        """Не допускает повторяющиеся идентификаторы пакета."""
+        if len(value) != len(set(value)):
+            raise ValueError("Duplicate class IDs")
+        return value
+
+
+class LookupClassesHandler:
+    """Читает пакет названий через один репозиторий и одну короткую транзакцию."""
+
+    def __init__(self, uow_factory: Callable[[], UnitOfWork]) -> None:
+        self._uow_factory = uow_factory
+
+    async def handle(self, query: LookupClassesQuery) -> list[ClassResult]:
+        """Возвращает только существующие классы, не создавая фиктивных названий."""
+        async with self._uow_factory() as uow:
+            rows = await uow.classes.get_classes_by_ids(query.ids)
+        return [
+            ClassResult(
+                id=row.id,
+                name=row.name,
+                study_year=row.study_year,
+                created_at=row.created_at,
+            )
+            for row in rows
+        ]
 
 
 class CreateClassHandler:

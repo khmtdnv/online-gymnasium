@@ -13,5 +13,6 @@ class DocumentSettings(BaseSettings):
     minio_secret_key: str = "minioadmin"
     minio_bucket: str = "documents"
     minio_secure: bool = False
+    gateway_service_token: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

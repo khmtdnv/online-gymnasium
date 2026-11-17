@@ -60,7 +60,10 @@ async def create_homework(
     """
     try:
         return await client.create_homework(
-            teacher_id=teacher.id, issued_lesson_id=lesson_id, **body.model_dump()
+            teacher_id=teacher.id,
+            issued_lesson_id=lesson_id,
+            files=body.files,
+            **body.model_dump(exclude={"files"}),
         )
     except HomeworkRequestError as exc:
         messages = {

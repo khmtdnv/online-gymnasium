@@ -129,7 +129,8 @@ def test_teacher_schedule_card_create_and_student_reads(monkeypatch):
                 list_for_lesson=list_for_lesson,
                 list_for_class=list_for_class,
                 get_by_id=get_by_id,
-            )
+            ),
+            files=SimpleNamespace(list_for_homeworks=AsyncMock(return_value={})),
         )
 
     def journal_response(request):

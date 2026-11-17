@@ -45,7 +45,7 @@ export function BrowserProviders({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<SessionManager | null>(null);
   useEffect(() => {
     const channel =
-      typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('og1-session') : null;
+      typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('og-session') : null;
     const manager = createSessionManager({
       fetchImpl: window.fetch.bind(window),
       queryClient,

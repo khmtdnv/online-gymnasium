@@ -9,6 +9,7 @@ from pydantic import (
     AwareDatetime,
     BaseModel,
     ConfigDict,
+    Field,
     field_validator,
     model_validator,
 )
@@ -26,6 +27,7 @@ from homework_service.application.homework import (
     HomeworkResult,
     PositiveId,
 )
+from homework_service.application.homework_files import HomeworkFileInput
 from homework_service.application.ports.errors import (
     HomeworkAccessDeniedError,
     HomeworkAlreadyExistsError,
@@ -46,6 +48,9 @@ class CreateHomeworkRequest(BaseModel):
     description: Description
     due_lesson_id: PositiveId | None = None
     manual_due_datetime: AwareDatetime | None = None
+    files: list[HomeworkFileInput] = Field(
+        default_factory=list, max_length=5, strict=True
+    )
 
     @field_validator("manual_due_datetime", mode="before")
     @classmethod

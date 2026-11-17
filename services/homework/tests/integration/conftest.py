@@ -4,12 +4,36 @@ import asyncio
 import os
 import subprocess
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import pytest
 from sqlalchemy import text
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
+
+from homework_service.config import HomeworkSettings
+
+
+@pytest.fixture
+def minio_settings():
+    """Разрешает объектные проверки только в отдельном локальном test bucket."""
+    endpoint = os.getenv("HOMEWORK_TEST_MINIO_ENDPOINT")
+    if not endpoint:
+        pytest.skip("Set HOMEWORK_TEST_MINIO_* to an isolated local test storage")
+    parsed = urlsplit(f"http://{endpoint}")
+    bucket = os.environ["HOMEWORK_TEST_MINIO_BUCKET"]
+    assert parsed.hostname in ("127.0.0.1", "localhost") and bucket.startswith(
+        "homework-test-"
+    )
+    return HomeworkSettings(
+        database_url="unused",
+        _env_file=None,
+        minio_endpoint=endpoint,
+        minio_bucket=bucket,
+        minio_access_key=os.environ["HOMEWORK_TEST_MINIO_ACCESS_KEY"],
+        minio_secret_key=os.environ["HOMEWORK_TEST_MINIO_SECRET_KEY"],
+    )
 
 
 @pytest.fixture(scope="session")
@@ -50,7 +74,9 @@ def engine(database_url, migrate):
     async def clear():
         async with engine.begin() as connection:
             await connection.execute(
-                text("TRUNCATE homework_assignments RESTART IDENTITY")
+                text(
+                    "TRUNCATE homework_event_outbox, homework_answer_files, homework_answers, homework_files, homework_assignments RESTART IDENTITY"
+                )
             )
 
     asyncio.run(clear())

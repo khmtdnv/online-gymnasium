@@ -45,7 +45,9 @@ def make_app(users: object):
         _env_file=None,
     )
     uow = AsyncMock()
-    uow.__aenter__.return_value = SimpleNamespace(users=users)
+    uow.__aenter__.return_value = SimpleNamespace(
+        users=users, outbox=SimpleNamespace(add_user_event=AsyncMock())
+    )
     uow.__aexit__.return_value = False
     uow_factory = Mock(return_value=uow)
     password_service = Mock()

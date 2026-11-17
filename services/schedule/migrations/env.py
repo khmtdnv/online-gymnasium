@@ -17,6 +17,7 @@ from schedule_service.infrastructure.models.outbox_event import (
 from schedule_service.infrastructure.models.scheduled_lesson import (
     ScheduledLessonRow,  # noqa: F401
 )
+from schedule_service.infrastructure.models.subject import SubjectRow  # noqa: F401
 
 config = context.config
 

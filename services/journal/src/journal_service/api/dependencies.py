@@ -64,6 +64,37 @@ def get_authenticated_service(
 
     homework_token = request.app.state.settings.homework_service_token
     backoffice_token = request.app.state.settings.backoffice_service_token
+    gateway_read_token = getattr(
+        request.app.state.settings, "gateway_read_service_token", None
+    )
+    billing_read_token = getattr(
+        request.app.state.settings, "billing_read_service_token", None
+    )
+    tokens = [
+        value
+        for value in (
+            homework_token,
+            backoffice_token,
+            gateway_read_token,
+            billing_read_token,
+        )
+        if value
+    ]
+    if len(set(tokens)) != len(tokens):
+        raise HTTPException(status_code=503, detail="Service credentials misconfigured")
+    if billing_read_token and secrets.compare_digest(
+        incoming_token.encode(), billing_read_token.encode()
+    ):
+        return ServicePrincipal(
+            service_name="billing", permissions=frozenset({"classes:read"})
+        )
+    if gateway_read_token and secrets.compare_digest(
+        incoming_token.encode(), gateway_read_token.encode()
+    ):
+        return ServicePrincipal(
+            service_name="gateway",
+            permissions=frozenset({"classes:read", "student-current-class:read"}),
+        )
     if homework_token and secrets.compare_digest(
         homework_token.encode(), backoffice_token.encode()
     ):

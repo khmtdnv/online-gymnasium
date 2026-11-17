@@ -11,6 +11,7 @@ from document_service.api.dependencies import (
     get_document_storage,
     get_uow_factory,
 )
+from document_service.api.security import require_gateway
 from document_service.application.create_certificate import (
     CreateCertificateCommand,
     CreateCertificateHandler,
@@ -20,7 +21,9 @@ from document_service.application.ports.unit_of_work import DocumentUnitOfWorkFa
 from document_service.domain.certificate import InvalidCertificateData
 from document_service.domain.document import DocumentJob, DocumentStatus
 
-router = APIRouter(prefix="/documents", tags=["documents"])
+router = APIRouter(
+    prefix="/documents", tags=["documents"], dependencies=[Depends(require_gateway)]
+)
 
 
 class CreateCertificateRequest(BaseModel):

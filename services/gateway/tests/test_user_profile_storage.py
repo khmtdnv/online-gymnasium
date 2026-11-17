@@ -91,6 +91,12 @@ def test_search_and_name_update_on_real_postgres():
                 await session.commit()
             async with factory() as session:
                 repo = SqlAlchemyUserRepository(session)
+                assert await repo.get_by_ids([]) == []
+                batch = await repo.get_by_ids(
+                    [people[0].id, people[1].id, people[0].id, uuid4()]
+                )
+                assert {user.id for user in batch} == {people[0].id, people[1].id}
+                assert all(user.last_name == "Петров" for user in batch)
                 for query in ("пЕТРОВ иВАН", "Серге Ив", "Ив Петр", "ivan@"):
                     assert [
                         u.id

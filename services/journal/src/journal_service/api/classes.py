@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from pydantic import BaseModel, StrictInt, ValidationError
+from sqlalchemy.exc import SQLAlchemyError
 
 from journal_service.api.dependencies import (
     get_create_class_handler,
@@ -15,6 +16,8 @@ from journal_service.application.classes import (
     CreateClassHandler,
     ListClassesHandler,
     ListClassesQuery,
+    LookupClassesHandler,
+    LookupClassesQuery,
 )
 
 router = APIRouter(prefix="/internal/classes", include_in_schema=False)
@@ -34,6 +37,22 @@ class ClassResponse(BaseModel):
     name: str
     study_year: int
     created_at: datetime
+
+
+@router.post(
+    "/lookup",
+    response_model=list[ClassResponse],
+    dependencies=[Depends(RequireServicePermission("classes:read"))],
+)
+async def lookup_classes(
+    body: LookupClassesQuery, request: Request
+) -> list[ClassResponse]:
+    """Читает названия классов пакетом, не предоставляя вызывающему write-прав."""
+    try:
+        rows = await LookupClassesHandler(request.app.state.uow_factory).handle(body)
+    except (SQLAlchemyError, OSError) as exc:
+        raise HTTPException(503, "Journal unavailable") from exc
+    return [ClassResponse(**row.model_dump()) for row in rows]
 
 
 @router.post(

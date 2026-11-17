@@ -1,7 +1,7 @@
 [project]
 name = "backoffice-service"
 version = "0.1.0"
-description = "OG1 backoffice service"
+description = "OG backoffice service"
 requires-python = ">=3.12,<3.15"
 dependencies = [
     "Django (>=6.1.1,<7.0.0)",
@@ -9,6 +9,7 @@ dependencies = [
     "psycopg[binary] (>=3.3.6,<4.0.0)",
     "gunicorn (>=26.2.0,<27.0.0)",
     "pydantic (>=2.13.5,<3.0.0)",
+    "aiokafka (>=0.14.0,<0.15.0)",
 ]
 
 [tool.poetry]

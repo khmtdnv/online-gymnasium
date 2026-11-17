@@ -31,3 +31,15 @@ class AnalyticsApiSettings(BaseSettings):
     clickhouse_database: str = "default"
     clickhouse_user: str
     clickhouse_password: str
+    gateway_read_service_token: str | None = None
+
+
+class AuditWorkerSettings(AnalyticsApiSettings):
+    """Отдельные topic/group/DLQ не меняют существующий consumer нагрузки."""
+
+    model_config = SettingsConfigDict(env_file=(".env", ".worker.env"), extra="ignore")
+    kafka_bootstrap_servers: str
+    platform_events_topic: str = "platform.events.v1"
+    schedule_snapshot_topic: str = "schedule.lessons.v2"
+    audit_group_id: str = "analytics-audit-v1"
+    audit_dlq_topic: str = "analytics.audit.dlq"

@@ -59,6 +59,7 @@ async def login(
     request_model: LoginRequest,
     handler: Annotated[LoginHandler, Depends(get_login_handler)],
     response: Response,
+    refresh_token: Annotated[str | None, Cookie()] = None,
 ):
     """Проверяет вход и записывает refresh-токен в HttpOnly-cookie.
 
@@ -75,7 +76,11 @@ async def login(
         HTTPException: Неверные учётные данные; HTTP-статус 401.
             Проверка Origin в dependency может отклонить запрос с HTTP 403.
     """
-    command = LoginCommand(email=request_model.email, password=request_model.password)
+    command = LoginCommand(
+        email=request_model.email,
+        password=request_model.password,
+        previous_refresh_token=refresh_token,
+    )
     try:
         result = await handler.handle(command)
         set_refresh_cookie(

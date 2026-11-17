@@ -8,6 +8,17 @@ from schedule_service.domain.lesson import Lesson
 class LessonRepository(Protocol):
     """Контракт чтения и изменения уроков внутри текущей транзакции."""
 
+    async def list_calendar_lessons(
+        self,
+        *,
+        class_id: int | None,
+        teacher_id: UUID | None,
+        starts_at_from: datetime,
+        starts_at_until: datetime,
+    ) -> list[Lesson]:
+        """Читает ограниченный календарный интервал, включая отменённые уроки."""
+        ...
+
     async def list_for_teacher(
         self, *, teacher_id: UUID, date_from: date, date_to: date
     ) -> list[Lesson]:

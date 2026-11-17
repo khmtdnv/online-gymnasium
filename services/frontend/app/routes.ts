@@ -5,7 +5,15 @@ export default [
   layout('routes/protected.tsx', [
     index('routes/home.tsx'),
     route('profile', 'routes/profile.tsx'),
+    route('billing', 'routes/billing.tsx'),
+    route('notifications', 'routes/notifications.tsx'),
+    route('my-schedule', 'routes/my-schedule.tsx'),
+    route('pen/lessons/:lessonId', 'routes/pen.tsx'),
+    route('homework', 'routes/homework.tsx'),
+    route('homework/:homeworkId', 'routes/homework-detail.tsx'),
+    route('lessons/:lessonId', 'routes/teacher-lesson.tsx'),
     layout('routes/operational.tsx', [
+      route('analytics', 'routes/analytics.tsx'),
       route('schedule', 'routes/schedule.tsx'),
       route('workload', 'routes/workload.tsx'),
       route('documents', 'routes/documents.tsx'),

@@ -2,17 +2,17 @@
 {% load static %}
 {% block content_title %}{% endblock %}
 {% block content %}
-<section class="og1-form-card">
+<section class="og-form-card">
   <h1>{{ title }}</h1>
   <p>Найдите преподавателя и выберите класс. Назначения не меняют расписание уроков.</p>
   {% if service_error %}<p role="alert">{{ service_error }}</p>{% endif %}
   <form method="get" id="student-class-form" data-search-url="{% url 'backoffice-search-teachers' %}" data-id-field="id_teacher_search_id" data-user-kind="teacher">
     <label for="student-search">Найти преподавателя</label>
     <input type="hidden" id="id_teacher_search_id" name="teacher_id" value="{{ teacher_id|default:'' }}">
-    <div id="student-picker" class="og1-student-picker">
+    <div id="student-picker" class="og-student-picker">
       <input id="student-search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="student-results" aria-describedby="student-search-status" required autocomplete="off" maxlength="200" placeholder="ФИО или email" value="{{ teacher_label }}">
-      <button type="button" id="clear-student" class="og1-clear-student" aria-label="Очистить выбор" hidden>×</button>
-      <ul id="student-results" class="og1-student-results" role="listbox" aria-label="Преподаватели" hidden></ul>
+      <button type="button" id="clear-student" class="og-clear-student" aria-label="Очистить выбор" hidden>×</button>
+      <ul id="student-results" class="og-student-results" role="listbox" aria-label="Преподаватели" hidden></ul>
     </div>
     <input type="hidden" id="student-label" name="teacher_label" value="{{ teacher_label }}">
     <p id="student-search-status" role="status" aria-live="polite">Введите минимум 2 символа.</p>

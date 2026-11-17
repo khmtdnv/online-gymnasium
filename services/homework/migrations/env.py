@@ -10,6 +10,9 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from homework_service.config import HomeworkSettings
 from homework_service.infrastructure.models.base import Base
 from homework_service.infrastructure.models.homework import HomeworkRow  # noqa: F401
+from homework_service.infrastructure.models.homework_file import (
+    HomeworkFileRow,  # noqa: F401
+)
 
 config = context.config
 if config.config_file_name:

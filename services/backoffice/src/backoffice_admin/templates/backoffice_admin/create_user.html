@@ -2,9 +2,9 @@
 {% block content_title %}{% endblock %}
 
 {% block content %}
-  <section class="og1-form-card">
+  <section class="og-form-card">
     <h1>{{ title }}</h1>
-    <p class="og1-intro">Пользователь будет создан в Gateway. Пароль не сохраняется в журнале действий Backoffice.</p>
+    <p class="og-intro">Пользователь будет создан в Gateway. Пароль не сохраняется в журнале действий Backoffice.</p>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

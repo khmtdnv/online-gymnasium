@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<section class="og-form-card">
+  <h1>История платежей</h1>
+  <p>Здесь показаны платежи тестового магазина. Возврат требует подтверждения учётной записью администратора портала.</p>
+  {{ form.non_field_errors }}
+  {{ form.offset.errors }}
+  {% if report %}
+  <table><thead><tr><th>Номер</th><th>Ученик</th><th>Учебный месяц</th><th>Сумма, ₽</th><th>Статус</th><th>Возврат</th></tr></thead><tbody>
+    {% for payment in report.payments %}<tr><td>{{ payment.id }}</td><td>{{ payment.student_name }}</td><td>{{ payment.study_month }}</td><td>{{ payment.amount_rubles }}</td><td>{{ payment.status_label }} {% if payment.status == 'manual_review' %}<a href="{% url 'backoffice-reconcile' payment.id %}">Проверить платёж</a>{% endif %}</td><td>{{ payment.refund_status_label }} {% if payment.refund_action_label %}<a href="{% url 'backoffice-refund' payment.id %}">{{ payment.refund_action_label }}</a>{% endif %}</td></tr>{% empty %}<tr><td colspan="6">Платежей пока нет.</td></tr>{% endfor %}
+  </tbody></table>
+  {% if report.previous_offset != None %}<a href="?offset={{ report.previous_offset }}">Предыдущие платежи</a>{% endif %}
+  {% if report.next_offset != None %}<a href="?offset={{ report.next_offset }}">Следующие платежи</a>{% endif %}
+  {% endif %}
+</section>
+{% endblock %}

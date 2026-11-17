@@ -32,7 +32,9 @@ def test_me_reads_bearer_token_and_returns_current_user() -> None:
     )
     users = SimpleNamespace(get_by_id=AsyncMock(return_value=user))
     uow = AsyncMock()
-    uow.__aenter__.return_value = SimpleNamespace(users=users)
+    uow.__aenter__.return_value = SimpleNamespace(
+        users=users, auth_sessions=AsyncMock()
+    )
     token_service = Mock()
     token_service.decode_access.return_value = DecodedAccess(
         user_id=user.id, role=Role.STUDENT
@@ -112,7 +114,9 @@ def test_refresh_uses_cookie_and_rotates_token_pair(secure: bool) -> None:
         create_refresh_token=AsyncMock(),
     )
     uow = AsyncMock()
-    uow.__aenter__.return_value = SimpleNamespace(users=users)
+    uow.__aenter__.return_value = SimpleNamespace(
+        users=users, auth_sessions=AsyncMock()
+    )
     token_service = Mock()
     token_service.decode_refresh.return_value = DecodedRefresh(
         user_id=user_id, jti=old_jti
@@ -239,7 +243,11 @@ def test_login_sets_refresh_cookie_and_returns_only_access_token(secure: bool) -
         get_by_email=AsyncMock(return_value=user), create_refresh_token=AsyncMock()
     )
     uow = AsyncMock()
-    uow.__aenter__.return_value = SimpleNamespace(users=users)
+    uow.__aenter__.return_value = SimpleNamespace(
+        users=users,
+        outbox=SimpleNamespace(add_user_event=AsyncMock()),
+        auth_sessions=SimpleNamespace(create=AsyncMock()),
+    )
     password_verifier = Mock()
     password_verifier.verify.return_value = True
     token_service = Mock()
@@ -353,7 +361,9 @@ def test_refresh_replay_returns_401_without_issuing_another_token() -> None:
         create_refresh_token=AsyncMock(),
     )
     uow = AsyncMock()
-    uow.__aenter__.return_value = SimpleNamespace(users=users)
+    uow.__aenter__.return_value = SimpleNamespace(
+        users=users, auth_sessions=AsyncMock()
+    )
     token_service = Mock()
     token_service.decode_refresh.return_value = DecodedRefresh(
         user_id=user.id, jti=old_jti

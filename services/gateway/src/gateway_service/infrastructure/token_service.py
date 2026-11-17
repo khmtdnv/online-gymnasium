@@ -49,6 +49,7 @@ class PyJwtTokenService:
             return DecodedRefresh(
                 user_id=UUID(decoded_token["sub"]),
                 jti=UUID(decoded_token["jti"]),
+                session_id=self._decode_session_id(decoded_token),
             )
         except (jwt.InvalidTokenError, ValueError) as exc:
             raise AuthenticationError from exc
@@ -78,11 +79,24 @@ class PyJwtTokenService:
             return DecodedAccess(
                 user_id=UUID(decoded_token["sub"]),
                 role=Role(decoded_token["role"]),
+                session_id=self._decode_session_id(decoded_token),
             )
         except (jwt.InvalidTokenError, ValueError) as exc:
             raise AuthenticationError from exc
 
-    def issue_refresh(self, user: User) -> IssuedRefresh:
+    @staticmethod
+    def _decode_session_id(claims: dict) -> UUID | None:
+        """Читает необязательный идентификатор сессии из проверенного JWT."""
+        if "sid" not in claims:
+            return None
+        value = claims["sid"]
+        if not isinstance(value, str):
+            raise AuthenticationError
+        return UUID(value)
+
+    def issue_refresh(
+        self, user: User, *, session_id: UUID | None = None
+    ) -> IssuedRefresh:
         """Выпускает подписанный refresh-токен с новым jti.
 
         Не записывает токен в базу; сохранение выполняет вызывающий обработчик.
@@ -103,12 +117,14 @@ class PyJwtTokenService:
             "exp": expires_at,
             "type": "refresh",
         }
+        if session_id is not None:
+            payload["sid"] = str(session_id)
         token = jwt.encode(
             payload=payload, key=self._settings.jwt_secret, algorithm="HS256"
         )
         return IssuedRefresh(token=token, jti=jti, expires_at=expires_at)
 
-    def issue_access(self, user: User) -> str:
+    def issue_access(self, user: User, *, session_id: UUID | None = None) -> str:
         """Выпускает access-токен с ID пользователя и его ролью.
 
         Args:
@@ -126,6 +142,8 @@ class PyJwtTokenService:
             "exp": expires_at,
             "type": "access",
         }
+        if session_id is not None:
+            payload["sid"] = str(session_id)
         return jwt.encode(
             payload=payload,
             key=self._settings.jwt_secret,

@@ -1,7 +1,9 @@
 """Запись события Journal в той же транзакции, что и период ученика."""
 
 from datetime import UTC
+from uuid import UUID
 
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from journal_service.application.events import (
@@ -70,3 +72,27 @@ class SqlAlchemyOutboxRepository:
         )
         self._session.add(row)
         await self._session.flush()
+
+    async def get_pending(self, *, limit: int) -> list[dict]:
+        """Читает ограниченную пачку ранее сохранённых конвертов без их изменения."""
+        return list(
+            await self._session.scalars(
+                select(JournalOutboxEventRow.envelope)
+                .where(JournalOutboxEventRow.published_at.is_(None))
+                .order_by(
+                    JournalOutboxEventRow.created_at, JournalOutboxEventRow.event_id
+                )
+                .limit(limit)
+            )
+        )
+
+    async def mark_published(self, event_id: UUID) -> None:
+        """Записывает дату только для ещё не отмеченного события после Kafka ack."""
+        await self._session.execute(
+            update(JournalOutboxEventRow)
+            .where(
+                JournalOutboxEventRow.event_id == event_id,
+                JournalOutboxEventRow.published_at.is_(None),
+            )
+            .values(published_at=func.clock_timestamp())
+        )

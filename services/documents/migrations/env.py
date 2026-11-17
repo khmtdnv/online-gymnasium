@@ -5,6 +5,9 @@ from sqlalchemy import engine_from_config, pool
 
 from document_service.config import DocumentSettings
 from document_service.infrastructure.models.base import Base
+from document_service.infrastructure.models.document_event_outbox import (
+    DocumentEventRow,  # noqa
+)
 from document_service.infrastructure.models.document_job import DocumentJobRow  # noqa
 from document_service.infrastructure.models.document_task_outbox import (
     DocumentTaskOutboxRow,  # noqa

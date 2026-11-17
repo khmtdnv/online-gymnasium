@@ -46,6 +46,28 @@ class SqlAlchemyUserRepository:
             middle_name=db_model.middle_name or "",
         )
 
+    async def has_parent_student_link(self, parent_id: UUID, student_id: UUID) -> bool:
+        """Проверяет существование ровно нужной пары родителя и ученика."""
+        stmt = select(ParentStudentLinkRow.id).where(
+            ParentStudentLinkRow.parent_id == parent_id,
+            ParentStudentLinkRow.student_id == student_id,
+        )
+        return (await self._session.scalar(stmt)) is not None
+
+    async def list_children(self, parent_id: UUID, limit: int) -> list[User]:
+        """Соединяет связи с профилями, чтобы отдать ФИО одним запросом."""
+        stmt = (
+            select(UserRow)
+            .join(ParentStudentLinkRow, ParentStudentLinkRow.student_id == UserRow.id)
+            .where(
+                ParentStudentLinkRow.parent_id == parent_id,
+                UserRow.role == Role.STUDENT.value,
+            )
+            .order_by(UserRow.last_name, UserRow.first_name, UserRow.id)
+            .limit(limit)
+        )
+        return [self._to_domain_model(row) for row in await self._session.scalars(stmt)]
+
     async def get_by_id(self, user_id: UUID) -> User | None:
         """Ищет пользователя по ID.
 
@@ -63,6 +85,22 @@ class SqlAlchemyUserRepository:
             return
 
         return self._to_domain_model(result)
+
+    async def get_by_ids(self, user_ids: list[UUID]) -> list[User]:
+        """Возвращает найденных пользователей одним запросом без N+1.
+
+        Args:
+            user_ids: Ограниченный набор ID страницы ответов.
+
+        Returns:
+            Найденные пользователи; отсутствующие ID пропускаются.
+        """
+        if not user_ids:
+            return []
+        rows = await self._session.scalars(
+            select(UserRow).where(UserRow.id.in_(user_ids))
+        )
+        return [self._to_domain_model(row) for row in rows]
 
     async def get_by_email(self, email: str) -> User | None:
         """Ищет пользователя по email.

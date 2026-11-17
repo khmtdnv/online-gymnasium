@@ -1,6 +1,8 @@
 # Приложения получают готовые контейнерные адреса из .env/.worker.env.
 # command только запускает процесс; настройки инфраструктуры — в отдельных env.
 # Учётные данные DATABASE_URL должны совпадать с соответствующим .postgres.env.
+name: online-gymnasium
+
 services:
   schedule-kafka:
     image: apache/kafka:4.3.1
@@ -132,9 +134,37 @@ services:
       - -m
       - analytics_service.workers.worker
     depends_on:
+      analytics-audit-migrations:
+        condition: service_completed_successfully
       schedule-kafka:
         condition: service_healthy
       analytics-clickhouse:
+        condition: service_healthy
+    restart: unless-stopped
+
+  analytics-audit-migrations:
+    build:
+      context: ./services/analytics
+    env_file:
+      - ./services/analytics/.clickhouse.env
+      - ./services/analytics/.env
+    command: ["poetry", "run", "python", "-m", "analytics_service.workers.migrate_audit"]
+    depends_on:
+      analytics-clickhouse:
+        condition: service_healthy
+
+  analytics-audit-worker:
+    build:
+      context: ./services/analytics
+    env_file:
+      - ./services/analytics/.clickhouse.env
+      - ./services/analytics/.env
+      - ./services/analytics/.worker.env
+    command: ["poetry", "run", "python", "-m", "analytics_service.workers.audit"]
+    depends_on:
+      analytics-audit-migrations:
+        condition: service_completed_successfully
+      schedule-kafka:
         condition: service_healthy
     restart: unless-stopped
 
@@ -156,6 +186,8 @@ services:
     ports:
       - "127.0.0.1:8001:8000"
     depends_on:
+      analytics-audit-migrations:
+        condition: service_completed_successfully
       analytics-clickhouse:
         condition: service_healthy
     restart: unless-stopped
@@ -337,7 +369,7 @@ services:
       context: ./services/gateway
     env_file:
       - ./services/gateway/.env
-    command: ["poetry", "run", "uvicorn", "gateway_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["poetry", "run", "uvicorn", "gateway_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--ws-max-size", "65536", "--ws-max-queue", "4"]
     ports:
       - "127.0.0.1:8003:8000"
     depends_on:
@@ -377,7 +409,7 @@ services:
       - ./services/backoffice/manage.py:/app/manage.py:ro
     env_file:
       - ./services/backoffice/.env
-    command: poetry run gunicorn backoffice.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 40 --access-logfile -
+    command: poetry run gunicorn backoffice.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120 --access-logfile -
     ports:
       - "127.0.0.1:8010:8000"
     depends_on:
@@ -455,6 +487,31 @@ services:
       retries: 10
       start_period: 5s
 
+  homework-minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address ":9001"
+    env_file:
+      - ./services/homework/.minio.env
+    volumes:
+      - homework_minio_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  homework-minio-init:
+    image: quay.io/minio/mc:RELEASE.2025-03-12T17-29-24Z
+    env_file:
+      - ./services/homework/.minio.env
+    entrypoint: ["/bin/sh", "/init/init.sh"]
+    volumes:
+      - ./services/homework/minio:/init:ro
+    depends_on:
+      homework-minio:
+        condition: service_healthy
+
   homework-migrations:
     build:
       context: ./services/homework
@@ -464,6 +521,19 @@ services:
     depends_on:
       homework-postgres:
         condition: service_healthy
+
+  homework-cleanup:
+    profiles: ["tools"]
+    build:
+      context: ./services/homework
+    env_file:
+      - ./services/homework/.env
+    command: ["/app/.venv/bin/python", "-m", "homework_service.cleanup_files"]
+    depends_on:
+      homework-migrations:
+        condition: service_completed_successfully
+      homework-minio-init:
+        condition: service_completed_successfully
 
   homework-api:
     build:
@@ -482,6 +552,228 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+
+  homework-outbox-relay:
+    build:
+      context: ./services/homework
+    env_file:
+      - ./services/homework/.env
+      - ./services/homework/.worker.env
+    command: ["poetry", "run", "python", "-m", "homework_service.workers.outbox_relay"]
+    depends_on:
+      homework-migrations:
+        condition: service_completed_successfully
+      schedule-kafka:
+        condition: service_healthy
+    restart: unless-stopped
+
+  journal-outbox-relay:
+    build:
+      context: ./services/journal
+    env_file:
+      - ./services/journal/.env
+      - ./services/journal/.worker.env
+    command: ["poetry", "run", "python", "-m", "journal_service.workers.outbox_relay"]
+    depends_on:
+      journal-migrations:
+        condition: service_completed_successfully
+      schedule-kafka:
+        condition: service_healthy
+    restart: unless-stopped
+
+  gateway-outbox-relay:
+    build:
+      context: ./services/gateway
+    env_file:
+      - ./services/gateway/.env
+      - ./services/gateway/.worker.env
+    command: ["poetry", "run", "python", "-m", "gateway_service.workers.outbox_relay"]
+    depends_on:
+      gateway-migrations:
+        condition: service_completed_successfully
+      schedule-kafka:
+        condition: service_healthy
+    restart: unless-stopped
+
+  backoffice-outbox-relay:
+    build:
+      context: ./services/backoffice
+    env_file:
+      - ./services/backoffice/.env
+      - ./services/backoffice/.worker.env
+    command: ["poetry", "run", "python", "manage.py", "relay_events"]
+    depends_on:
+      backoffice-migrations:
+        condition: service_completed_successfully
+      schedule-kafka:
+        condition: service_healthy
+    restart: unless-stopped
+
+  pen-postgres:
+    image: postgres:18
+    env_file:
+      - ./services/pen/.postgres.env
+    volumes:
+      - pen_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  pen-migrations:
+    build:
+      context: ./services/pen
+    env_file:
+      - ./services/pen/.env
+    command: ["/app/.venv/bin/alembic", "upgrade", "head"]
+    depends_on:
+      pen-postgres:
+        condition: service_healthy
+
+  pen-api:
+    build:
+      context: ./services/pen
+    env_file:
+      - ./services/pen/.env
+    command: ["poetry", "run", "uvicorn", "pen_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      pen-migrations:
+        condition: service_completed_successfully
+
+  notifications-postgres:
+    image: postgres:18
+    env_file:
+      - ./services/notifications/.postgres.env
+    volumes:
+      - notifications_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  notifications-migrations:
+    build:
+      context: ./services/notifications
+    env_file:
+      - ./services/notifications/.env
+    command: ["/app/.venv/bin/alembic", "upgrade", "head"]
+    depends_on:
+      notifications-postgres:
+        condition: service_healthy
+
+  notifications-api:
+    build:
+      context: ./services/notifications
+    env_file:
+      - ./services/notifications/.env
+    command: ["poetry", "run", "uvicorn", "notifications_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      notifications-migrations:
+        condition: service_completed_successfully
+
+  notifications-worker:
+    build:
+      context: ./services/notifications
+    env_file:
+      - ./services/notifications/.env
+      - ./services/notifications/.worker.env
+    command: ["poetry", "run", "python", "-m", "notifications_service.workers"]
+    depends_on:
+      notifications-migrations:
+        condition: service_completed_successfully
+      schedule-kafka:
+        condition: service_healthy
+    restart: unless-stopped
+
+  document-outbox-relay:
+    build:
+      context: ./services/documents
+    env_file:
+      - ./services/documents/.env
+      - ./services/documents/.worker.env
+    command: ["poetry", "run", "python", "-m", "document_service.infrastructure.event_relay"]
+    depends_on:
+      document-migrations:
+        condition: service_completed_successfully
+      schedule-kafka:
+        condition: service_healthy
+    restart: unless-stopped
+
+  billing-postgres:
+    image: postgres:18
+    env_file:
+      - ./services/billing/.postgres.env
+    volumes:
+      - billing_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  billing-migrations:
+    build:
+      context: ./services/billing
+    env_file:
+      - ./services/billing/.env
+    command: ["/app/.venv/bin/alembic", "upgrade", "head"]
+    depends_on:
+      billing-postgres:
+        condition: service_healthy
+
+  billing-api:
+    build:
+      context: ./services/billing
+    env_file:
+      - ./services/billing/.env
+    command: ["poetry", "run", "uvicorn", "billing_service.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      billing-migrations:
+        condition: service_completed_successfully
+
+  billing-reconcile:
+    build:
+      context: ./services/billing
+    env_file:
+      - ./services/billing/.env
+    command: ["poetry", "run", "python", "-m", "billing_service.workers", "reconcile"]
+    depends_on:
+      billing-migrations:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  billing-outbox-relay:
+    build:
+      context: ./services/billing
+    env_file:
+      - ./services/billing/.env
+      - ./services/billing/.worker.env
+    command: ["poetry", "run", "python", "-m", "billing_service.workers", "relay"]
+    depends_on:
+      billing-migrations:
+        condition: service_completed_successfully
+      schedule-kafka:
+        condition: service_healthy
+    restart: unless-stopped
+
+  billing-invoices:
+    build:
+      context: ./services/billing
+    env_file:
+      - ./services/billing/.env
+      - ./services/billing/.worker.env
+    command: ["poetry", "run", "python", "-m", "billing_service.workers", "invoices"]
+    depends_on:
+      billing-migrations:
+        condition: service_completed_successfully
+      journal-api:
+        condition: service_healthy
+    restart: unless-stopped
 
   web:
     build:
@@ -510,3 +802,7 @@ volumes:
   backoffice_static:
   journal_postgres_data:
   homework_postgres_data:
+  homework_minio_data:
+  pen_postgres_data:
+  billing_postgres_data:
+  notifications_postgres_data:

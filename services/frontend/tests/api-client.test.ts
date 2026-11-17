@@ -25,6 +25,49 @@ function setup(fetchImpl: typeof fetch) {
 }
 
 describe('API transport', () => {
+  it('останавливает скачивание сразу при лишних байтах, не читает весь ответ', async () => {
+    let cancelled = false;
+    let reads = 0;
+    const stream = new ReadableStream({
+      pull(controller) {
+        reads++;
+        controller.enqueue(new Uint8Array(10));
+        if (reads === 100) controller.close();
+      },
+      cancel() {
+        cancelled = true;
+      },
+    });
+    const { client } = setup(
+      vi.fn<typeof fetch>().mockResolvedValue(
+        new Response(stream, {
+          headers: { 'Content-Type': 'text/plain', 'Content-Length': '6' },
+        }),
+      ),
+    );
+    await expect(
+      client.downloadHomeworkFile('/api/v1/homework/1/files/8', {
+        size_bytes: 6,
+        content_type: 'text/plain',
+      }),
+    ).rejects.toBeInstanceOf(ApiProtocolError);
+    expect(cancelled).toBe(true);
+    expect(reads).toBeLessThan(100);
+  });
+  it('не задаёт JSON Content-Type для FormData при отправке и auth-повторе', async () => {
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(json({}, 401))
+      .mockResolvedValueOnce(json({ value: 'ok' }));
+    const { client } = setup(fetchImpl);
+    const body = new FormData();
+    body.append('file', new File(['x'], 'x.txt'));
+    await client.json('/api/v1/homework/1/files/8', { method: 'PUT', body }, schema);
+    for (const [, options] of fetchImpl.mock.calls) {
+      expect(new Headers(options?.headers).has('Content-Type')).toBe(false);
+      expect(options?.body).toBe(body);
+    }
+  });
   it('обновляет токен один раз и повторяет запрос с новым Bearer', async () => {
     const fetchImpl = vi
       .fn<typeof fetch>()

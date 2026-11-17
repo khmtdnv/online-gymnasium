@@ -77,13 +77,17 @@ def handlers(rows, *, class_id=7, lessons=None, failure=None):
         events.append("get")
         return next((row for row in rows if row.id == id), None)
 
+    async def list_files(ids):
+        return {}
+
     @asynccontextmanager
     async def factory():
         events.append("open")
         yield SimpleNamespace(
             homeworks=SimpleNamespace(
                 list_for_class=list_for_class, get_by_id=get_by_id
-            )
+            ),
+            files=SimpleNamespace(list_for_homeworks=list_files),
         )
         events.append("closed")
 
