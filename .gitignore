@@ -6,6 +6,8 @@ __pycache__/
 .worktrees/
 **/docs/superpowers/
 .superpowers/
+.demo-data/
+**/staticfiles/
 
 *.pyc
 *.pyo
@@ -14,7 +16,8 @@ __pycache__/
 .env
 .env.*
 !.env.example
-services/schedule/.postgres.env
-services/analytics/.clickhouse.env
+*.env
+!*.env.example
 
 *.md
+!/README.md

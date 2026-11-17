@@ -1,0 +1,110 @@
+services:
+  frontend:
+    profiles: [built]
+  frontend-dev:
+    build:
+      context: ./services/frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/frontend/app:/app/app
+      - ./services/frontend/public:/app/public:ro
+      - ./services/frontend/react-router.config.ts:/app/react-router.config.ts:ro
+      - ./services/frontend/vite.config.ts:/app/vite.config.ts:ro
+      - frontend_node_modules:/app/node_modules
+  web:
+    volumes:
+      - ./deploy/web/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: !override
+      frontend-dev:
+        condition: service_started
+      gateway-api:
+        condition: service_started
+      backoffice-api:
+        condition: service_started
+      backoffice-static:
+        condition: service_completed_successfully
+  backoffice-api:
+    command: poetry run python manage.py runserver 0.0.0.0:8000
+    environment:
+      BACKOFFICE_DEBUG: "True"
+  # Миграции в dev используют текущие модели и записывают ревизии в репозиторий.
+  # В основном Compose те же команды применяют файлы, включённые в образ.
+  schedule-migrations:
+    volumes:
+      - ./services/schedule/src:/app/src:ro
+      - ./services/schedule/alembic.ini:/app/alembic.ini:ro
+      - ./services/schedule/migrations:/app/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  document-migrations:
+    volumes:
+      - ./services/documents/src:/app/src:ro
+      - ./services/documents/alembic.ini:/app/alembic.ini:ro
+      - ./services/documents/migrations:/app/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  gateway-migrations:
+    volumes:
+      - ./services/gateway/src:/app/src:ro
+      - ./services/gateway/alembic.ini:/app/alembic.ini:ro
+      - ./services/gateway/migrations:/app/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  journal-migrations:
+    volumes:
+      - ./services/journal/src:/app/src:ro
+      - ./services/journal/alembic.ini:/app/alembic.ini:ro
+      - ./services/journal/migrations:/app/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  homework-migrations:
+    volumes:
+      - ./services/homework/src:/app/src:ro
+      - ./services/homework/alembic.ini:/app/alembic.ini:ro
+      - ./services/homework/migrations:/app/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  homework-cleanup:
+    volumes:
+      - ./services/homework/src:/app/src:ro
+  homework-api:
+    command: ["poetry", "run", "uvicorn", "homework_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./services/homework/src:/app/src:ro
+  backoffice-migrations:
+    volumes:
+      - ./services/backoffice/src:/app/src:ro
+      - ./services/backoffice/manage.py:/app/manage.py:ro
+      - ./services/backoffice/src/backoffice_admin/migrations:/app/src/backoffice_admin/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  pen-migrations:
+    volumes:
+      - ./services/pen/src:/app/src:ro
+      - ./services/pen/alembic.ini:/app/alembic.ini:ro
+      - ./services/pen/migrations:/app/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  pen-api:
+    command: ["poetry", "run", "uvicorn", "pen_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./services/pen/src:/app/src:ro
+  notifications-migrations:
+    volumes:
+      - ./services/notifications/src:/app/src:ro
+      - ./services/notifications/alembic.ini:/app/alembic.ini:ro
+      - ./services/notifications/migrations:/app/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  notifications-api:
+    command: ["poetry", "run", "uvicorn", "notifications_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./services/notifications/src:/app/src:ro
+  billing-migrations:
+    volumes:
+      - ./services/billing/src:/app/src:ro
+      - ./services/billing/alembic.ini:/app/alembic.ini:ro
+      - ./services/billing/migrations:/app/migrations
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+  billing-api:
+    command: ["poetry", "run", "uvicorn", "billing_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./services/billing/src:/app/src:ro
+  journal-api:
+    command: ["poetry", "run", "uvicorn", "journal_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./services/journal/src:/app/src:ro
+volumes:
+  frontend_node_modules:

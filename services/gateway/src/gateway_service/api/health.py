@@ -8,11 +8,27 @@ router = APIRouter()
 
 @router.get("/health/live")
 async def health_live() -> dict[str, str]:
+    """Подтверждает, что HTTP-процесс отвечает на запросы.
+
+    Returns:
+        Статус ok без проверки внешних зависимостей.
+    """
     return {"status": "ok"}
 
 
 @router.get("/health/ready")
 async def health_ready(request: Request) -> dict[str, str]:
+    """Проверяет доступность PostgreSQL запросом SELECT 1.
+
+    Args:
+        request: HTTP-запрос с зависимостями приложения в app.state.
+
+    Returns:
+        Статус ok, если запрос к базе выполнен.
+
+    Raises:
+        HTTPException: База недоступна; HTTP-статус 503.
+    """
     engine: AsyncEngine = request.app.state.engine
     try:
         async with engine.connect() as connection:

@@ -157,13 +157,15 @@ def test_live_endpoint_does_not_create_workload_repository() -> None:
 
 def test_compose_defines_independent_analytics_api_service() -> None:
     compose = (Path(__file__).parents[3] / "compose.yaml").read_text()
+    runtime_env_example = (Path(__file__).parents[1] / ".env.example").read_text()
 
     assert "  analytics-api:" in compose
     assert "context: ./services/analytics" in compose
     assert "analytics_service.main:app" in compose
-    assert '"8001:8000"' in compose
-    assert "CLICKHOUSE_HOST: clickhouse" in compose
-    assert "CLICKHOUSE_PORT: 8123" in compose
-    assert "clickhouse:\n        condition: service_healthy" in compose
+    assert '"127.0.0.1:8001:8000"' in compose
+    assert "- ./services/analytics/.env" in compose
+    assert "CLICKHOUSE_HOST=analytics-clickhouse" in runtime_env_example
+    assert "CLICKHOUSE_PORT=8123" in runtime_env_example
+    assert "analytics-clickhouse:\n        condition: service_healthy" in compose
     assert "restart: unless-stopped" in compose
     assert "http://127.0.0.1:8000/health/live" in compose

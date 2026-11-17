@@ -7,8 +7,24 @@ from sqlalchemy.ext.asyncio import (
 
 
 def create_engine(url: str) -> AsyncEngine:
+    """Создаёт объект подключения SQLAlchemy к базе данных.
+
+    Args:
+        url: URL подключения к базе с выбранным драйвером.
+
+    Returns:
+        Engine для открытия соединений и управления их пулом.
+    """
     return create_async_engine(url=url)
 
 
 def create_session_factory(engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
+    """Создаёт фабрику новых сессий SQLAlchemy.
+
+    Args:
+        engine: Объект SQLAlchemy для соединений с базой.
+
+    Returns:
+        Фабрика, выдающая отдельную сессию для каждой транзакции.
+    """
     return async_sessionmaker(engine, expire_on_commit=False)

@@ -3,11 +3,14 @@ import json
 from datetime import UTC, datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, call
+from uuid import UUID
 
 import pytest
 from aiokafka.structs import TopicPartition
 
 from analytics_service.application.snapshot import LessonSnapshot
+
+TEACHER = UUID(int=100)
 
 
 class FakeConsumer:
@@ -28,12 +31,46 @@ class FakeProducer:
         self.send_and_wait = AsyncMock()
 
 
+@pytest.mark.anyio
+@pytest.mark.parametrize("fail_dlq", [False, True])
+async def test_incomplete_envelope_uses_dlq_before_commit(monkeypatch, fail_dlq):
+    """Пропускает offset только после подтверждённой отправки битого конверта."""
+    from analytics_service.workers import worker
+
+    partition = TopicPartition("schedule.lessons", 0)
+    message = SimpleNamespace(
+        topic="schedule.lessons", partition=0, offset=7, value=b"{}"
+    )
+    consumer, producer, repository = (
+        FakeConsumer([{partition: [message]}]),
+        FakeProducer(),
+        AsyncMock(),
+    )
+    order = []
+
+    async def send(*args, **kwargs):
+        order.append("dlq")
+        if fail_dlq:
+            raise RuntimeError("DLQ unavailable")
+
+    async def commit(*args, **kwargs):
+        order.append("commit")
+
+    producer.send_and_wait.side_effect = send
+    consumer.commit.side_effect = commit
+    configure_worker(monkeypatch, consumer, repository, producer)
+    with pytest.raises(RuntimeError if fail_dlq else asyncio.CancelledError):
+        await worker.run()
+    assert order == (["dlq"] if fail_dlq else ["dlq", "commit"])
+    repository.add_many.assert_not_awaited()
+
+
 def snapshot_message(
     *,
     event_id: int = 42,
     lesson_id: int = 501,
     class_id: int = 10,
-    teacher_id: int = 100,
+    teacher_id: UUID = TEACHER,
     subject_id: int = 1000,
     starts_at: str = "2026-09-20T10:00:00+00:00",
     ends_at: str = "2026-09-20T11:30:00+00:00",
@@ -50,11 +87,12 @@ def snapshot_message(
             {
                 "event_id": event_id,
                 "event_type": "lesson.snapshot",
+                "schema_version": 2,
                 "occurred_at": "2026-09-19T10:00:00+00:00",
                 "payload": {
                     "lesson_id": lesson_id,
                     "class_id": class_id,
-                    "teacher_id": teacher_id,
+                    "teacher_id": str(teacher_id),
                     "subject_id": subject_id,
                     "starts_at": starts_at,
                     "ends_at": ends_at,
@@ -71,7 +109,7 @@ def expected_snapshot(
     event_id: int = 42,
     lesson_id: int = 501,
     class_id: int = 10,
-    teacher_id: int = 100,
+    teacher_id: UUID = TEACHER,
     subject_id: int = 1000,
     starts_at: datetime = datetime(2026, 9, 20, 10, tzinfo=UTC),
     ends_at: datetime = datetime(2026, 9, 20, 11, 30, tzinfo=UTC),
@@ -103,6 +141,9 @@ def configure_worker(
     settings = SimpleNamespace(
         kafka_bootstrap_servers="kafka:19092",
         analytics_dlq_topic="analytics.lesson-snapshots.dlq",
+        schedule_snapshot_topic="schedule.lessons.v2",
+        schedule_snapshot_group_id="schedule-analytics-v2",
+        clickhouse_database="default",
         clickhouse_host="clickhouse",
         clickhouse_port=8123,
         clickhouse_user="default",
@@ -137,7 +178,7 @@ async def test_worker_persists_snapshot_batch_before_committing_partition_offset
                         event_id=43,
                         lesson_id=502,
                         class_id=11,
-                        teacher_id=101,
+                        teacher_id=UUID(int=101),
                         subject_id=1001,
                         starts_at="2026-09-20T12:00:00+00:00",
                         ends_at="2026-09-20T12:45:00+00:00",
@@ -160,9 +201,9 @@ async def test_worker_persists_snapshot_batch_before_committing_partition_offset
         await worker.run()
 
     consumer_factory.assert_called_once_with(
-        "schedule.lessons",
+        "schedule.lessons.v2",
         bootstrap_servers="kafka:19092",
-        group_id="schedule-analytics",
+        group_id="schedule-analytics-v2",
         enable_auto_commit=False,
         auto_offset_reset="earliest",
     )
@@ -171,6 +212,7 @@ async def test_worker_persists_snapshot_batch_before_committing_partition_offset
         port=8123,
         username="default",
         password="change-me",
+        database="default",
     )
     first_getmany_call = consumer.getmany.await_args_list[0]
     assert first_getmany_call.args == ()
@@ -182,7 +224,7 @@ async def test_worker_persists_snapshot_batch_before_committing_partition_offset
                 event_id=43,
                 lesson_id=502,
                 class_id=11,
-                teacher_id=101,
+                teacher_id=UUID(int=101),
                 subject_id=1001,
                 starts_at=datetime(2026, 9, 20, 12, tzinfo=UTC),
                 ends_at=datetime(2026, 9, 20, 12, 45, tzinfo=UTC),
@@ -210,7 +252,7 @@ async def test_worker_inserts_snapshots_from_multiple_partitions_in_one_batch(
                         event_id=43,
                         lesson_id=502,
                         class_id=11,
-                        teacher_id=101,
+                        teacher_id=UUID(int=101),
                         subject_id=1001,
                         starts_at="2026-09-20T12:00:00+00:00",
                         ends_at="2026-09-20T12:45:00+00:00",
@@ -238,7 +280,7 @@ async def test_worker_inserts_snapshots_from_multiple_partitions_in_one_batch(
                 event_id=43,
                 lesson_id=502,
                 class_id=11,
-                teacher_id=101,
+                teacher_id=UUID(int=101),
                 subject_id=1001,
                 starts_at=datetime(2026, 9, 20, 12, tzinfo=UTC),
                 ends_at=datetime(2026, 9, 20, 12, 45, tzinfo=UTC),

@@ -2,4 +2,4 @@ from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):
-    pass
+    """Общая база SQLAlchemy-моделей и их метаданных внутри сервиса."""

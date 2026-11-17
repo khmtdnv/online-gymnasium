@@ -5,6 +5,8 @@ from schedule_service.infrastructure.models.base import Base
 
 
 class IdempotencyRequestRow(Base):
+    """Резервирование ключа запроса и ссылка на созданный урок."""
+
     __tablename__ = "idempotency_requests"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

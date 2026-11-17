@@ -13,6 +13,37 @@ SIGNING_SECRET = "test-signing-secret-for-hs256-32-bytes"
 OTHER_SECRET = "another-signing-secret-for-hs256-32-bytes"
 
 
+@pytest.mark.parametrize(
+    "kind,field",
+    [
+        ("access", "sub"),
+        ("access", "role"),
+        ("access", "type"),
+        ("refresh", "sub"),
+        ("refresh", "jti"),
+        ("refresh", "type"),
+        ("access", "exp"),
+        ("refresh", "exp"),
+    ],
+)
+@pytest.mark.parametrize("value", [123, [], {}])
+def test_malformed_claim_types_are_authentication_errors(kind, field, value):
+    """Переводит неверные типы подписанных claims в штатную ошибку авторизации."""
+    service = make_service()
+    claims = {
+        "sub": str(uuid4()),
+        "jti": str(uuid4()),
+        "role": "student",
+        "type": kind,
+        "exp": datetime.now(UTC) + timedelta(minutes=5),
+    }
+    claims[field] = value
+    token = jwt.encode(claims, SIGNING_SECRET, algorithm="HS256")
+    decode = service.decode_access if kind == "access" else service.decode_refresh
+    with pytest.raises(AuthenticationError):
+        decode(token)
+
+
 def make_service(*, secret: str = SIGNING_SECRET) -> PyJwtTokenService:
     settings = GatewaySettings(
         database_url="postgresql+asyncpg://gateway:password@localhost/gateway",
@@ -30,6 +61,8 @@ def make_user() -> User:
         role=Role.STUDENT,
         password_hash="stored-hash",
         is_active=True,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
 
 
@@ -61,6 +94,43 @@ def test_issued_access_round_trips_with_user_and_role() -> None:
     assert decoded.role is Role.STUDENT
     assert claims["type"] == "access"
     assert claims["role"] == "student"
+
+
+def test_tokens_preserve_the_same_server_session_id() -> None:
+    service = make_service()
+    user = make_user()
+    session_id = uuid4()
+
+    access = service.issue_access(user, session_id=session_id)
+    refresh = service.issue_refresh(user, session_id=session_id)
+
+    assert service.decode_access(access).session_id == session_id
+    assert service.decode_refresh(refresh.token).session_id == session_id
+
+
+@pytest.mark.parametrize("kind", ["access", "refresh"])
+@pytest.mark.parametrize("value", ["not-a-uuid", 123, [], {}, None])
+def test_tokens_reject_invalid_session_id(kind, value) -> None:
+    service = make_service()
+    claims = {
+        "sub": str(uuid4()),
+        "jti": str(uuid4()),
+        "role": "student",
+        "type": kind,
+        "exp": datetime.now(UTC) + timedelta(minutes=5),
+        "sid": value,
+    }
+    token = jwt.encode(claims, SIGNING_SECRET, algorithm="HS256")
+    decode = service.decode_access if kind == "access" else service.decode_refresh
+    with pytest.raises(AuthenticationError):
+        decode(token)
+
+
+def test_old_tokens_without_session_id_still_decode() -> None:
+    service = make_service()
+    user = make_user()
+    assert service.decode_access(service.issue_access(user)).session_id is None
+    assert service.decode_refresh(service.issue_refresh(user).token).session_id is None
 
 
 def test_access_and_refresh_tokens_cannot_be_interchanged() -> None:

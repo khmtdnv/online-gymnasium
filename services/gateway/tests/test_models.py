@@ -18,6 +18,7 @@ def test_user_row_has_named_email_and_role_constraints() -> None:
         constraint
         for constraint in constraints
         if isinstance(constraint, CheckConstraint)
+        and constraint.name == "users_valid_role"
     )
 
     assert any(
@@ -41,6 +42,19 @@ def test_refresh_token_row_uses_its_primary_key_as_the_future_jti() -> None:
     assert len(table.foreign_keys) == 1
     assert next(iter(table.foreign_keys)).target_fullname == "users.id"
     assert table.c.consumed_at.nullable is True
+    assert table.c.created_at.server_default is not None
+
+
+def test_auth_session_row_tracks_user_expiry_and_revocation() -> None:
+    from gateway_service.infrastructure.models.auth_session import AuthSessionRow
+
+    table = AuthSessionRow.__table__
+    assert table.name == "auth_sessions"
+    assert tuple(table.primary_key.columns.keys()) == ("id",)
+    assert next(iter(table.foreign_keys)).target_fullname == "users.id"
+    assert table.c.user_id.nullable is False
+    assert table.c.expires_at.nullable is False
+    assert table.c.revoked_at.nullable is True
     assert table.c.created_at.server_default is not None
 
 

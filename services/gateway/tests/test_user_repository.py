@@ -20,6 +20,8 @@ def test_get_by_email_maps_database_row_to_domain_user() -> None:
         role="teacher",
         password_hash="stored-hash",
         is_active=True,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
     session = AsyncMock(spec=AsyncSession)
     query_result = Mock()
@@ -35,6 +37,8 @@ def test_get_by_email_maps_database_row_to_domain_user() -> None:
         role=Role.TEACHER,
         password_hash="stored-hash",
         is_active=True,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
     session.execute.assert_awaited_once()
     statement = session.execute.await_args.args[0]
@@ -65,6 +69,8 @@ def test_create_user_inserts_domain_values_without_committing() -> None:
         role=Role.STUDENT,
         password_hash="stored-hash",
         is_active=False,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
     session = AsyncMock(spec=AsyncSession)
     session.scalar.return_value = user_id
@@ -81,6 +87,9 @@ def test_create_user_inserts_domain_values_without_committing() -> None:
         "role": "student",
         "password_hash": "stored-hash",
         "is_active": False,
+        "first_name": "Тестовый",
+        "last_name": "Пользователь",
+        "middle_name": "",
     }
     assert "ON CONFLICT ON CONSTRAINT users_email_unique DO NOTHING" in str(compiled)
     assert "RETURNING users.id" in str(compiled)
@@ -96,6 +105,8 @@ def test_create_user_reports_only_named_email_conflict() -> None:
         role=Role.TEACHER,
         password_hash="stored-hash",
         is_active=True,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
     session = AsyncMock(spec=AsyncSession)
     session.scalar.return_value = None
@@ -121,6 +132,8 @@ def test_list_users_maps_all_rows_to_domain_users() -> None:
             role="student",
             password_hash="student-hash",
             is_active=True,
+            first_name="Тестовый",
+            last_name="Пользователь",
         ),
         UserRow(
             id=second_id,
@@ -128,6 +141,8 @@ def test_list_users_maps_all_rows_to_domain_users() -> None:
             role="teacher",
             password_hash="teacher-hash",
             is_active=False,
+            first_name="Тестовый",
+            last_name="Пользователь",
         ),
     ]
     session = AsyncMock(spec=AsyncSession)
@@ -145,6 +160,8 @@ def test_list_users_maps_all_rows_to_domain_users() -> None:
             role=Role.STUDENT,
             password_hash="student-hash",
             is_active=True,
+            first_name="Тестовый",
+            last_name="Пользователь",
         ),
         User(
             id=second_id,
@@ -152,6 +169,8 @@ def test_list_users_maps_all_rows_to_domain_users() -> None:
             role=Role.TEACHER,
             password_hash="teacher-hash",
             is_active=False,
+            first_name="Тестовый",
+            last_name="Пользователь",
         ),
     ]
     session.execute.assert_awaited_once()

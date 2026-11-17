@@ -7,7 +7,13 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from gateway_service.config import GatewaySettings
+from gateway_service.infrastructure.models.auth_session import (
+    AuthSessionRow,  # noqa: F401
+)
 from gateway_service.infrastructure.models.base import Base
+from gateway_service.infrastructure.models.outbox_event import (
+    GatewayOutboxEventRow,  # noqa: F401
+)
 from gateway_service.infrastructure.models.parent_student_link import (
     ParentStudentLinkRow,  # noqa: F401
 )

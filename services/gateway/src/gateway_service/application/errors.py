@@ -1,18 +1,18 @@
 class ApplicationException(Exception):
-    pass
+    """Базовая ошибка сценария приложения."""
 
 
 class AuthenticationError(ApplicationException):
-    pass
+    """Учётные данные или токен не позволяют подтвердить пользователя."""
 
 
 class EmailAlreadyExistsError(ApplicationException):
-    pass
+    """Пользователь с таким email уже существует."""
 
 
 class UserNotFoundError(ApplicationException):
-    pass
+    """Один из пользователей, необходимых для операции, не найден."""
 
 
 class InvalidParentStudentRolesError(ApplicationException):
-    pass
+    """Для связи нужны пользователь-родитель и пользователь-ученик."""

@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def run() -> None:
+    """Отправляет задачи outbox в Celery в цикле с паузой после ошибки."""
     settings = DocumentSettings()
     engine = create_engine(settings.document_database_url)
     sessions = session_factory(engine)

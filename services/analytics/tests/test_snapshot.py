@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from uuid import UUID
 
 import pytest
 
@@ -7,11 +8,12 @@ def lesson_snapshot_envelope() -> dict[str, object]:
     return {
         "event_id": 42,
         "event_type": "lesson.snapshot",
+        "schema_version": 2,
         "occurred_at": "2026-09-19T10:00:00+00:00",
         "payload": {
             "lesson_id": 501,
             "class_id": 10,
-            "teacher_id": 100,
+            "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
             "starts_at": "2026-09-20T10:00:00+00:00",
             "ends_at": "2026-09-20T11:30:00+00:00",
@@ -34,7 +36,7 @@ def test_parses_documented_lesson_snapshot_envelope() -> None:
         occurred_at=datetime(2026, 9, 19, 10, tzinfo=UTC),
         lesson_id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 20, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 20, 11, 30, tzinfo=UTC),

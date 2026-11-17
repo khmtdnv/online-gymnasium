@@ -1,3 +1,5 @@
+"""Точка сборки зависимостей и запуска HTTP-приложения сервиса."""
+
 import redis.asyncio as redis
 
 from schedule_service.app import create_app

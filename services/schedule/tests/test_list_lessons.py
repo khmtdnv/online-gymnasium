@@ -1,5 +1,6 @@
 from datetime import UTC, date, datetime
 from typing import Self
+from uuid import UUID
 
 import pytest
 from fastapi.testclient import TestClient
@@ -22,7 +23,7 @@ class ListingLessonRepository:
             Lesson(
                 id=501,
                 class_id=class_id,
-                teacher_id=100,
+                teacher_id=UUID(int=100),
                 subject_id=1000,
                 starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
                 ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -143,7 +144,7 @@ def test_list_lessons_endpoint_returns_planned_class_schedule_for_day() -> None:
         {
             "id": 501,
             "class_id": 10,
-            "teacher_id": 100,
+            "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
             "starts_at": "2026-09-10T10:00:00Z",
             "ends_at": "2026-09-10T11:00:00Z",
@@ -165,7 +166,7 @@ async def test_handler_returns_cached_schedule_without_database_read() -> None:
     cached_lesson = Lesson(
         id=502,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 12, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 13, tzinfo=UTC),

@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+  <section class="og-form-card">
+    <h1>{{ title }}</h1>
+    <p class="og-intro">Пользователь будет создан в Gateway. Пароль не сохраняется в журнале действий Backoffice.</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Создать пользователя</button>
+    </form>
+  </section>
+{% endblock %}

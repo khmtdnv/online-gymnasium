@@ -1,0 +1,1 @@
+"""Адаптеры PostgreSQL и HTTP."""

@@ -39,6 +39,15 @@ def make_task(
     return celery_app.tasks["documents.generate_certificate"]
 
 
+def test_generation_task_uses_late_ack_and_requeues_lost_worker() -> None:
+    """Брокер не должен считать PDF готовым до завершения обработчика."""
+    task = make_task(
+        TemporaryFailingHandler(TemporaryStorageError()), RecordingFailureHandler()
+    )
+    assert task.acks_late is True
+    assert task.reject_on_worker_lost is True
+
+
 def test_task_retries_temporary_storage_error_after_one_second(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -81,3 +90,41 @@ def test_task_marks_job_failed_after_last_temporary_storage_retry(
 
     assert failure_handler.failed_jobs == [(job_id, "Document generation failed")]
     retry.assert_not_called()
+
+
+def test_certificate_tasks_use_handlers_from_their_own_app() -> None:
+    """Одинаковое имя задачи не смешивает обработчики разных приложений."""
+    first_failure_handler = RecordingFailureHandler()
+    second_failure_handler = RecordingFailureHandler()
+    with (
+        Celery(f"document-first-{uuid4()}") as first_app,
+        Celery(f"document-second-{uuid4()}") as second_app,
+    ):
+        register_certificate_tasks(
+            first_app,
+            handler_factory=lambda: TemporaryFailingHandler(TemporaryStorageError()),
+            failure_handler_factory=lambda: first_failure_handler,
+        )
+        register_certificate_tasks(
+            second_app,
+            handler_factory=lambda: TemporaryFailingHandler(TemporaryStorageError()),
+            failure_handler_factory=lambda: second_failure_handler,
+        )
+        first_job_id, second_job_id = uuid4(), uuid4()
+        for app, job_id in (
+            (first_app, first_job_id),
+            (second_app, second_job_id),
+        ):
+            task = app.tasks["documents.generate_certificate"]
+            task.push_request(retries=3)
+            try:
+                task.run(str(job_id))
+            finally:
+                task.pop_request()
+
+    assert first_failure_handler.failed_jobs == [
+        (first_job_id, "Document generation failed")
+    ]
+    assert second_failure_handler.failed_jobs == [
+        (second_job_id, "Document generation failed")
+    ]

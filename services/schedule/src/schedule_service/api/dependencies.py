@@ -7,18 +7,50 @@ from schedule_service.application.update_lesson import UpdateLessonHandler
 
 
 def get_create_lesson_handler(request: Request) -> CreateLessonHandler:
+    """Собирает обработчик сценария из зависимостей приложения.
+
+    Args:
+        request: HTTP-запрос с зависимостями приложения в app.state.
+
+    Returns:
+        Обработчик с зависимостями текущего приложения.
+    """
     return CreateLessonHandler(uow_factory=request.app.state.uow_factory)
 
 
 def get_cancel_lesson_handler(request: Request) -> CancelLessonHandler:
+    """Собирает обработчик сценария из зависимостей приложения.
+
+    Args:
+        request: HTTP-запрос с зависимостями приложения в app.state.
+
+    Returns:
+        Обработчик с зависимостями текущего приложения.
+    """
     return CancelLessonHandler(uow_factory=request.app.state.uow_factory)
 
 
 def get_update_lesson_handler(request: Request) -> UpdateLessonHandler:
+    """Собирает обработчик сценария из зависимостей приложения.
+
+    Args:
+        request: HTTP-запрос с зависимостями приложения в app.state.
+
+    Returns:
+        Обработчик с зависимостями текущего приложения.
+    """
     return UpdateLessonHandler(uow_factory=request.app.state.uow_factory)
 
 
 def get_list_lessons_handler(request: Request) -> ListLessonsHandler:
+    """Собирает обработчик сценария из зависимостей приложения.
+
+    Args:
+        request: HTTP-запрос с зависимостями приложения в app.state.
+
+    Returns:
+        Обработчик с зависимостями текущего приложения.
+    """
     settings = request.app.state.settings
 
     return ListLessonsHandler(

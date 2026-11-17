@@ -1,0 +1,27 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+    <div class="module">
+        <h2>Пользователи учебной платформы</h2>
+        <ul>
+            <li>
+                <a href="{% url 'backoffice-create-user' %}">
+                    Создать пользователя
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'backoffice-link-parent-student' %}">
+                    Связать родителя и ученика
+                </a>
+            </li>
+        </ul>
+        <h2>Классы Journal</h2>
+        <ul>
+            <li><a href="{% url 'backoffice-teacher-classes' %}">Преподаватели и классы</a></li>
+            <li><a href="{% url 'backoffice-add-student-to-class' %}">Добавить ученика в класс</a></li>
+            <li><a href="{% url 'backoffice-list-users' %}">Найти ученика для перевода или завершения пребывания</a></li>
+        </ul>
+    </div>
+
+    {{ block.super }}
+{% endblock %}

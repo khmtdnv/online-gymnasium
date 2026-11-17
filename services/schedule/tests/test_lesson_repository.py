@@ -1,5 +1,6 @@
 from datetime import UTC, date, datetime
 from unittest.mock import AsyncMock, Mock
+from uuid import UUID
 
 import pytest
 from sqlalchemy.dialects import postgresql
@@ -26,7 +27,7 @@ async def test_repository_adds_flushes_refreshes_and_maps_lesson() -> None:
     repository = SqlAlchemyLessonRepository(session)
     lesson = Lesson.create(
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -48,7 +49,7 @@ async def test_repository_adds_flushes_refreshes_and_maps_lesson() -> None:
 
     assert result == Lesson(
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=lesson.starts_at,
         ends_at=lesson.ends_at,
@@ -70,7 +71,7 @@ async def test_repository_translates_integrity_error_to_schedule_conflict() -> N
     repository = SqlAlchemyLessonRepository(session)
     lesson = Lesson.create(
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -91,7 +92,7 @@ async def test_repository_get_maps_existing_row_to_domain_lesson() -> None:
     row = ScheduledLessonRow(
         id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -107,7 +108,7 @@ async def test_repository_get_maps_existing_row_to_domain_lesson() -> None:
     assert result == Lesson(
         id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -127,7 +128,7 @@ async def test_repository_lists_planned_lessons_for_class_and_day_in_start_order
         ScheduledLessonRow(
             id=502,
             class_id=10,
-            teacher_id=101,
+            teacher_id=UUID(int=101),
             subject_id=1001,
             starts_at=datetime(2026, 9, 10, 8, tzinfo=UTC),
             ends_at=datetime(2026, 9, 10, 9, tzinfo=UTC),
@@ -137,7 +138,7 @@ async def test_repository_lists_planned_lessons_for_class_and_day_in_start_order
         ScheduledLessonRow(
             id=501,
             class_id=10,
-            teacher_id=100,
+            teacher_id=UUID(int=100),
             subject_id=1000,
             starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
             ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -169,7 +170,7 @@ async def test_repository_updates_lesson_and_returns_new_version() -> None:
     updated_row = ScheduledLessonRow(
         id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 12, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 13, tzinfo=UTC),
@@ -182,7 +183,7 @@ async def test_repository_updates_lesson_and_returns_new_version() -> None:
     lesson = Lesson(
         id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 12, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 13, tzinfo=UTC),
@@ -196,7 +197,7 @@ async def test_repository_updates_lesson_and_returns_new_version() -> None:
     assert result == Lesson(
         id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 12, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 13, tzinfo=UTC),
@@ -216,7 +217,7 @@ async def test_repository_update_returns_none_when_version_does_not_match() -> N
     lesson = Lesson(
         id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 12, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 13, tzinfo=UTC),
@@ -246,7 +247,7 @@ async def test_repository_translates_update_integrity_error_to_schedule_conflict
     lesson = Lesson(
         id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 12, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 13, tzinfo=UTC),
@@ -268,7 +269,7 @@ async def test_repository_cancels_planned_lesson_and_returns_new_version() -> No
     scalar_result.one_or_none.return_value = ScheduledLessonRow(
         id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -279,7 +280,7 @@ async def test_repository_cancels_planned_lesson_and_returns_new_version() -> No
     lesson = Lesson(
         id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -293,7 +294,7 @@ async def test_repository_cancels_planned_lesson_and_returns_new_version() -> No
     assert result == Lesson(
         id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -312,7 +313,7 @@ async def test_repository_cancel_returns_none_when_row_is_no_longer_planned() ->
     lesson = Lesson(
         id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),

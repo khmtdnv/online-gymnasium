@@ -19,10 +19,24 @@ COLUMN_NAMES = [
 
 
 class ClickHouseSnapshotRepository:
+    """Записывает состояния уроков в ClickHouse одним INSERT на пачку."""
+
     def __init__(self, client: Client) -> None:
+        """Сохраняет зависимости и настройки компонента.
+
+        Args:
+            client: Настроенный клиент внешнего хранилища.
+        """
         self._client = client
 
     async def add_many(self, snapshots: list[LessonSnapshot]) -> None:
+        """Записывает пачку снимков уроков одним INSERT в ClickHouse.
+
+        Пустую пачку пропускает. Синхронный запрос выполняет в другом потоке.
+
+        Args:
+            snapshots: Снимки уроков для записи одной пачкой.
+        """
         if not snapshots:
             return
 
@@ -44,7 +58,7 @@ class ClickHouseSnapshotRepository:
 
         await asyncio.to_thread(
             self._client.insert,
-            "lesson_snapshots",
+            "lesson_snapshots_v2",
             rows,
             column_names=COLUMN_NAMES,
         )

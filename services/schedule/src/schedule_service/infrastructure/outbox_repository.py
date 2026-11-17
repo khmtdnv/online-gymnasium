@@ -7,13 +7,28 @@ from schedule_service.infrastructure.models.outbox_event import OutboxEventRow
 
 
 class SqlAlchemyOutboxRepository:
+    """Записывает и читает события outbox в переданной сессии."""
+
     def __init__(self, session: AsyncSession) -> None:
+        """Сохраняет зависимости и настройки компонента.
+
+        Args:
+            session: Сессия текущей транзакции; commit остаётся за Unit of Work.
+        """
         self._session = session
 
     async def add(
         self,
         event: ScheduleChanged | LessonSnapshot,
     ) -> None:
+        """Записывает событие изменения расписания или снимок урока в outbox.
+
+        Args:
+            event: Событие с данными для обработки или отправки.
+
+        Raises:
+            TypeError: Тип события не поддерживается.
+        """
         if isinstance(event, ScheduleChanged):
             row = OutboxEventRow(
                 event_type="schedule.changed",
@@ -29,7 +44,7 @@ class SqlAlchemyOutboxRepository:
                 payload={
                     "lesson_id": event.lesson_id,
                     "class_id": event.class_id,
-                    "teacher_id": event.teacher_id,
+                    "teacher_id": str(event.teacher_id),
                     "subject_id": event.subject_id,
                     "starts_at": event.starts_at.isoformat(),
                     "ends_at": event.ends_at.isoformat(),
@@ -43,6 +58,14 @@ class SqlAlchemyOutboxRepository:
         self._session.add(row)
 
     async def get_pending(self, *, limit: int) -> list[PendingOutboxEvent]:
+        """Читает ограниченную пачку ещё не опубликованных записей outbox.
+
+        Args:
+            limit: Максимальное число записей в пачке.
+
+        Returns:
+            Непубликованные записи, не больше указанного limit.
+        """
         statement = (
             select(OutboxEventRow)
             .where(OutboxEventRow.published_at.is_(None))
@@ -70,6 +93,11 @@ class SqlAlchemyOutboxRepository:
         return result_list
 
     async def mark_published(self, *, event_id: int) -> None:
+        """Ставит время публикации записи outbox в текущей транзакции.
+
+        Args:
+            event_id: ID события outbox.
+        """
         statement = (
             update(OutboxEventRow)
             .where(

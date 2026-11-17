@@ -8,6 +8,8 @@ from schedule_service.infrastructure.models.base import Base
 
 
 class OutboxEventRow(Base):
+    """Событие в PostgreSQL, ожидающее публикации в Kafka."""
+
     __tablename__ = "outbox_events"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

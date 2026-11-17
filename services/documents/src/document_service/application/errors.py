@@ -1,10 +1,10 @@
 class ApplicatinError(Exception):
-    pass
+    """Базовая ошибка сценария приложения."""
 
 
 class TemporaryStorageError(ApplicatinError):
-    pass
+    """Загрузка документа не удалась из-за ошибки сети или сервера хранилища."""
 
 
 class PermanentDocumentError(ApplicatinError):
-    pass
+    """Данные документа не позволяют завершить генерацию повторной попыткой."""

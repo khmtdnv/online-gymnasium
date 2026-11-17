@@ -11,6 +11,32 @@ from gateway_service.config import GatewaySettings
 from gateway_service.domain.user import Role, User
 
 
+@pytest.mark.parametrize(
+    "field,value",
+    [("email", ""), ("email", "  "), ("password", ""), ("password", "  ")],
+)
+def test_create_user_returns_validation_error_for_blank_data(field, value):
+    """Не превращает неправильные данные пользователя в 500."""
+    app, factory = make_app(SimpleNamespace(create_user=AsyncMock()))
+    body = {
+        "email": "student@example.com",
+        "password": "secret",
+        "role": "student",
+        "first_name": "Тестовый",
+        "last_name": "Пользователь",
+    }
+    body[field] = value
+    response = request(
+        app,
+        "POST",
+        headers={"X-Backoffice-Service-Token": "test-backoffice-token"},
+        json=body,
+    )
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "validation_error"
+    factory.assert_not_called()
+
+
 def make_app(users: object):
     settings = GatewaySettings(
         database_url="postgresql+asyncpg://gateway:password@localhost/gateway",
@@ -19,13 +45,71 @@ def make_app(users: object):
         _env_file=None,
     )
     uow = AsyncMock()
-    uow.__aenter__.return_value = SimpleNamespace(users=users)
+    uow.__aenter__.return_value = SimpleNamespace(
+        users=users, outbox=SimpleNamespace(add_user_event=AsyncMock())
+    )
     uow.__aexit__.return_value = False
     uow_factory = Mock(return_value=uow)
     password_service = Mock()
     password_service.hash.return_value = "encoded-password-hash"
     app = create_app(settings, AsyncMock(), uow_factory, password_service, Mock())
     return app, uow_factory
+
+
+def test_create_user_keeps_json_role_and_ignored_extra_fields() -> None:
+    """Переход DTO не меняет уже принятый формат HTTP-входа."""
+    users = SimpleNamespace(create_user=AsyncMock())
+    app, _ = make_app(users)
+    response = request(
+        app,
+        "POST",
+        headers={"X-Backoffice-Service-Token": "test-backoffice-token"},
+        json={
+            "email": "a@example.com",
+            "password": "secret",
+            "role": "student",
+            "banana": 123,
+            "first_name": "Тестовый",
+            "last_name": "Пользователь",
+        },
+    )
+    assert response.status_code == 201
+    assert set(response.json()) == {
+        "id",
+        "email",
+        "role",
+        "is_active",
+        "first_name",
+        "last_name",
+    }
+    assert response.json()["role"] == "student"
+    assert users.create_user.await_args.args[0].role is Role.STUDENT
+
+
+def test_invalid_internal_result_is_safe_500_not_client_422() -> None:
+    """Неправильные данные репозитория не становятся ошибкой ввода клиента."""
+    users = SimpleNamespace(
+        list_users=AsyncMock(
+            return_value=[
+                SimpleNamespace(
+                    id=uuid4(),
+                    email="secret@example.com",
+                    role=Role.STUDENT,
+                    is_active="false",
+                    first_name="Тестовый",
+                    last_name="Пользователь",
+                    middle_name="",
+                )
+            ]
+        )
+    )
+    app, _ = make_app(users)
+    response = request(
+        app, "GET", headers={"X-Backoffice-Service-Token": "test-backoffice-token"}
+    )
+    assert response.status_code == 500
+    assert "secret@example.com" not in response.text
+    assert "ValidationError" not in response.text
 
 
 def request(
@@ -78,6 +162,8 @@ def test_list_users_returns_safe_user_fields() -> None:
                     role=Role.STUDENT,
                     password_hash="never-send-this",
                     is_active=True,
+                    first_name="Тестовый",
+                    last_name="Пользователь",
                 )
             ]
         )
@@ -95,6 +181,8 @@ def test_list_users_returns_safe_user_fields() -> None:
             "email": "student@example.com",
             "role": "student",
             "is_active": True,
+            "first_name": "Тестовый",
+            "last_name": "Пользователь",
         }
     ]
 
@@ -133,6 +221,8 @@ def test_create_user_returns_conflict_for_existing_email() -> None:
             "email": "teacher@example.com",
             "password": "strong-password",
             "role": "teacher",
+            "first_name": "Тестовый",
+            "last_name": "Пользователь",
         },
     )
 
@@ -146,8 +236,24 @@ def test_link_parent_student_returns_created_for_new_pair() -> None:
     users = SimpleNamespace(
         get_by_id=AsyncMock(
             side_effect=[
-                User(parent_id, "parent@example.com", Role.PARENT, "hash", True),
-                User(student_id, "student@example.com", Role.STUDENT, "hash", True),
+                User(
+                    parent_id,
+                    "parent@example.com",
+                    Role.PARENT,
+                    "hash",
+                    True,
+                    first_name="Тестовый",
+                    last_name="Пользователь",
+                ),
+                User(
+                    student_id,
+                    "student@example.com",
+                    Role.STUDENT,
+                    "hash",
+                    True,
+                    first_name="Тестовый",
+                    last_name="Пользователь",
+                ),
             ]
         ),
         create_parent_student_link=AsyncMock(return_value=True),
@@ -187,11 +293,25 @@ def test_link_parent_student_rejects_missing_user_or_wrong_roles(
             side_effect=[
                 None
                 if user_roles[0] is None
-                else User(parent_id, "parent@example.com", user_roles[0], "hash", True),
+                else User(
+                    parent_id,
+                    "parent@example.com",
+                    user_roles[0],
+                    "hash",
+                    True,
+                    first_name="Тестовый",
+                    last_name="Пользователь",
+                ),
                 None
                 if user_roles[1] is None
                 else User(
-                    student_id, "student@example.com", user_roles[1], "hash", True
+                    student_id,
+                    "student@example.com",
+                    user_roles[1],
+                    "hash",
+                    True,
+                    first_name="Тестовый",
+                    last_name="Пользователь",
                 ),
             ]
         ),
@@ -216,8 +336,24 @@ def test_link_parent_student_returns_no_content_for_existing_pair() -> None:
     users = SimpleNamespace(
         get_by_id=AsyncMock(
             side_effect=[
-                User(parent_id, "parent@example.com", Role.PARENT, "hash", True),
-                User(student_id, "student@example.com", Role.STUDENT, "hash", True),
+                User(
+                    parent_id,
+                    "parent@example.com",
+                    Role.PARENT,
+                    "hash",
+                    True,
+                    first_name="Тестовый",
+                    last_name="Пользователь",
+                ),
+                User(
+                    student_id,
+                    "student@example.com",
+                    Role.STUDENT,
+                    "hash",
+                    True,
+                    first_name="Тестовый",
+                    last_name="Пользователь",
+                ),
             ]
         ),
         create_parent_student_link=AsyncMock(return_value=False),

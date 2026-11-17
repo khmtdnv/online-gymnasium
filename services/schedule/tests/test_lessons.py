@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Self
+from unittest.mock import Mock
+from uuid import UUID
 
 from conftest import NoopScheduleCache
 from fastapi.testclient import TestClient
@@ -31,18 +33,23 @@ class FakeIdempotencyRepository:
     def __init__(self) -> None:
         self.records: dict[tuple[str, str], FakeIdempotencyRecord] = {}
 
-    async def claim(
-        self, operation: str, key: str, request_hash: str
-    ) -> FakeIdempotencyRecord | None:
+    async def claim(self, operation: str, key: str, request_hash: str) -> None:
+        from schedule_service.application.errors import IdempotencyKeyAlreadyExists
+
         record = self.records.get((operation, key))
 
         if record is None:
             self.records[(operation, key)] = FakeIdempotencyRecord(
                 request_hash=request_hash
             )
-            return None
+            return
 
-        return record
+        raise IdempotencyKeyAlreadyExists
+
+    async def get_by_key(
+        self, operation: str, key: str
+    ) -> FakeIdempotencyRecord | None:
+        return self.records.get((operation, key))
 
     async def complete(self, operation: str, key: str, lesson: Lesson) -> None:
         record = self.records.get((operation, key))
@@ -100,7 +107,7 @@ class UpdatingLessonRepository:
         return Lesson(
             id=501,
             class_id=10,
-            teacher_id=100,
+            teacher_id=UUID(int=100),
             subject_id=1000,
             starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
             ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -138,7 +145,7 @@ class CancelingLessonRepository:
         return Lesson(
             id=501,
             class_id=10,
-            teacher_id=100,
+            teacher_id=UUID(int=100),
             subject_id=1000,
             starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
             ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
@@ -187,7 +194,7 @@ def test_create_lesson_endpoint() -> None:
     with TestClient(test_app) as test_client:
         request_body = {
             "class_id": 10,
-            "teacher_id": 100,
+            "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
             "starts_at": "2026-09-08T10:00:00Z",
             "ends_at": "2026-09-08T11:00:00Z",
@@ -220,7 +227,7 @@ def test_create_lesson_rejects_non_positive_interval() -> None:
     with TestClient(test_app, raise_server_exceptions=False) as test_client:
         request_body = {
             "class_id": 10,
-            "teacher_id": 100,
+            "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
             "starts_at": "2026-09-08T10:00:00Z",
             "ends_at": "2026-09-08T10:00:00Z",
@@ -254,7 +261,7 @@ def test_create_lesson_returns_conflict_for_schedule_conflict() -> None:
     with TestClient(test_app, raise_server_exceptions=False) as test_client:
         request_body = {
             "class_id": 10,
-            "teacher_id": 100,
+            "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
             "starts_at": "2026-09-08T10:00:00Z",
             "ends_at": "2026-09-08T11:00:00Z",
@@ -293,7 +300,7 @@ def test_update_lesson_endpoint() -> None:
     assert response.json() == {
         "id": 501,
         "class_id": 10,
-        "teacher_id": 100,
+        "teacher_id": str(UUID(int=100)),
         "subject_id": 1000,
         "starts_at": "2026-09-10T12:00:00Z",
         "ends_at": "2026-09-10T13:00:00Z",
@@ -328,6 +335,35 @@ def test_update_lesson_rejects_non_positive_interval() -> None:
     assert response.json() == {
         "detail": "starts_at must be before ends_at",
     }
+
+
+def test_cross_day_update_is_rejected_before_lookup_of_missing_lesson() -> None:
+    """Неверный интервал получает прежний 422 даже для отсутствующего урока."""
+    settings = Settings(
+        app_name="Test Schedule Service",
+        database_url="postgresql+asyncpg://schedule:password@localhost:5432/schedule",
+        redis_url="test_url",
+        rabbitmq_url="test_url",
+    )
+    engine = create_engine(url=settings.database_url)
+    fake_uow = FakeUnitOfWork()
+    fake_uow.lessons = UpdatingLessonRepository()
+    factory = Mock(return_value=fake_uow)
+    app = create_app(settings, engine, factory)
+
+    with TestClient(app, raise_server_exceptions=False) as client:
+        response = client.patch(
+            "/lessons/999",
+            json={
+                "starts_at": "2026-09-10T23:00:00Z",
+                "ends_at": "2026-09-11T01:00:00Z",
+                "expected_version": 3,
+            },
+        )
+
+    assert response.status_code == 422
+    assert response.json() == {"detail": "starts_at must be before ends_at"}
+    factory.assert_not_called()
 
 
 def test_update_lesson_returns_not_found_for_missing_lesson() -> None:
@@ -427,7 +463,7 @@ def test_cancel_lesson_endpoint() -> None:
     assert response.json() == {
         "id": 501,
         "class_id": 10,
-        "teacher_id": 100,
+        "teacher_id": str(UUID(int=100)),
         "subject_id": 1000,
         "starts_at": "2026-09-10T10:00:00Z",
         "ends_at": "2026-09-10T11:00:00Z",
@@ -507,7 +543,7 @@ def test_create_lesson_rejects_reused_idempotency_key_for_different_request() ->
     with TestClient(app, raise_server_exceptions=False) as client:
         original_request_body = {
             "class_id": 10,
-            "teacher_id": 100,
+            "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
             "starts_at": "2026-09-08T10:00:00Z",
             "ends_at": "2026-09-08T11:00:00Z",
@@ -518,7 +554,7 @@ def test_create_lesson_rejects_reused_idempotency_key_for_different_request() ->
 
         different_request_body = {
             "class_id": 10,
-            "teacher_id": 100,
+            "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
             "starts_at": "2026-09-08T12:00:00Z",
             "ends_at": "2026-09-08T13:00:00Z",

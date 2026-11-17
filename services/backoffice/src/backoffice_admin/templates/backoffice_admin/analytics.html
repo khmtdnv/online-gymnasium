@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<section class="og-form-card">
+  <h1>Успеваемость и аудит</h1>
+  <p>Отчёт включает события после подключения общего аудита.</p>
+  <form method="get">
+    {{ form.non_field_errors }}
+    <input type="hidden" name="class_offset" value="{{ report.class_offset|default:0 }}">
+    <p>{{ form.date_from.label_tag }} {{ form.date_from }} {{ form.date_from.errors }}</p>
+    <p>{{ form.date_to.label_tag }} {{ form.date_to }} {{ form.date_to.errors }}</p>
+    <p><label for="id_class_id">Класс:</label>
+      <select name="class_id" id="id_class_id">
+        <option value="">Первый доступный класс</option>
+        {% for item in report.classes %}<option value="{{ item.id }}" {% if item.id == report.selected_class %}selected{% endif %}>{{ item.name }} · {{ item.study_year }}</option>{% endfor %}
+      </select>
+      {{ form.class_id.errors }}
+    </p>
+    <button type="submit">Показать</button>
+  </form>
+  {% if report %}
+  <p>
+    {% if report.previous_class_offset != None %}<a href="?date_from={{ form.cleaned_data.date_from|date:'Y-m-d' }}&amp;date_to={{ form.cleaned_data.date_to|date:'Y-m-d' }}&amp;class_offset={{ report.previous_class_offset }}">Предыдущие классы</a>{% endif %}
+    {% if report.next_class_offset != None %}<a href="?date_from={{ form.cleaned_data.date_from|date:'Y-m-d' }}&amp;date_to={{ form.cleaned_data.date_to|date:'Y-m-d' }}&amp;class_offset={{ report.next_class_offset }}">Следующие классы</a>{% endif %}
+  </p>
+  <h2>Успеваемость класса</h2>
+  <table><thead><tr><th>Ученик</th><th>Предмет</th><th>Оценок</th><th>Средняя оценка</th></tr></thead><tbody>
+    {% for row in report.progress %}<tr><td>{{ row.student_name }}</td><td>{{ row.subject_name }}</td><td>{{ row.graded_count }}</td><td>{{ row.average_grade }}</td></tr>{% empty %}<tr><td colspan="4">За выбранный период оценок нет.</td></tr>{% endfor %}
+  </tbody></table>
+  <h2>Последние события</h2>
+  <table><thead><tr><th>Время</th><th>Источник</th><th>Действие</th><th>Инициатор</th><th>Данные</th></tr></thead><tbody>
+    {% for event in report.events %}<tr><td>{{ event.occurred_at }}</td><td>{{ event.event_source }}</td><td>{{ event.event_type }}</td><td>{{ event.actor.source }}: {{ event.actor.id }}</td><td>{{ event.payload }}</td></tr>{% empty %}<tr><td colspan="5">За выбранный период событий нет.</td></tr>{% endfor %}
+  </tbody></table>
+  {% if report.previous_offset != None %}<a href="?date_from={{ form.cleaned_data.date_from|date:'Y-m-d' }}&amp;date_to={{ form.cleaned_data.date_to|date:'Y-m-d' }}{% if report.selected_class %}&amp;class_id={{ report.selected_class }}{% endif %}&amp;class_offset={{ report.class_offset }}&amp;offset={{ report.previous_offset }}">Предыдущие события</a>{% endif %}
+  {% if report.next_offset != None %}<a href="?date_from={{ form.cleaned_data.date_from|date:'Y-m-d' }}&amp;date_to={{ form.cleaned_data.date_to|date:'Y-m-d' }}{% if report.selected_class %}&amp;class_id={{ report.selected_class }}{% endif %}&amp;class_offset={{ report.class_offset }}&amp;offset={{ report.next_offset }}">Следующие события</a>{% endif %}
+  {% endif %}
+</section>
+{% endblock %}

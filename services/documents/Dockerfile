@@ -13,6 +13,7 @@ RUN apt-get update \
         libgdk-pixbuf-2.0-0 \
         libpango-1.0-0 \
         libpangocairo-1.0-0 \
+        fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir "poetry==2.3.4"

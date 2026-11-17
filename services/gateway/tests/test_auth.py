@@ -2,6 +2,7 @@ import asyncio
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from typing import Self
+from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
 import pytest
@@ -47,6 +48,12 @@ class FakeUserRepository:
 class FakeUnitOfWork:
     def __init__(self, users: FakeUserRepository) -> None:
         self.users = users
+        self.outbox = SimpleNamespace(add_user_event=AsyncMock())
+        self.auth_sessions = SimpleNamespace(
+            create=AsyncMock(),
+            is_active=AsyncMock(return_value=True),
+            revoke=AsyncMock(),
+        )
         self.users.uow = self
         self.active = False
         self.entries = 0
@@ -94,21 +101,25 @@ class FakeTokenService:
 
     def decode_refresh(self, token: str) -> SimpleNamespace:
         assert token == "old-refresh-token"
-        return SimpleNamespace(user_id=self.user_id, jti=self.old_jti)
+        return SimpleNamespace(user_id=self.user_id, jti=self.old_jti, session_id=None)
 
     def decode_access(self, token: str) -> SimpleNamespace:
         from gateway_service.application.errors import AuthenticationError
 
         if token != "valid-access-token":
             raise AuthenticationError
-        return SimpleNamespace(user_id=self.user_id, role=self.access_role)
+        return SimpleNamespace(
+            user_id=self.user_id, role=self.access_role, session_id=None
+        )
 
-    def issue_access(self, user: User) -> str:
+    def issue_access(self, user: User, *, session_id: UUID | None = None) -> str:
         assert user.id == self.user_id
         self.access_issued = True
         return "new-access-token"
 
-    def issue_refresh(self, user: User) -> SimpleNamespace:
+    def issue_refresh(
+        self, user: User, *, session_id: UUID | None = None
+    ) -> SimpleNamespace:
         assert user.id == self.user_id
         self.refresh_issued = True
         return SimpleNamespace(
@@ -126,6 +137,8 @@ def make_fakes(
         role=Role.STUDENT,
         password_hash="stored-hash",
         is_active=active,
+        first_name="Тестовый",
+        last_name="Пользователь",
     )
     users = FakeUserRepository(user, can_consume=can_consume)
     uow = FakeUnitOfWork(users)

@@ -1,5 +1,6 @@
 from datetime import UTC, date, datetime
 from unittest.mock import AsyncMock, Mock
+from uuid import UUID
 
 import pytest
 from sqlalchemy.dialects import postgresql
@@ -49,7 +50,7 @@ async def test_repository_adds_lesson_snapshot_event_to_session() -> None:
     event = LessonSnapshot(
         lesson_id=501,
         class_id=10,
-        teacher_id=100,
+        teacher_id=UUID(int=100),
         subject_id=1000,
         starts_at=datetime(2026, 9, 13, 10, tzinfo=UTC),
         ends_at=datetime(2026, 9, 13, 11, tzinfo=UTC),
@@ -65,7 +66,7 @@ async def test_repository_adds_lesson_snapshot_event_to_session() -> None:
     assert row.payload == {
         "lesson_id": 501,
         "class_id": 10,
-        "teacher_id": 100,
+        "teacher_id": str(UUID(int=100)),
         "subject_id": 1000,
         "starts_at": "2026-09-13T10:00:00+00:00",
         "ends_at": "2026-09-13T11:00:00+00:00",

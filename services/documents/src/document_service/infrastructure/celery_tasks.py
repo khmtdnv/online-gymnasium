@@ -22,12 +22,37 @@ def register_certificate_tasks(
     handler_factory: Callable[[], GenerateCertificateHandler],
     failure_handler_factory: Callable[[], MarkJobFailedHandler],
 ) -> None:
+    """Регистрирует задачу генерации справки только в переданном приложении.
+
+    Фабрики обработчиков принадлежат этому приложению и не передаются другим
+    приложениям Celery через общую регистрацию задач.
+
+    Args:
+        celery_app: Приложение Celery с настроенным брокером.
+        handler_factory: Фабрика обработчика генерации справки.
+        failure_handler_factory: Фабрика обработчика окончательной ошибки задания.
+    """
+
     @celery_app.task(
         name="documents.generate_certificate",
         ignore_result=True,
         bind=True,
+        shared=False,
+        acks_late=True,
+        reject_on_worker_lost=True,
     )
     def generate_certificate(self, job_id: str) -> None:
+        """Запускает генерацию справки и повторяет временную ошибку хранилища.
+
+        После трёх повторов записывает failed. Постоянная ошибка завершает задачу без
+        retry.
+
+        Args:
+            job_id: ID задания генерации документа.
+
+        Raises:
+            celery.exceptions.Retry: Временная ошибка запланировала повтор задачи.
+        """
         try:
             handler = handler_factory()
             handler.handle(GenerateCertificateCommand(job_id=UUID(job_id)))

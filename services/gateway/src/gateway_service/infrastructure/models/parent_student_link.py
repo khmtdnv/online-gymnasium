@@ -9,6 +9,8 @@ from gateway_service.infrastructure.models.base import Base
 
 
 class ParentStudentLinkRow(Base):
+    """Уникальная пара ID родителя и ученика в базе Gateway."""
+
     __tablename__ = "parent_student_links"
 
     id: Mapped[UUID] = mapped_column(PostgreSQLUUID(as_uuid=True), primary_key=True)

@@ -1,0 +1,13 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<section class="og-form-card">
+  <h1>{% if action == 'refund' %}Полный возврат{% else %}Проверка{% endif %} платежа №{{ payment_id }}</h1>
+  <p>Подтвердите действие учётной записью администратора портала.{% if action == 'refund' %} Для повтора используйте те же учётные записи сотрудника и администратора портала, что при первом запросе.{% endif %}</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">{% if action == 'refund' %}Подтвердить возврат{% else %}Проверить платёж{% endif %}</button>
+  </form>
+  <p><a href="{% url 'backoffice-billing' %}">Вернуться к платежам</a></p>
+</section>
+{% endblock %}

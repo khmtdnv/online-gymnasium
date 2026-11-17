@@ -9,6 +9,8 @@ from gateway_service.infrastructure.models.base import Base
 
 
 class RefreshTokenRow(Base):
+    """Запись refresh-токена: первичный ключ совпадает с jti из JWT."""
+
     __tablename__ = "refresh_tokens"
 
     id: Mapped[UUID] = mapped_column(PostgreSQLUUID(as_uuid=True), primary_key=True)

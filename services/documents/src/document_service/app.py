@@ -11,6 +11,16 @@ def create_app(
     uow_factory: DocumentUnitOfWorkFactory,
     storage: DocumentStorage,
 ) -> FastAPI:
+    """Собирает HTTP-приложение с переданными зависимостями.
+
+    Args:
+        settings: Настройки текущего сервиса.
+        uow_factory: Фабрика отдельной транзакции с её репозиториями.
+        storage: Хранилище файлов PDF.
+
+    Returns:
+        Приложение FastAPI с маршрутами и зависимостями в app.state.
+    """
     app = FastAPI(title="Document Service")
     app.include_router(router)
     app.state.settings = settings
