@@ -16,8 +16,6 @@ services:
     restart: *restart
   backoffice-postgres:
     restart: *restart
-  backoffice-static:
-    restart: *restart
   billing-api:
     restart: *restart
   billing-postgres:

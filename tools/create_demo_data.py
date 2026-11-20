@@ -218,14 +218,16 @@ def ensure_user(api: Api, account: dict, existing: dict) -> dict:
 
 def load_apis() -> tuple[Api, Api, Api, Api]:
     """Читает только локальную конфигурацию Compose, оставляя секреты в памяти."""
+    # На сервере поверх dev-настроек действует публичный override (домен и
+    # https-Origin); без него вход через портал получает отказ 403.
+    compose_files = ["compose.yaml", "compose.dev.yaml"]
+    if (ROOT / "deploy" / "public" / "compose.public.yaml").exists():
+        compose_files.append("deploy/public/compose.public.yaml")
     result = subprocess.run(
         [
             "docker",
             "compose",
-            "-f",
-            "compose.yaml",
-            "-f",
-            "compose.dev.yaml",
+            *[arg for name in compose_files for arg in ("-f", name)],
             "config",
             "--format",
             "json",
@@ -382,7 +384,15 @@ def ensure_lessons(
             continue
         query = urlencode({"class_id": class_id, "date": day.isoformat()})
         existing = schedule.request("GET", "/lessons?" + query)
-        start = choose_lesson_start(day, existing)
+        # Слот должен быть свободен и у класса, и у самого учителя:
+        # в большой школе предметники загружены до вечера (иначе API даст 409).
+        own_day = [
+            row
+            for row in own
+            if datetime.fromisoformat(row["starts_at"]).astimezone(TIMEZONE).date()
+            == day
+        ]
+        start = choose_lesson_start(day, existing + own_day)
         body = {
             "class_id": class_id,
             "teacher_id": teacher_id,
