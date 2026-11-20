@@ -1,6 +1,6 @@
 """Проверяет данные периода членства и вычисляемое состояние."""
 
-from datetime import UTC, datetime, timedelta, timezone, tzinfo
+from datetime import UTC, date, datetime, time, timedelta, timezone, tzinfo
 from uuid import uuid4
 
 import pytest
@@ -95,7 +95,9 @@ def test_rejects_naive_timestamps(field: str) -> None:
         "joined_at": datetime(2026, 9, 1, 9, tzinfo=UTC),
         "left_at": datetime(2026, 10, 12, 10, tzinfo=UTC),
     }
-    values[field] = datetime(2026, 9, 1, 9)  # noqa: DTZ001 - намеренно неверное время
+    values[field] = datetime.combine(
+        date(2026, 9, 1), time(9)
+    )  # намеренно неверное время
 
     with pytest.raises(ValueError):
         StudentClassPeriod(student_id=uuid4(), class_id=10, **values)

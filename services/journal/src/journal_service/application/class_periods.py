@@ -1,5 +1,7 @@
 """Прикладные сценарии чтения текущего класса, истории и состава."""
 
+from __future__ import annotations
+
 from collections.abc import Callable
 from uuid import UUID
 
