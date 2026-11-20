@@ -90,6 +90,25 @@ class NamedHomeworkAnswerResult(HomeworkAnswerResult):
     student_name: str
 
 
+class TeacherReviewItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    answer_id: PositiveId
+    homework_id: PositiveId
+    lesson_id: PositiveId
+    class_id: PositiveId
+    subject_id: PositiveId
+    student_id: UUID
+    description: str
+    status: Literal["submitted", "returned", "graded"]
+    submitted_at: AwareDatetime
+
+
+class TeacherReviewPage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: list[TeacherReviewItem]
+    next_cursor: int | None
+
+
 class HomeworkAnswerInput(BaseModel):
     """Текст и выбранные файлы; автор определяется только по access token."""
 

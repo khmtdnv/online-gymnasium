@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { useSession } from '../features/auth/session-context';
 import { HomeworkForm } from '../features/homework/homework-form';
 import { HomeworkFiles } from '../features/homework/homework-files';
+import { displayHomeworkDescription } from '../features/homework/display-description';
 import { HomeworkAnswerReview } from '../features/homework/homework-answer-review';
 import { useFeatures } from '../lib/api/context';
 import { explainError } from '../lib/api/errors';
@@ -33,7 +34,7 @@ function TeacherLesson() {
   });
   if (!valid) return <Alert tone="error">Некорректный номер урока.</Alert>;
   return (
-    <>
+    <div className="workspace-page teacher-lesson-page">
       <PageHeader
         title="Урок и домашние задания"
         description={
@@ -42,18 +43,26 @@ function TeacherLesson() {
             : undefined
         }
       />
-      <Link to="/my-schedule">← Моё расписание</Link>{' '}
-      <Link className="button button-secondary" to={`/pen/lessons/${id}`}>
-        Умная ручка
-      </Link>{' '}
-      <Button variant="secondary" disabled={query.isFetching} onClick={() => void query.refetch()}>
-        Обновить карточку
-      </Button>
+      <div className="teacher-lesson-actions">
+        <Link className="workspace-back" to="/schedule">
+          ← Моё расписание
+        </Link>{' '}
+        <Link className="button button-secondary" to={`/pen/lessons/${id}`}>
+          Умная ручка
+        </Link>{' '}
+        <Button
+          variant="secondary"
+          disabled={query.isFetching}
+          onClick={() => void query.refetch()}
+        >
+          Обновить карточку
+        </Button>
+      </div>
       {query.isPending && <p role="status">Загружаем урок…</p>}
       {query.isError && <Alert tone="error">{explainError(query.error)}</Alert>}
       {query.data && (
         <>
-          <section className="card">
+          <section className="workspace-panel teacher-lesson-section">
             <h2>Подготовить к этому уроку</h2>
             {query.data.homework_for_lesson.length === 0 && (
               <p>
@@ -62,7 +71,9 @@ function TeacherLesson() {
             )}
             {query.data.homework_for_lesson.map((row) => (
               <article key={row.id}>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{row.description}</p>
+                <p style={{ whiteSpace: 'pre-wrap' }}>
+                  {displayHomeworkDescription(row.description)}
+                </p>
                 <HomeworkFiles files={row.files} api={homework} />
               </article>
             ))}
@@ -87,13 +98,17 @@ function TeacherLesson() {
               ]),
             ).values(),
           ].map((row) => (
-            <section key={row.id}>
-              <h2>Проверка задания: {row.description.slice(0, 100)}</h2>
+            <section
+              id={`homework-${row.id}`}
+              className="workspace-panel teacher-lesson-section"
+              key={row.id}
+            >
+              <h2>Проверка задания: {displayHomeworkDescription(row.description).slice(0, 100)}</h2>
               <HomeworkAnswerReview homeworkId={row.id} api={homework} />
             </section>
           ))}
         </>
       )}
-    </>
+    </div>
   );
 }

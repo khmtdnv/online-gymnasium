@@ -1,0 +1,86 @@
+# Публичное развёртывание: длительные сервисы обязаны подниматься заново
+# после сбоя или перезагрузки; одноразовые (migrations, minio-init) сюда
+# не включаются, их запускает compose up при старте стека.
+x-restart: &restart unless-stopped
+
+services:
+  analytics-clickhouse:
+    restart: *restart
+  backoffice-api:
+    environment:
+      BACKOFFICE_DEBUG: "False"
+      BACKOFFICE_ALLOWED_HOSTS: online-education.fun,localhost,127.0.0.1
+      BACKOFFICE_CSRF_TRUSTED_ORIGINS: https://online-education.fun
+      BACKOFFICE_SECURE_COOKIES: "True"
+      BACKOFFICE_TRUST_PROXY: "True"
+    restart: *restart
+  backoffice-postgres:
+    restart: *restart
+  backoffice-static:
+    restart: *restart
+  billing-api:
+    restart: *restart
+  billing-postgres:
+    restart: *restart
+  document-minio:
+    restart: *restart
+  document-postgres:
+    restart: *restart
+  document-rabbitmq:
+    restart: *restart
+  frontend:
+    restart: *restart
+  gateway-api:
+    environment:
+      PUBLIC_ORIGIN: https://online-education.fun
+      REFRESH_COOKIE_SECURE: "true"
+    restart: *restart
+  gateway-postgres:
+    restart: *restart
+  homework-api:
+    restart: *restart
+  homework-minio:
+    restart: *restart
+  homework-postgres:
+    restart: *restart
+  journal-api:
+    restart: *restart
+  journal-postgres:
+    restart: *restart
+  notifications-api:
+    restart: *restart
+  notifications-postgres:
+    restart: *restart
+  pen-api:
+    restart: *restart
+  pen-postgres:
+    restart: *restart
+  schedule-api:
+    restart: *restart
+  schedule-kafka:
+    restart: *restart
+  schedule-outbox-relay:
+    restart: *restart
+  schedule-postgres:
+    restart: *restart
+  schedule-redis:
+    restart: *restart
+  web:
+    restart: *restart
+    volumes:
+      - ./deploy/public/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/public/proxy-headers.conf:/etc/nginx/og-proxy-headers.conf:ro
+  public-https:
+    image: caddy:2
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./deploy/public/Caddyfile:/etc/caddy/Caddyfile:ro
+      - public_caddy_data:/data
+      - public_caddy_config:/config
+    depends_on:
+      web:
+        condition: service_started
+volumes:
+  public_caddy_data:
+  public_caddy_config:

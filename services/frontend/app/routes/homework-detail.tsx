@@ -5,6 +5,7 @@ import { Alert } from '../components/ui/alert';
 import { Button } from '../components/ui/button';
 import { useSession } from '../features/auth/session-context';
 import { HomeworkFiles } from '../features/homework/homework-files';
+import { displayHomeworkDescription } from '../features/homework/display-description';
 import { HomeworkAnswerForm } from '../features/homework/homework-answer-form';
 import { useFeatures } from '../lib/api/context';
 import { explainError } from '../lib/api/errors';
@@ -34,23 +35,27 @@ function StudentHomeworkDetail() {
   });
   if (!valid) return <Alert tone="error">Некорректный номер задания.</Alert>;
   return (
-    <>
+    <div className="workspace-page homework-detail-page">
       <PageHeader title="Домашнее задание" />
-      <Link to="/homework">← Все задания</Link>{' '}
+      <Link className="workspace-back" to="/homework">
+        ← Все задания
+      </Link>{' '}
       <Button variant="secondary" disabled={query.isFetching} onClick={() => void query.refetch()}>
         Обновить
       </Button>
       {query.isPending && <p role="status">Загружаем задание…</p>}
       {query.isError && <Alert tone="error">{explainError(query.error)}</Alert>}
       {query.data && (
-        <section className="card">
+        <section className="workspace-panel homework-detail-panel">
           <h2>{lesson.data?.lesson.subject_name ?? 'Условие задания'}</h2>
           <p>
             {query.data.final_due_datetime
               ? `Сдать до ${schoolDatetime(query.data.final_due_datetime)}`
               : 'Урок срока отменён — ожидайте уточнения'}
           </p>
-          <p style={{ whiteSpace: 'pre-wrap' }}>{query.data.description}</p>
+          <p style={{ whiteSpace: 'pre-wrap' }}>
+            {displayHomeworkDescription(query.data.description)}
+          </p>
           <p>
             <Link to={`/lessons/${query.data.issued_lesson_id}`}>
               Открыть урок, на котором задано
@@ -63,6 +68,6 @@ function StudentHomeworkDetail() {
           <HomeworkAnswerForm key={id} homeworkId={id} api={homework} />
         </section>
       )}
-    </>
+    </div>
   );
 }

@@ -261,7 +261,10 @@ def load_apis() -> tuple[Api, Api, Api, Api]:
                 "X-Actor-ID": "1",
             },
         ),
-        Api(base("schedule-api", 8000)),
+        Api(
+            base("schedule-api", 8000),
+            {"Authorization": "Bearer " + gateway["SCHEDULE_SERVICE_TOKEN"]},
+        ),
         Api(base("web", 80), {"Origin": gateway["PUBLIC_ORIGIN"]}),
     )
 
@@ -526,6 +529,9 @@ def main() -> None:
         action="store_true",
         help="Добавить недостающие демонстрационные записи",
     )
+    parser.add_argument(
+        "--large", action="store_true", help="Большая школа: классы 1–11 А–Д"
+    )
     args = parser.parse_args()
     gateway, journal, schedule, public = load_apis()
     for api in (gateway, journal, schedule):
@@ -533,6 +539,22 @@ def main() -> None:
     accounts = build_accounts()
     days = school_days(datetime.now(TIMEZONE).date())
     study_year = days[0].year if days[0].month >= 9 else days[0].year - 1
+    if args.large:
+        from expand_demo_school import apply_expansion, expansion_accounts
+
+        print(
+            f"План: 55 классов, {len(expansion_accounts())} демо-учёток, "
+            f"по 5–6 уроков в день; {days[0]} — {days[-1]}.",
+            flush=True,
+        )
+        if not args.apply:
+            print("API доступны. Для записи добавьте --apply. Ничего не изменено.")
+            return
+        summary = apply_expansion(gateway, journal, schedule, days, study_year)
+        print(
+            f"Готово: {len(summary)} классов. Список: .demo-data/expanded-school.json"
+        )
+        return
     print(
         f"План: классы 1А–11А, {len(accounts)} учёток, 110 уроков, 77 ДЗ; {days[0]} — {days[-1]}.",
         flush=True,
@@ -548,13 +570,20 @@ def main() -> None:
     print(
         "Демо-пользователи готовы; существующие пароли и профили сохранены.", flush=True
     )
+    from expand_demo_school import expansion_accounts
+
+    demo_teachers = {
+        account["email"]
+        for account in [*accounts, *expansion_accounts()]
+        if account["role"] == "teacher"
+    }
     subject_names = {
         "subjects": [
             {"id": 1, "name": "Математика"},
             {"id": 2, "name": "Русский язык"},
         ],
         "allowed_teacher_ids": [
-            users[f"teacher{grade:02}@demo.og.test"]["id"] for grade in range(1, 12)
+            user["id"] for email, user in users.items() if email in demo_teachers
         ],
     }
     result = subprocess.run(

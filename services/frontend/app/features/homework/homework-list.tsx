@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import type { HomeworkListItem } from './api';
 import { formatSchoolDay, schoolDay, schoolDatetime } from '../schedule/school-dates';
+import { displayHomeworkDescription } from './display-description';
 export function homeworkStatus(row: HomeworkListItem): string {
   if (row.latest_answer_status === 'graded') return `Проверено · оценка ${row.grade}`;
   if (row.latest_answer_status === 'submitted') return 'На проверке';
@@ -30,7 +31,7 @@ export function HomeworkList({
     const label = overdue
       ? 'Просрочено — нужно выполнить'
       : day
-        ? `К ${weekday}, ${formatSchoolDay(day)}`
+        ? `${weekday === 'вторнику' ? 'Ко' : 'К'} ${weekday}, ${formatSchoolDay(day)}`
         : 'Срок уточняется';
     const group = groups.get(key) ?? { label, rows: [] };
     group.rows.push(row);
@@ -40,31 +41,50 @@ export function HomeworkList({
     <div className="homework-groups">
       {[...groups.entries()].map(([key, group]) => (
         <section key={key} className="homework-date-group">
-          <h2>{group.label}</h2>
+          <div className="homework-group-heading">
+            <h2>{group.label}</h2>
+            <span className="homework-group-rule" aria-hidden="true" />
+            <span className="homework-group-count" aria-label={`Заданий: ${group.rows.length}`}>
+              {group.rows.length}
+            </span>
+          </div>
           <div className="homework-rows">
             {group.rows.map((row) => (
-              <Link to={`/homework/${row.id}`} key={row.id} className="homework-row">
-                <div>
+              <Link
+                to={`/homework/${row.id}`}
+                key={row.id}
+                className={`homework-row${key === 'overdue' ? ' is-overdue' : ''}`}
+              >
+                <div className="homework-row-content">
                   <h3>{row.subject_name}</h3>
-                  <p className="homework-description">{row.description}</p>
-                  <span className="lesson-teacher">{row.teacher_name}</span>
-                  <p className="homework-deadline">
-                    {row.final_due_datetime
-                      ? `Сдать до ${schoolDatetime(row.final_due_datetime)}`
-                      : 'Урок срока отменён — ожидайте уточнения'}
+                  <p className="homework-description">
+                    {displayHomeworkDescription(row.description)}
                   </p>
-                  {!!row.files.length && (
-                    <span className="lesson-teacher">
-                      Файлов: {row.files.length}
-                      {row.files.some((f) => f.upload_status === 'pending')
-                        ? ' · не все загружены'
-                        : ''}
+                  <div className="homework-row-meta">
+                    <span className="homework-deadline">
+                      {row.final_due_datetime
+                        ? `Сдать до ${schoolDatetime(row.final_due_datetime)}`
+                        : 'Урок срока отменён — ожидайте уточнения'}
                     </span>
-                  )}
+                    <span>{row.teacher_name}</span>
+                    {!!row.files.length && (
+                      <span>
+                        Файлов: {row.files.length}
+                        {row.files.some((f) => f.upload_status === 'pending')
+                          ? ' · не все загружены'
+                          : ''}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="homework-row-status">
+                  {key === 'overdue' && (
+                    <span className="badge homework-status homework-status--overdue">
+                      Просрочено
+                    </span>
+                  )}
                   <span
-                    className={`badge${row.latest_answer_status === 'returned' ? ' badge-peach' : ''}`}
+                    className={`badge homework-status homework-status--${row.latest_answer_status ?? 'assigned'}`}
                   >
                     {homeworkStatus(row)}
                   </span>

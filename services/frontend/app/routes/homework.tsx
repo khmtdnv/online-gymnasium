@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Navigate } from 'react-router';
 import { PageHeader } from '../components/page-header';
 import { Alert } from '../components/ui/alert';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useSession } from '../features/auth/session-context';
 import { HomeworkList } from '../features/homework/homework-list';
+import { TeacherReviews } from '../features/homework/teacher-reviews';
 import type { HomeworkState } from '../features/homework/api';
 import { addSchoolDays, formatSchoolDay, schoolWeek } from '../features/schedule/school-dates';
 import { useFeatures } from '../lib/api/context';
@@ -15,7 +15,7 @@ import { explainError } from '../lib/api/errors';
 export default function HomeworkPage() {
   const { state } = useSession();
   if (state.status !== 'authenticated') return null;
-  if (state.user.role === 'teacher') return <Navigate to="/my-schedule" replace />;
+  if (state.user.role === 'teacher') return <TeacherReviews />;
   if (state.user.role !== 'student') return <Alert>Домашние задания доступны ученикам.</Alert>;
   return <StudentHomework />;
 }
@@ -34,7 +34,7 @@ function StudentHomework() {
     queryFn: ({ signal }) => homework.listMyHomework(from, until, state, offset, signal),
   });
   return (
-    <>
+    <div className="workspace-page homework-page">
       <PageHeader
         title="Домашние задания"
         description="По срокам сдачи. Откройте задание, чтобы ответить, прикрепить файл или посмотреть проверку."
@@ -97,7 +97,10 @@ function StudentHomework() {
       {query.isError && <Alert tone="error">{explainError(query.error)}</Alert>}
       {valid && query.data && (
         <>
-          <p>Найдено заданий: {query.data.total}</p>
+          <div className="homework-results-heading">
+            <h2>Задания</h2>
+            <span>Найдено: {query.data.total}</span>
+          </div>
           {!query.data.items.length && (
             <section className="card">
               <h2>Подходящих заданий нет</h2>
@@ -123,6 +126,6 @@ function StudentHomework() {
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }

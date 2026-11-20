@@ -160,6 +160,9 @@ class GetCurrentUserResponse(BaseModel):
     id: UUID
     email: str
     role: Role
+    first_name: str = ""
+    last_name: str = ""
+    middle_name: str = ""
 
 
 @router.get("/me", response_model=GetCurrentUserResponse)
@@ -182,6 +185,9 @@ async def get_current_user(
         id=user.id,
         email=user.email,
         role=user.role,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        middle_name=user.middle_name,
     )
 
 

@@ -62,6 +62,9 @@ def test_me_reads_bearer_token_and_returns_current_user() -> None:
         "id": str(user.id),
         "email": "student@example.com",
         "role": "student",
+        "first_name": "Тестовый",
+        "last_name": "Пользователь",
+        "middle_name": "",
     }
     token_service.decode_access.assert_called_once_with("valid-jwt")
 

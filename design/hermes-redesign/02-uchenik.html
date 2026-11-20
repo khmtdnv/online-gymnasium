@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Онлайн-гимназия — Ученик</title>
+<link rel="stylesheet" href="css.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="gallery">
+  <header class="gallery-header">
+    <span class="kicker">Онлайн-гимназия · макеты</span>
+    <h1>Ученик</h1>
+    <p>Все экраны роли «ученик»: вход, день, расписание, урок, домашние задания, умная ручка, уведомления, профиль, оплата и выход. Данные вымышленные.</p>
+    <nav class="gallery-nav"><a href="index.html">Обзор</a><a href="01-dizain-sistema.html">Дизайн-система</a><a href="03-prepodavatel.html">Преподаватель</a><a href="04-roditel.html">Родитель</a><a href="05-portal-admin.html">Админ · портал</a><a href="06-backoffice.html">Backoffice</a><a href="07-sostoyaniya.html">Состояния и мобильные</a></nav>
+  </header>
+
+  <!-- ============ 1. ВХОД ============ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-01</span><h2>Вход в систему</h2><span class="state">обычное состояние · неверный пароль · загрузка · ошибка связи</span></div>
+    <div class="canvas"><div class="app">
+      <div class="shots-row">
+        <!-- обычное -->
+        <div>
+          <div class="mock-topbar-demo"><b>Обычное состояние</b><span>email + пароль, вход по кнопке</span></div>
+          <div style="display:grid;grid-template-columns:1.1fr 1fr;min-height:430px">
+            <div style="background:var(--ink);color:#fff;padding:40px 36px;display:flex;flex-direction:column;justify-content:center">
+              <a class="brand" href="#"><span class="brand-mark" style="background:rgba(255,255,255,.14)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#232A31" stroke-width="1.6"/></svg></span><strong style="color:#fff">Онлайн-гимназия</strong></a>
+              <h1 style="font:700 30px/1.2 var(--font-display);margin:28px 0 10px">Школа, в которой всё на своих местах</h1>
+              <p style="color:#B9C2CB;font-size:14.5px;max-width:340px">Расписание, домашние задания и школьные дела — в одном пространстве.</p>
+              <div class="row" style="gap:8px;margin-top:26px"><span style="font-size:12.5px;background:rgba(255,255,255,.1);border-radius:999px;padding:5px 13px;color:#DCE6EF">Расписание</span><span style="font-size:12.5px;background:rgba(255,255,255,.1);border-radius:999px;padding:5px 13px;color:#DCE6EF">Домашние задания</span><span style="font-size:12.5px;background:rgba(255,255,255,.1);border-radius:999px;padding:5px 13px;color:#DCE6EF">Документы</span></div>
+            </div>
+            <div style="background:var(--surface);padding:36px 34px;display:flex;align-items:center">
+              <form style="width:100%;max-width:340px;margin:0 auto">
+                <span style="display:block;font:600 11.5px var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px">Рады видеть вас</span>
+                <h2 style="font:600 21px var(--font-ui);margin-bottom:6px">Вход в гимназию</h2>
+                <p class="muted small" style="margin-bottom:20px">Используйте учётную запись, которую вам выдал администратор.</p>
+                <div class="field"><label for="l1">Email</label><input class="input" id="l1" type="email" autocomplete="username" placeholder="ivanov@example.com"></div>
+                <div class="field"><label for="l2">Пароль</label><input class="input" id="l2" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+                <button class="btn" style="width:100%;margin-top:6px">Войти</button>
+                <p class="hint" style="margin-top:22px">Сотрудник школы? <a href="06-backoffice.html">Войти в Backoffice</a></p>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- неверный пароль -->
+        <div>
+          <div class="mock-topbar-demo"><b>Неверный пароль</b><span>ошибка 401, поле пароля очищено</span></div>
+          <div style="background:var(--surface);padding:36px 34px;min-height:430px;display:flex;align-items:center">
+            <form style="width:100%;max-width:340px;margin:0 auto">
+              <h2 style="font:600 21px var(--font-ui);margin-bottom:20px">Вход в гимназию</h2>
+              <div class="alert error"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg><div>Email или пароль не подошли. Проверьте данные.</div></div>
+              <div class="field"><label for="l3">Email</label><input class="input" id="l3" value="m.ivanov@example.com"></div>
+              <div class="field invalid"><label for="l4">Пароль</label><input class="input" id="l4" type="password" placeholder="••••••••"></div>
+              <button class="btn" style="width:100%;margin-top:6px">Войти</button>
+            </form>
+          </div>
+        </div>
+        <!-- загрузка и ошибка связи -->
+        <div>
+          <div class="mock-topbar-demo"><b>Загрузка</b><span>кнопка заблокирована</span></div>
+          <div style="background:var(--surface);padding:36px 34px;min-height:430px;display:flex;align-items:center">
+            <form style="width:100%;max-width:340px;margin:0 auto">
+              <h2 style="font:600 21px var(--font-ui);margin-bottom:20px">Вход в гимназию</h2>
+              <div class="field"><label for="l5">Email</label><input class="input" id="l5" value="m.ivanov@example.com" disabled></div>
+              <div class="field"><label for="l6">Пароль</label><input class="input" id="l6" type="password" value="••••••••" disabled></div>
+              <button class="btn" style="width:100%;margin-top:6px" disabled><span class="spinner" style="width:15px;height:15px;border-width:2px"></span>Входим…</button>
+            </form>
+          </div>
+        </div>
+        <div>
+          <div class="mock-topbar-demo"><b>Ошибка связи</b><span>сервис авторизации недоступен</span></div>
+          <div style="background:var(--surface);padding:36px 34px;min-height:430px;display:flex;align-items:center">
+            <form style="width:100%;max-width:340px;margin:0 auto">
+              <h2 style="font:600 21px var(--font-ui);margin-bottom:20px">Вход в гимназию</h2>
+              <div class="alert error"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h7V5a7 7 0 1 0 7 7h-7v7a7 7 0 1 1-7-7Z"/></svg><div>Не удалось проверить вход: сервер недоступен.<div class="alert-actions"><button class="btn small">Повторить</button></div></div></div>
+              <div class="field"><label for="l7">Email</label><input class="input" id="l7" value="m.ivanov@example.com"></div>
+              <div class="field"><label for="l8">Пароль</label><input class="input" id="l8" type="password" placeholder="••••••••"></div>
+              <button class="btn" style="width:100%;margin-top:6px">Войти</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ 2. СЕГОДНЯ ============ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-02</span><h2>Главная «Сегодня»</h2><span class="state">уроки, ближайшие задания, уведомления</span></div>
+    <p class="shot-note">Слева — весь день с тайм-линией уроков (включая «идёт сейчас» и отменённые), справа — ближайшие задания и уведомления. Ссылка «Вся неделя» ведёт в полное расписание.</p>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav"><a class="active" href="#">Главная</a><a href="#">Моё расписание</a><a href="#">Домашние задания</a><a href="#">Уведомления</a><a href="#">Оплата обучения</a><a href="#">Профиль</a></nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg><span class="dot">2</span></a><div class="account"><div><b>Михаил Иванов</b><span>Ученик · 7А</span></div><span class="avatar">М</span></div></div>
+      </header>
+      <main class="page">
+        <div class="page-head"><div><span class="kicker">Личный кабинет</span><h1>Сегодня</h1><p class="sub">Четверг, 19 ноября 2026 года</p></div></div>
+        <div class="day-grid">
+          <section class="card pad">
+            <div class="panel-head"><div><span class="kicker">Ваш день</span><h2>Уроки сегодня</h2></div><a class="link" href="#">Вся неделя →</a></div>
+            <div class="lesson-row"><span class="time">09:00–09:45</span><div class="main"><b>Алгебра</b><span>Елена Соколова · 7А</span></div><span class="open">Открыть →</span></div>
+            <div class="lesson-row"><span class="time">10:00–10:45</span><div class="main"><b>Русский язык</b><span>Анна Кузнецова · 7А</span></div><span class="open">Открыть →</span></div>
+            <div class="lesson-row now"><span class="time">11:00–11:45<small>идёт сейчас</small></span><div class="main"><b>Литература</b><span>Анна Кузнецова · 7А</span></div><span class="open">Открыть →</span></div>
+            <div class="lesson-row canceled"><span class="time">13:00–13:45</span><div class="main"><b>География</b><span>Пётр Никитин · 7А</span></div><span class="badge gray"><i class="dot"></i>Отменён</span></div>
+            <div class="lesson-row"><span class="time">14:00–14:45</span><div class="main"><b>Информатика</b><span>Игорь Фадеев · 7А</span></div><span class="open">Открыть →</span></div>
+          </section>
+          <aside class="stack">
+            <section class="card pad">
+              <div class="panel-head"><div><h2>Ближайшие задания</h2></div><a class="link" href="#">Все задания →</a></div>
+              <a class="task-row" href="#"><b>Алгебра</b><span>№ 132–135: привести дроби к общему знаменателю…</span><small>Сдать до пятницы, 20 ноября, 19:50</small></a>
+              <a class="task-row" href="#"><b>Литература</b><span>Прочитать 3-ю главу и выписать незнакомые слова</span><small>Сдать до вторника, 24 ноября, 19:50</small></a>
+              <a class="task-row" href="#"><b>Информатика</b><span>Составить таблицу истинности для двух выражений</span><small>Сдать до пятницы, 27 ноября, 19:50</small></a>
+            </section>
+            <section class="card pad">
+              <div class="panel-head"><div><h2>Уведомления</h2></div><a class="link" href="#">Все →</a></div>
+              <a class="task-row" href="#"><b>Работа проверена</b><span>Алгебра · оценка 5</span><small>Сегодня, 10:12</small></a>
+              <a class="task-row" href="#"><b>Задание вернули на доработку</b><span>Русский язык · есть комментарий</span><small>Вчера, 18:30</small></a>
+            </section>
+          </aside>
+        </div>
+      </main>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-02b</span><h2>«Сегодня» — пустые состояния</h2><span class="state">нет уроков · не зачислен в класс · нет заданий и уведомлений</span></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="shots-row" style="gap:16px">
+        <div class="card pad" style="min-height:280px;display:flex;align-items:center"><div class="state-block" style="width:100%">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>
+          <h3>На сегодня уроков нет</h3><p>Загляните в расписание на неделю — возможно, уроки будут завтра.</p>
+          <a class="btn secondary" href="#">Открыть расписание</a>
+        </div></div>
+        <div class="card pad" style="min-height:280px;display:flex;align-items:center"><div class="state-block" style="width:100%">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.7-3 3-4.5 5.5-4.5s4.8 1.5 5.5 4.5"/><path d="M17 8h4M19 6v4"/></svg></span>
+          <h3>Вы пока не зачислены в класс</h3><p>Как только сотрудник школы добавит вас в класс, здесь появится ваше расписание.</p>
+        </div></div>
+        <div class="card pad" style="min-height:280px;display:flex;align-items:center"><div class="state-block" style="width:100%">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h9l5 5v11H5z"/><path d="M14 4v5h5"/></svg></span>
+          <h3>На ближайшие 30 дней заданий нет</h3><p>Здесь появятся задания, как только преподаватель их выдаст.</p>
+        </div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ 3. РАСПИСАНИЕ ============ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-03</span><h2>Моё расписание</h2><span class="state">неделя Пн–Сб, переключение недель, сегодняшний день, отменённый урок</span></div>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav"><a href="#">Главная</a><a class="active" href="#">Моё расписание</a><a href="#">Домашние задания</a><a href="#">Уведомления</a><a href="#">Оплата обучения</a><a href="#">Профиль</a></nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg><span class="dot">2</span></a><div class="account"><div><b>Михаил Иванов</b><span>Ученик · 7А</span></div><span class="avatar">М</span></div></div>
+      </header>
+      <main class="page">
+        <div class="page-head"><div><span class="kicker">Личное расписание</span><h1>Моя неделя</h1><p class="sub">Выберите день и откройте предмет, чтобы посмотреть урок и домашние задания.</p></div></div>
+        <div class="calendar-toolbar">
+          <div class="calendar-period">
+            <a class="btn secondary small" href="#" aria-label="Предыдущая неделя">←</a>
+            <h2>16 — 21 ноября 2026</h2>
+            <a class="btn secondary small" href="#" aria-label="Следующая неделя">→</a>
+          </div>
+          <div class="row"><button class="btn secondary small">Сегодня</button><span class="tz">Время школы · UTC+5</span></div>
+        </div>
+        <div class="week-grid">
+          <div class="week-day today"><header><h3>Понедельник</h3><span class="d">16.11</span><span class="badge blue" style="margin-left:auto">Сегодня</span></header>
+            <div class="mini-lesson"><b>Алгебра</b><span>09:00 · Соколова</span></div>
+            <div class="mini-lesson"><b>Русский язык</b><span>10:00 · Кузнецова</span></div>
+            <div class="mini-lesson"><b>Физика</b><span>12:00 · Дементьев</span></div>
+          </div>
+          <div class="week-day"><header><h3>Вторник</h3><span class="d">17.11</span></header>
+            <div class="mini-lesson"><b>Литература</b><span>09:00 · Кузнецова</span></div>
+            <div class="mini-lesson"><b>История</b><span>11:00 · Савельева</span></div>
+          </div>
+          <div class="week-day"><header><h3>Среда</h3><span class="d">18.11</span></header>
+            <div class="mini-lesson"><b>Алгебра</b><span>09:00 · Соколова</span></div>
+            <div class="mini-lesson canceled"><b>Английский</b><span>13:00 · отменён</span></div>
+          </div>
+          <div class="week-day"><header><h3>Четверг</h3><span class="d">19.11</span></header>
+            <div class="mini-lesson"><b>Алгебра</b><span>09:00 · Соколова</span></div>
+            <div class="mini-lesson"><b>Русский язык</b><span>10:00 · Кузнецова</span></div>
+            <div class="mini-lesson"><b>Литература</b><span>11:00 · Кузнецова</span></div>
+            <div class="mini-lesson"><b>Информатика</b><span>14:00 · Фадеев</span></div>
+          </div>
+          <div class="week-day"><header><h3>Пятница</h3><span class="d">20.11</span></header>
+            <div class="mini-lesson"><b>География</b><span>10:00 · Никитин</span></div>
+            <div class="mini-lesson"><b>Английский</b><span>12:00 · Морозова</span></div>
+          </div>
+          <div class="week-day"><header><h3>Суббота</h3><span class="d">21.11</span></header><p class="none">Уроков нет</p></div>
+        </div>
+        <p class="hint mt">Пустой день — честная пустота: «Уроков нет». Отменённый урок остаётся в сетке перечёркнутым, чтобы день не «съезжал».</p>
+      </main>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-03m</span><h2>Расписание на телефоне</h2><span class="state">выбор дня вкладками, список выбранного дня</span></div>
+    <div class="canvas"><div class="app" style="padding:26px;display:flex;gap:22px;flex-wrap:wrap;background:var(--sunken)">
+      <div class="phone-frame">
+        <div class="ph-status"><span>9:41</span><span>Онлайн-гимназия</span></div>
+        <div class="topbar" style="height:54px;padding:0 14px;position:static">
+          <a class="brand" href="#"><span class="brand-mark" style="width:30px;height:30px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong style="font-size:13.5px">Онлайн-гимназия</strong></a>
+          <div class="topbar-right"><button class="btn ghost small" aria-label="Меню" style="min-height:36px;padding:6px 9px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></div>
+        </div>
+        <div class="ph-page">
+          <div class="spread" style="margin-bottom:10px"><b style="font-size:16px">Моя неделя</b><span class="tz">UTC+5</span></div>
+          <div class="row" style="gap:8px;margin-bottom:14px"><a class="btn secondary small" href="#">←</a><b style="font-size:13.5px">16 — 21 ноября</b><a class="btn secondary small" href="#">→</a><button class="btn secondary small" style="margin-left:auto">Сегодня</button></div>
+          <div class="ph-tabs">
+            <button><span>Пн</span><b>16</b></button>
+            <button><span>Вт</span><b>17</b></button>
+            <button><span>Ср</span><b>18</b></button>
+            <button class="sel"><span>Чт</span><b>19</b></button>
+            <button><span>Пт</span><b>20</b></button>
+            <button><span>Сб</span><b>21</b></button>
+          </div>
+          <div class="ph-row"><span class="t">09:00</span><div style="flex:1"><b>Алгебра</b><span>Соколова · 7А</span></div><span class="open" style="font-size:12.5px;color:var(--accent)">→</span></div>
+          <div class="ph-row"><span class="t">10:00</span><div style="flex:1"><b>Русский язык</b><span>Кузнецова · 7А</span></div><span style="font-size:12.5px;color:var(--accent)">→</span></div>
+          <div class="ph-row" style="border-color:var(--accent)"><span class="t">11:00</span><div style="flex:1"><b>Литература</b><span>Кузнецова · 7А</span></div><span class="badge blue" style="font-size:10.5px">сейчас</span></div>
+          <div class="ph-row" style="border-style:dashed"><span class="t">13:00</span><div style="flex:1"><b style="text-decoration:line-through;color:var(--muted)">География</b><span>отменён</span></div></div>
+        </div>
+        <nav class="ph-nav"><a class="active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="9" rx="1.5"/><rect x="13" y="4" width="7" height="5" rx="1.5"/><rect x="13" y="11" width="7" height="9" rx="1.5"/><rect x="4" y="15" width="7" height="5" rx="1.5"/></svg>Главная</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Расписание</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h13l3 3v11H4z"/><path d="M8 5v14M4 10h4"/></svg>Задания</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg>Ещё</a></nav>
+      </div>
+      <div style="max-width:420px">
+        <div class="card pad">
+          <div class="panel-head"><div><span class="kicker">Мобильный сценарий</span><h2>Выбор дня</h2></div></div>
+          <p class="small muted">На телефоне неделя не помещается по ширине, поэтому дни выбираются горизонтальными вкладками (свитп по ним), а снизу — список уроков выбранного дня. «Сегодня» — одной кнопкой. Отменённый урок показывается перечёркнутым и не убирается из списка.</p>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ 4. УРОК ============ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-04</span><h2>Страница урока</h2><span class="state">предмет, время, преподаватель, «Подготовить к этому уроку», умная ручка</span></div>
+    <p class="shot-note">Для ученика блока «Задано на этом уроке» нет — только то, что нужно подготовить к занятию. Справа — карточка «Об уроке» и переход к умной ручке.</p>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav"><a href="#">Главная</a><a class="active" href="#">Моё расписание</a><a href="#">Домашние задания</a><a href="#">Уведомления</a><a href="#">Оплата обучения</a><a href="#">Профиль</a></nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg><span class="dot">2</span></a><div class="account"><div><b>Михаил Иванов</b><span>Ученик · 7А</span></div><span class="avatar">М</span></div></div>
+      </header>
+      <main class="page">
+        <div class="breadcrumb"><a href="#">Расписание</a> <span>/</span> <span class="muted">Четверг, 19 ноября</span></div>
+        <div class="page-head">
+          <div><span class="kicker">Информация об уроке</span><h1>Алгебра</h1><p class="sub">7А · Елена Соколова</p></div>
+          <div class="actions"><a class="btn secondary" href="#"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 5 4 4L8 20H4v-4L15 5Z"/></svg>Умная ручка</a><button class="btn ghost">Обновить</button></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start">
+          <section class="card pad">
+            <div class="panel-head"><div><span class="kicker">Домашние задания</span><h2>Подготовить к этому уроку</h2><p class="small muted">Работы, которые нужно было выполнить к занятию.</p></div></div>
+            <article class="hw-row"><div class="main"><b>№ 132–135</b><p class="desc">Привести дроби к общему знаменателю и выполнить вычитание. Образец оформления — в файле.</p><small>Сдать до пятницы, 20 ноября, 19:50 · 1 файл</small></div><a class="btn small" href="#">Открыть задание</a></article>
+            <article class="hw-row"><div class="main"><b>Повторить § 12</b><p class="desc">Перечитать параграф о свойствах степеней, подготовиться к небольшой самостоятельной работе.</p><small>Сдать до пятницы, 20 ноября, 19:50</small></div><a class="btn small" href="#">Открыть задание</a></article>
+          </section>
+          <aside class="card pad">
+            <div class="panel-head"><div><h2>Об уроке</h2></div></div>
+            <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><div><span>Дата</span><b>Четверг, 19 ноября 2026</b></div></div>
+            <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><div><span>Время школы (UTC+5)</span><b>09:00–09:45</b></div></div>
+            <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c.8-3.4 3.6-5 7-5s6.2 1.6 7 5"/></svg></span><div><span>Преподаватель</span><b>Елена Соколова</b></div></div>
+            <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.7-3 3-4.5 5.5-4.5s4.8 1.5 5.5 4.5"/><path d="M16.5 8.5h4M18.5 6.5v4"/></svg></span><div><span>Класс</span><b>7А</b></div></div>
+            <a class="link small" href="#">Все домашние задания →</a>
+          </aside>
+        </div>
+      </main>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-04b</span><h2>Урок отменён</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px;max-width:760px">
+      <div class="breadcrumb"><a href="#">Расписание</a> <span>/</span> <span class="muted">Среда, 18 ноября</span></div>
+      <div class="page-head"><div><span class="kicker">Информация об уроке</span><h1>Английский язык</h1><p class="sub">7А · Мария Морозова</p></div><div class="actions"><button class="btn ghost">Обновить</button></div></div>
+      <div class="alert neutral"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><div><b>Этот урок отменён.</b> Домашние задания, которые были выданы к этому уроку, сохраняются — срок сдачи уточнит преподаватель.</div></div>
+      <section class="card pad"><div class="panel-head"><div><h2>Об уроке</h2></div></div>
+        <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><div><span>Дата</span><b>Среда, 18 ноября 2026</b></div></div>
+        <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><div><span>Время школы (UTC+5)</span><b>13:00–13:45</b></div></div>
+        <span class="badge gray"><i class="dot"></i>Урок отменён</span>
+      </section>
+    </div></div>
+  </section>
+
+  <!-- ============ 5. СПИСОК ДЗ ============ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-05</span><h2>Домашние задания</h2><span class="state">фильтры, группировка по срокам, все статусы</span></div>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav"><a href="#">Главная</a><a href="#">Моё расписание</a><a class="active" href="#">Домашние задания</a><a href="#">Уведомления</a><a href="#">Оплата обучения</a><a href="#">Профиль</a></nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg><span class="dot">2</span></a><div class="account"><div><b>Михаил Иванов</b><span>Ученик · 7А</span></div><span class="avatar">М</span></div></div>
+      </header>
+      <main class="page">
+        <div class="page-head"><div><span class="kicker">Школьные работы</span><h1>Домашние задания</h1><p class="sub">По срокам сдачи. Откройте задание, чтобы ответить, прикрепить файл или посмотреть проверку.</p></div></div>
+        <div class="card pad" style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px">
+          <div class="field" style="margin:0;width:150px"><label>Срок с</label><input class="input" type="date" value="2026-11-09"></div>
+          <div class="field" style="margin:0;width:150px"><label>Срок по</label><input class="input" type="date" value="2026-11-30"></div>
+          <div class="field" style="margin:0;width:210px"><label>Показать</label><select class="select"><option>Все задания</option><option selected>Нужно выполнить</option></select></div>
+          <button class="btn secondary">Обновить</button>
+        </div>
+        <p class="tz" style="margin:6px 2px 18px">Сроки с 9 ноября по 30 ноября · время школы UTC+5 · найдено: 5</p>
+
+        <div class="date-group"><h2>Просрочено — нужно выполнить</h2><span class="line"></span><span class="badge ink"><i class="dot" style="background:#fff"></i>1</span></div>
+        <article class="hw-row" style="border-color:#D8C7C4"><div class="main"><b>История</b><p class="desc">§ 14, вопросы 3–5: письменно ответить, каким было положение ремесленников в XIV веке.</p><small>Срок был: вторник, 17 ноября, 19:50 · Савельева</small></div><div class="status-col"><span class="badge ink"><i class="dot" style="background:#fff"></i>Просрочено</span><span class="go">Открыть задание →</span></div></article>
+
+        <div class="date-group"><h2>К пятнице, 20 ноября</h2><span class="line"></span></div>
+        <article class="hw-row"><div class="main"><b>Алгебра</b><p class="desc">№ 132–135: привести дроби к общему знаменателю и выполнить вычитание.</p><small>Сдать до 19:50 · Соколова · 1 файл</small></div><div class="status-col"><span class="badge blue"><i class="dot"></i>Нужно выполнить</span><span class="go">Открыть задание →</span></div></article>
+        <article class="hw-row"><div class="main"><b>Русский язык</b><p class="desc">Упражнение 87: расставить знаки препинания, подчеркнуть однородные члены.</p><small>Сдать до 19:50 · Кузнецова · возвращено с замечанием</small></div><div class="status-col"><span class="badge red"><i class="dot"></i>Вернули — нужно исправить</span><span class="go">Открыть задание →</span></div></article>
+
+        <div class="date-group"><h2>К вторнику, 24 ноября</h2><span class="line"></span></div>
+        <article class="hw-row"><div class="main"><b>Литература</b><p class="desc">Прочитать 3-ю главу и выписать незнакомые слова.</p><small>Сдать до 19:50 · Кузнецова</small></div><div class="status-col"><span class="badge amber"><i class="dot"></i>На проверке</span><span class="go">Открыть задание →</span></div></article>
+
+        <div class="date-group"><h2>Срок уточняется</h2><span class="line"></span></div>
+        <article class="hw-row"><div class="main"><b>Английский язык</b><p class="desc">Выучить неправильные глаголы из таблицы (часть 2).</p><small>Урок срока отменён — ожидайте уточнения · Морозова</small></div><div class="status-col"><span class="badge outline"><i class="dot"></i>Срок уточняется</span><span class="go">Открыть задание →</span></div></article>
+
+        <div class="pager"><span class="info">Показано 5 из 5</span><button class="btn secondary small disabled">Предыдущие</button><button class="btn secondary small disabled">Следующие</button></div>
+      </main>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-05b</span><h2>Список заданий — фильтр «Все задания» и пустой результат</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="two-col">
+        <div class="card pad">
+          <div class="row" style="margin-bottom:14px"><span class="badge blue"><i class="dot"></i>Нужно выполнить</span><span class="badge amber"><i class="dot"></i>На проверке</span><span class="badge red"><i class="dot"></i>Вернули</span><span class="badge green"><i class="dot"></i>Проверено · оценка 5</span><span class="badge ink"><i class="dot" style="background:#fff"></i>Просрочено</span></div>
+          <p class="small muted">В режиме «Все задания» статусы смешаны и различаются бейджем, цветом строки срока и текстом. Просроченные поднимаются в собственную группу сверху.</p>
+          <div class="date-group" style="margin-top:10px"><h2>К вторнику, 24 ноября</h2><span class="line"></span></div>
+          <article class="hw-row"><div class="main"><b>Информатика</b><p class="desc">Составить таблицу истинности для двух выражений.</p><small>Сдать до 19:50 · Фадеев</small></div><div class="status-col"><span class="badge green"><i class="dot"></i>Проверено · оценка 4</span><span class="go">Открыть →</span></div></article>
+          <article class="hw-row"><div class="main"><b>Литература</b><p class="desc">Прочитать 3-ю главу и выписать незнакомые слова.</p><small>Сдать до 19:50 · Кузнецова</small></div><div class="status-col"><span class="badge amber"><i class="dot"></i>На проверке</span><span class="go">Открыть →</span></div></article>
+        </div>
+        <div class="card" style="display:flex;align-items:center;min-height:300px"><div class="state-block" style="width:100%">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></span>
+          <h3>Подходящих заданий нет</h3><p>Попробуйте другой период или выберите «Все задания».</p>
+          <button class="btn secondary">Сбросить фильтры</button>
+        </div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ 6. КАРТОЧКА ДЗ ============ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-06</span><h2>Задание — сдача работы</h2><span class="state">условие · файлы учителя · форма ответа</span></div>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav"><a href="#">Главная</a><a href="#">Моё расписание</a><a class="active" href="#">Домашние задания</a><a href="#">Уведомления</a><a href="#">Оплата обучения</a><a href="#">Профиль</a></nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg><span class="dot">2</span></a><div class="account"><div><b>Михаил Иванов</b><span>Ученик · 7А</span></div><span class="avatar">М</span></div></div>
+      </header>
+      <main class="page">
+        <div class="breadcrumb"><a href="#">Все задания</a> <span>/</span> <span class="muted">Алгебра</span></div>
+        <div class="page-head"><div><span class="kicker">Домашнее задание</span><h1>№ 132–135: дроби</h1><p class="sub">Сдать до пятницы, 20 ноября, 19:50 (время школы UTC+5) · <a href="#">урок, на котором задано</a></p></div><div class="actions"><button class="btn ghost">Обновить</button></div></div>
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start">
+          <div class="stack">
+            <section class="card pad">
+              <div class="panel-head"><div><h2>Условие</h2></div></div>
+              <p style="white-space:pre-wrap;font-size:14.5px">Привести дроби к общему знаменателю и выполнить вычитание: № 132, 133, 134 (а, б), 135.
+
+Образец оформления — в прикреплённом файле. Решение можно написать здесь или прикрепить фотографию тетради.</p>
+            </section>
+            <section class="card pad">
+              <div class="panel-head"><div><h2>Файлы преподавателя</h2></div></div>
+              <div class="file-chip mb"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v5h5M6 3h9l5 5v13H6z"/></svg><div style="flex:1"><b>obrazec-oformlenija.pdf</b> <small>· 180 КБ</small></div><button class="btn small ghost">Скачать</button></div>
+            </section>
+            <section class="card pad">
+              <div class="panel-head"><div><span class="kicker">Моя работа</span><h2>Ответ на задание</h2></div></div>
+              <div class="field"><label>Ваш ответ</label><textarea class="textarea" placeholder="Напишите решение или комментарий…"></textarea><span class="hint">До 10 000 знаков</span></div>
+              <div class="field"><label>Файлы ответа</label>
+                <div class="file-chip mb"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v5h5M6 3h9l5 5v13H6z"/></svg><div style="flex:1"><b>tetrad-str-1.jpg</b> <small>· 1,2 МиБ</small></div><button class="btn small ghost" aria-label="Убрать"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+                <button class="btn secondary small">+ Прикрепить файлы</button>
+                <span class="hint">До 5 файлов по 10 МиБ. Сдать можно и после срока.</span>
+              </div>
+              <div class="form-actions"><button class="btn">Сдать работу</button><span class="hint">Вы ещё не сдавали эту работу</span></div>
+            </section>
+          </div>
+          <aside class="stack">
+            <section class="card pad">
+              <div class="panel-head"><div><h2>Статус</h2></div></div>
+              <span class="badge blue" style="font-size:13.5px"><i class="dot"></i>Нужно выполнить</span>
+              <p class="small muted" style="margin-top:10px">После отправки работа попадёт к преподавателю. Новая попытка появится, если работу вернут на доработку.</p>
+            </section>
+            <section class="card pad">
+              <div class="panel-head"><div><h2>О задании</h2></div></div>
+              <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c.8-3.4 3.6-5 7-5s6.2 1.6 7 5"/></svg></span><div><span>Преподаватель</span><b>Елена Соколова</b></div></div>
+              <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><div><span>Выдано</span><b>Пятница, 13 ноября</b></div></div>
+              <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><div><span>Сдать до</span><b>Пятница, 20 ноября, 19:50</b></div></div>
+            </section>
+          </aside>
+        </div>
+      </main>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-06b</span><h2>Сдача — загрузка файлов и сбой</h2><span class="state">отправка · прогресс · файл не загрузился</span></div>
+    <div class="canvas"><div class="app" style="padding:26px;max-width:840px">
+      <div class="alert success"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5.5"/></svg><div><b>Ответ сохранён.</b> Загружаем файлы — не закрывайте страницу.</div></div>
+      <section class="card pad">
+        <div class="panel-head"><div><span class="kicker">Моя работа · попытка №1</span><h2>Файлы ответа</h2></div><span class="badge amber"><i class="dot"></i>На проверке</span></div>
+        <div class="file-chip mb"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v5h5M6 3h9l5 5v13H6z"/></svg><div style="flex:1"><b>tetrad-str-1.jpg</b> <small>· загружен</small></div><span class="badge green"><i class="dot"></i>Готово</span></div>
+        <div class="file-chip mb"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v5h5M6 3h9l5 5v13H6z"/></svg><div style="flex:1"><b>tetrad-str-2.jpg</b><div class="progress mt" style="margin:6px 0 2px"><i style="width:38%"></i></div><small>Загружаем… 38%</small></div></div>
+        <div class="file-chip failed mb"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v5h5M6 3h9l5 5v13H6z"/><path d="m13 13-4 4M9 13l4 4"/></svg><div style="flex:1"><b>chertezh.png</b> <small>· не загрузился: прервано соединение</small></div><button class="btn small secondary">Повторить загрузку</button></div>
+        <div class="alert error"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg><div>Ответ сохранён, но файл <b>chertezh.png</b> не загружен. Выберите тот же исходный файл и повторите загрузку.</div></div>
+      </section>
+      <section class="card pad mt">
+        <div class="panel-head"><div><span class="kicker">Если соединение пропало во время отправки</span><h2>Результат не подтверждён</h2></div></div>
+        <div class="alert warn" style="margin-bottom:0"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div>Результат отправки не подтверждён. Повторите отправку: ключ и содержимое сохранены, второй попытки не появится.</div></div>
+        <div class="form-actions mt"><button class="btn">Повторить отправку</button></div>
+      </section>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-06c</span><h2>Проверенные и возвращённые работы</h2><span class="state">на проверке · вернули с замечанием · оценка</span></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="shots-row" style="gap:16px">
+        <section class="card pad">
+          <div class="panel-head"><div><span class="kicker">Моя работа</span><h2>Попытка №1</h2></div><span class="badge amber"><i class="dot"></i>На проверке</span></div>
+          <p class="small muted">Отправлено: 18 ноября, 17:42</p>
+          <p class="small" style="margin:10px 0">Решение в двух файлах: страницы тетради 1–2.</p>
+          <div class="file-chip"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v5h5M6 3h9l5 5v13H6z"/></svg><div style="flex:1"><b>tetrad-str-1.jpg</b></div><button class="btn small ghost">Скачать</button></div>
+          <p class="hint" style="margin-top:12px">Работа ожидает проверки. Новая попытка доступна после возврата.</p>
+        </section>
+        <section class="card pad" style="border-color:#EFCAC5">
+          <div class="panel-head"><div><span class="kicker">Моя работа</span><h2>Попытка №2</h2></div><span class="badge red"><i class="dot"></i>Вернули — нужно исправить</span></div>
+          <p class="small muted">Отправлено: 18 ноября, 19:05 · возвращено: 19 ноября, 10:12</p>
+          <div class="alert error" style="margin-top:12px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h13l3 3v11H4z"/><path d="M8 5v14M4 10h4"/></svg><div><b>Замечание преподавателя.</b> Задача 2: проверьте знак в неравенстве — при переносе слагаемого он меняется. Исправьте и сдайте работу снова.</div></div>
+          <div class="form-actions mt"><button class="btn">Сдать работу снова</button></div>
+        </section>
+        <section class="card pad" style="border-color:#C4E0D1">
+          <div class="panel-head"><div><span class="kicker">Моя работа</span><h2>Попытка №3</h2></div><span class="badge green"><i class="dot"></i>Проверено</span></div>
+          <p class="small muted">Отправлено: 19 ноября, 16:20 · проверено: 19 ноября, 18:44</p>
+          <div class="row" style="margin:14px 0;gap:14px">
+            <span class="grade g5" style="width:52px;height:52px;font-size:24px;border-radius:14px">5</span>
+            <div><b style="display:block">Отличная работа</b><span class="small muted">«Задача 3 решена нестандартно — молодец. Следи за оформлением дробей.»</span></div>
+          </div>
+          <p class="hint">Работа проверена. Повторная сдача не требуется.</p>
+        </section>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ 7. РУЧКА ============ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-07</span><h2>Умная ручка</h2><span class="state">холст · соединение · сохранение · ошибка и переподключение</span></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="two-col">
+        <section class="card pad">
+          <div class="panel-head"><div><span class="kicker">Рабочая область</span><h2>Мои записи · Алгебра, 19 ноября</h2></div><span class="pen-conn ok"><i class="dot"></i>Сохранение включено</span></div>
+          <p class="small muted" style="margin-bottom:12px">Пишите мышью, пальцем или стилусом. Не закрывайте вкладку, пока штрихи сохраняются.</p>
+          <div class="pen-canvas" style="height:280px">
+            <svg viewBox="0 0 1000 560" style="position:absolute;inset:0;width:100%;height:100%">
+              <polyline class="pen-stroke" points="80,420 140,380 200,410 260,350 320,380"/>
+              <polyline class="pen-stroke" points="420,140 460,200 420,260 500,300 560,240"/>
+              <polyline class="pen-stroke" points="640,420 700,360 760,400 820,330"/>
+            </svg>
+          </div>
+          <div class="form-actions mt"><button class="btn secondary">Переподключить</button><span class="hint">Штрихи сохраняются для этого урока. Симулятор не распознаёт рукописный текст.</span></div>
+        </section>
+        <div class="stack">
+          <section class="card pad">
+            <div class="panel-head"><div><span class="kicker">Состояния соединения</span><h2>Индикатор</h2></div></div>
+            <div class="stack" style="gap:10px">
+              <div class="row" style="justify-content:space-between"><span class="small">Всё в порядке</span><span class="pen-conn ok"><i class="dot"></i>Сохранение включено</span></div>
+              <div class="row" style="justify-content:space-between"><span class="small">Связь потеряна, переподключаемся</span><span class="pen-conn warn"><i class="dot"></i>Переподключаемся…</span></div>
+              <div class="row" style="justify-content:space-between"><span class="small">Соединение оборвалось</span><span class="pen-conn err"><i class="dot"></i>Нет соединения</span></div>
+            </div>
+          </section>
+          <section class="card pad" style="border-color:#EFCAC5">
+            <div class="panel-head"><div><span class="kicker">Ошибка</span><h2>Штрихи не уходят на сервер</h2></div><span class="pen-conn err"><i class="dot"></i>Нет соединения</span></div>
+            <div class="alert error"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h7V5a7 7 0 1 0 7 7h-7v7a7 7 0 1 1-7-7Z"/></svg><div>Соединение с сервисом ручки потеряно. Последние штрихи сохранены локально и уйдут после переподключения.</div></div>
+            <div class="form-actions"><button class="btn">Переподключить</button></div>
+          </section>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ 8. УВЕДОМЛЕНИЯ ============ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-08</span><h2>Уведомления</h2><span class="state">непрочитанные и прочитанные · переход к событию</span></div>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav"><a href="#">Главная</a><a href="#">Моё расписание</a><a href="#">Домашние задания</a><a class="active" href="#">Уведомления</a><a href="#">Оплата обучения</a><a href="#">Профиль</a></nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg><span class="dot">2</span></a><div class="account"><div><b>Михаил Иванов</b><span>Ученик · 7А</span></div><span class="avatar">М</span></div></div>
+      </header>
+      <main class="page">
+        <div class="page-head"><div><span class="kicker">Лента</span><h1>Уведомления</h1><p class="sub">Проверка домашних заданий, оплата и готовность документов. Только сообщения для вашего аккаунта.</p></div><div class="actions"><button class="btn secondary">Обновить уведомления</button></div></div>
+        <p class="small muted" style="margin-bottom:14px">Непрочитанных: 2</p>
+        <div class="notif">
+          <span class="gutter"></span>
+          <div class="body">
+            <h3>Работа проверена: Алгебра, № 118–121</h3>
+            <p>Елена Соколова поставила оценку 5 и оставила комментарий.</p>
+            <div class="meta"><time>19 ноября, 18:44</time><span class="badge blue"><i class="dot"></i>Не прочитано</span></div>
+          </div>
+          <div class="stack" style="gap:8px;justify-content:center"><a class="btn small secondary" href="#">Открыть</a><button class="btn small">Отметить прочитанным</button></div>
+        </div>
+        <div class="notif">
+          <span class="gutter"></span>
+          <div class="body">
+            <h3>Задание вернули на доработку</h3>
+            <p>Русский язык, упражнение 87: исправьте пунктуацию во 2-м и 4-м предложениях.</p>
+            <div class="meta"><time>19 ноября, 10:12</time><span class="badge blue"><i class="dot"></i>Не прочитано</span></div>
+          </div>
+          <div class="stack" style="gap:8px;justify-content:center"><a class="btn small secondary" href="#">Открыть</a><button class="btn small">Отметить прочитанным</button></div>
+        </div>
+        <div class="notif read">
+          <span class="gutter"></span>
+          <div class="body">
+            <h3>Счёт на оплату четверти создан</h3>
+            <p>2-я четверть (ноябрь — декабрь 2026). Оплатите до начала периода.</p>
+            <div class="meta"><time>16 ноября, 09:00</time><span class="badge gray"><i class="dot"></i>Прочитано</span></div>
+          </div>
+          <div class="stack" style="gap:8px;justify-content:center"><a class="btn small secondary" href="#">Открыть</a></div>
+        </div>
+        <div class="notif read">
+          <span class="gutter"></span>
+          <div class="body">
+            <h3>Справка об обучении готова</h3>
+            <p>Документ можно скачать на странице задания.</p>
+            <div class="meta"><time>12 ноября, 14:21</time><span class="badge gray"><i class="dot"></i>Прочитано</span></div>
+          </div>
+          <div class="stack" style="gap:8px;justify-content:center"><a class="btn small secondary" href="#">Открыть</a></div>
+        </div>
+        <div class="pager"><span class="info">Показано 4</span><button class="btn secondary small disabled">Назад</button><button class="btn secondary small disabled">Дальше</button></div>
+      </main>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-08b</span><h2>Уведомления — пусто и ошибка</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="two-col">
+        <div class="card" style="min-height:260px;display:flex;align-items:center"><div class="state-block" style="width:100%">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg></span>
+          <h3>Уведомлений пока нет</h3><p>Здесь появятся сообщения о проверке работ, оплате и документах.</p>
+        </div></div>
+        <div class="card" style="min-height:260px;display:flex;align-items:center"><div class="state-block" style="width:100%">
+          <span class="icon" style="background:var(--red-bg);color:var(--red)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg></span>
+          <h3>Не удалось загрузить уведомления</h3><p>Сервис уведомлений недоступен. Попробуйте обновить страницу.</p>
+          <button class="btn secondary">Обновить</button>
+        </div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ 9. ПРОФИЛЬ ============ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-09</span><h2>Профиль</h2><span class="state">ФИО, почта, роль; технический ID свёрнут</span><span class="proposal-tag">Блок оценок — предложение</span></div>
+    <p class="shot-note">Сейчас в проекте у пользователя есть только ФИО, email, роль и ID. Блок «Мои оценки» — предложение на будущее: данных о среднем балле в API пока нет, поэтому он помечен как предложение и не должен появиться в реализации раньше данных.</p>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav"><a href="#">Главная</a><a href="#">Моё расписание</a><a href="#">Домашние задания</a><a href="#">Уведомления</a><a href="#">Оплата обучения</a><a class="active" href="#">Профиль</a></nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg><span class="dot">2</span></a><div class="account"><div><b>Михаил Иванов</b><span>Ученик · 7А</span></div><span class="avatar">М</span></div></div>
+      </header>
+      <main class="page">
+        <div class="page-head"><div><span class="kicker">Личные данные</span><h1>Ваш профиль</h1><p class="sub">Информация о вашей учётной записи.</p></div></div>
+        <div class="profile-grid">
+          <section class="card pad" style="text-align:center">
+            <div class="avatar" style="width:76px;height:76px;font-size:28px;margin:6px auto 12px;border-radius:22px">М</div>
+            <h2 style="font:600 18px var(--font-ui)">Иванов Михаил Андреевич</h2>
+            <p class="small muted" style="margin-top:4px">m.ivanov@example.com</p>
+            <div style="margin-top:14px"><span class="badge blue"><i class="dot"></i>Ученик · 7А</span></div>
+            <div class="alert neutral" style="margin:18px 0 0;text-align:left"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 6v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V6l-8-3Z"/></svg><div>Если данные указаны неверно, обратитесь к администратору школы.</div></div>
+          </section>
+          <div class="stack">
+            <section class="card pad">
+              <div class="panel-head"><div><span class="kicker">Учётная запись</span><h2>Данные профиля</h2></div></div>
+              <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c.8-3.4 3.6-5 7-5s6.2 1.6 7 5"/></svg></span><div><span>Фамилия</span><b>Иванов</b></div></div>
+              <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c.8-3.4 3.6-5 7-5s6.2 1.6 7 5"/></svg></span><div><span>Имя</span><b>Михаил</b></div></div>
+              <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c.8-3.4 3.6-5 7-5s6.2 1.6 7 5"/></svg></span><div><span>Отчество</span><b>Андреевич</b></div></div>
+              <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span><div><span>Электронная почта</span><b>m.ivanov@example.com</b></div></div>
+              <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c.8-3.4 3.6-5 7-5s6.2 1.6 7 5M16.5 8.5h4M18.5 6.5v4"/></svg></span><div><span>Роль</span><b>Ученик</b></div></div>
+              <details class="tech"><summary>Техническая информация</summary><span>ID пользователя: f3b2…(длинный технический идентификатор скрыт здесь)</span></details>
+            </section>
+            <section class="card pad" style="border-style:dashed">
+              <div class="panel-head"><div><span class="kicker">Предложение · данных пока нет</span><h2>Мои оценки</h2></div><span class="tag proposal">Предложение</span></div>
+              <div class="row" style="gap:26px">
+                <div><span class="grade g5" style="width:48px;height:48px;font-size:20px">5</span></div>
+                <div style="flex:1;min-width:220px"><b style="display:block;margin-bottom:6px">Средний балл: 4,6</b><div class="row" style="gap:8px"><span class="badge green"><i class="dot"></i>5</span><span class="badge green"><i class="dot"></i>5</span><span class="badge blue"><i class="dot"></i>4</span><span class="badge green"><i class="dot"></i>5</span><span class="badge amber"><i class="dot"></i>3</span></div><p class="hint" style="margin-top:8px">Последние проверки. Полная ведомость — по ссылке.</p></div>
+              </div>
+              <p class="hint" style="margin-top:12px">Блок появится, только когда в сервисе появятся данные об оценках ученика. Сейчас API среднего балла не отдаёт.</p>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div></div>
+  </section>
+
+  <!-- ============ 10. ОПЛАТА ============ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-10</span><h2>Оплата обучения</h2><span class="state">выбор ученика и четверти · сумма и срок · продолжение платежа</span></div>
+    <p class="shot-note">Главное действие — «Перейти к оплате четверти». Всегда видно: за какой период, какую сумму и до какого числа. Баннер тестового режима обязателен на всех платёжных экранах.</p>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav"><a href="#">Главная</a><a href="#">Моё расписание</a><a href="#">Домашние задания</a><a href="#">Уведомления</a><a class="active" href="#">Оплата обучения</a><a href="#">Профиль</a></nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg><span class="dot">2</span></a><div class="account"><div><b>Михаил Иванов</b><span>Ученик · 7А</span></div><span class="avatar">М</span></div></div>
+      </header>
+      <main class="page">
+        <div class="page-head"><div><span class="kicker">Платежи</span><h1>Оплата обучения</h1><p class="sub">Оплата за учебную четверть и история платежей.</p></div></div>
+        <div class="alert warn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><b>Тестовый режим.</b> Подключён только тестовый магазин ЮKassa — настоящих списаний нет. Возвращение с платёжной страницы само по себе не подтверждает оплату.</div></div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start">
+          <section class="card pad">
+            <div class="panel-head"><div><span class="kicker">Учебный период</span><h2>Оплата за четверть</h2></div></div>
+            <div class="form-row">
+              <div class="field"><label>Ученик</label><select class="select"><option selected>Иванов Михаил Андреевич</option></select><span class="hint">Доступны ученики, связанные с вашим аккаунтом</span></div>
+              <div class="field"><label>Учебная четверть</label><select class="select"><option>1 · сентябрь — октябрь 2026</option><option selected>2 · ноябрь — декабрь 2026</option><option>3 · январь — март 2027</option><option>4 · апрель — май 2027</option></select></div>
+            </div>
+            <div class="pay-summary">
+              <div><b>18 500,00 ₽</b><span>стоимость четверти</span></div>
+              <div><b>1 ноября 2026</b><span>оплатить до начала периода</span></div>
+              <div><b>Не оплачен</b><span>состояние счёта</span></div>
+            </div>
+            <div class="form-actions mt"><button class="btn">Перейти к оплате четверти</button><span class="hint">Откроется тестовая страница ЮKassa</span></div>
+          </section>
+          <section class="card pad">
+            <div class="panel-head"><div><span class="kicker">Если платёж уже создан</span><h2>Продолжить оплату</h2></div></div>
+            <p class="small muted">Для 2-й четверти уже создан платёж №128 — он ждёт оплаты.</p>
+            <div class="pay-row" style="margin:14px 0"><div class="what"><b>Четверть с ноября 2026</b><small>№128 · создан 16 ноября, 09:00</small></div><span class="badge amber"><i class="dot"></i>Ожидает оплаты</span></div>
+            <button class="btn" style="width:100%">Продолжить оплату в ЮKassa ↗</button>
+            <p class="hint" style="margin-top:10px">Кнопка «Перейти к оплате» на время ожидающего платежа недоступна — сначала завершите или отмените этот платёж.</p>
+          </section>
+        </div>
+      </main>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-10b</span><h2>История платежей — все статусы</h2><span class="state">смысл статуса виден текстом, не только цветом</span></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <section class="card pad">
+        <div class="panel-head"><div><h2>История платежей</h2></div><button class="btn secondary small">Обновить список</button></div>
+        <div class="pay-row"><div class="what"><b>Четверть с ноября 2026</b><small>№128 · создан 16 ноября · 18 500,00 ₽</small></div><span class="badge amber"><i class="dot"></i>Ожидает оплаты</span><button class="btn small secondary">Открыть ЮKassa ↗</button></div>
+        <div class="pay-row"><div class="what"><b>Четверть с сентября 2026</b><small>№96 · 18 500,00 ₽ · оплачен 28 августа</small></div><span class="badge green"><i class="dot"></i>Оплачено</span><button class="btn small ghost">Квитанция</button></div>
+        <div class="pay-row"><div class="what"><b>Четверть с января 2027</b><small>№131 · 18 500,00 ₽ · начат и закрыт 15 ноября</small></div><span class="badge gray"><i class="dot"></i>Отменено</span><button class="btn small">Создать заново</button></div>
+        <div class="pay-row"><div class="what"><b>Четверть с сентября 2026</b><small>№89 · 18 500,00 ₽ · возврат от 20 августа</small></div><span class="badge blue"><i class="dot"></i>Возвращено</span></div>
+        <div class="pay-row" style="border-style:dashed"><div class="what"><b>Четверть с ноября 2026</b><small>№119 · 18 500,00 ₽ · результат неизвестен</small></div><span class="badge outline"><i class="dot"></i>Уточняем результат</span><button class="btn small secondary">Проверить статус в ЮKassa</button></div>
+        <div class="pay-row" style="border-style:dashed"><div class="what"><b>Четверть с ноября 2026</b><small>№121 · 18 500,00 ₽ · платёж не найден у провайдера</small></div><span class="badge plum"><i class="dot"></i>Нужна ручная сверка</span><span class="small muted" style="max-width:220px">Администратор школы уточнит платёж и свяжется с вами.</span></div>
+        <p class="hint" style="margin-top:6px">Статусы: ожидает оплаты · оплачено · отменено · возвращено · уточняем результат · нужна ручная сверка. У каждого — свой цвет и своя подпись.</p>
+      </section>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-10c</span><h2>История — пусто и длинная</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="two-col">
+        <div class="card" style="min-height:280px;display:flex;align-items:center"><div class="state-block" style="width:100%">
+          <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M4 10h16M8 14h5"/></svg></span>
+          <h3>Платежей пока нет</h3><p>Когда вы создадите первый платёж, он появится в этой истории.</p>
+        </div></div>
+        <section class="card pad">
+          <div class="panel-head"><div><h2>Длинная история</h2></div><span class="small muted">Показано 1–50 из 213</span></div>
+          <div class="table-wrap"><table class="t">
+            <tr><th>Период</th><th class="num">Сумма</th><th>Статус</th></tr>
+            <tr><td>Четверть с ноября 2026</td><td class="num money">18 500,00 ₽</td><td><span class="badge amber"><i class="dot"></i>Ожидает оплаты</span></td></tr>
+            <tr><td>Четверть с сентября 2026</td><td class="num money">18 500,00 ₽</td><td><span class="badge green"><i class="dot"></i>Оплачено</span></td></tr>
+            <tr><td>Четверть с апреля 2026</td><td class="num money">17 000,00 ₽</td><td><span class="badge green"><i class="dot"></i>Оплачено</span></td></tr>
+            <tr><td colspan="3" class="faint" style="text-align:center">… ещё 209 записей …</td></tr>
+          </table></div>
+          <div class="pager"><button class="btn secondary small disabled">Назад</button><span class="info">Страница 1 из 5</span><button class="btn secondary small">Дальше</button></div>
+        </section>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-10d</span><h2>Оплата на телефоне</h2><span class="state">форма и история платежа</span></div>
+    <div class="canvas"><div class="app" style="padding:26px;display:flex;gap:22px;flex-wrap:wrap;background:var(--sunken)">
+      <div class="phone-frame">
+        <div class="ph-status"><span>9:41</span><span>Онлайн-гимназия</span></div>
+        <div class="topbar" style="height:54px;padding:0 14px;position:static"><a class="brand" href="#"><span class="brand-mark" style="width:30px;height:30px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong style="font-size:13.5px">Онлайн-гимназия</strong></a><div class="topbar-right"><button class="btn ghost small" aria-label="Меню" style="min-height:36px;padding:6px 9px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></div></div>
+        <div class="ph-page">
+          <b style="font-size:16px;display:block;margin-bottom:4px">Оплата обучения</b>
+          <p class="small muted" style="margin-bottom:12px">Выберите период и оплатите четверть.</p>
+          <div class="alert warn" style="padding:9px 12px"><div><b>Тестовый режим</b> — настоящих списаний нет.</div></div>
+          <div class="field"><label>Ученик</label><select class="select"><option selected>Иванов Михаил</option></select></div>
+          <div class="field"><label>Четверть</label><select class="select"><option selected>2 · ноябрь — декабрь 2026</option></select></div>
+          <div class="pay-summary" style="flex-direction:column;gap:8px;margin-bottom:12px">
+            <div class="spread"><span class="small muted">Стоимость</span><b>18 500,00 ₽</b></div>
+            <div class="spread"><span class="small muted">Оплатить до</span><b>1 ноября 2026</b></div>
+          </div>
+          <button class="btn" style="width:100%">Перейти к оплате четверти</button>
+        </div>
+        <nav class="ph-nav"><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="9" rx="1.5"/><rect x="13" y="4" width="7" height="5" rx="1.5"/><rect x="13" y="11" width="7" height="9" rx="1.5"/><rect x="4" y="15" width="7" height="5" rx="1.5"/></svg>Главная</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Расписание</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h13l3 3v11H4z"/><path d="M8 5v14M4 10h4"/></svg>Задания</a><a class="active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M4 10h16M8 14h5"/></svg>Ещё</a></nav>
+      </div>
+      <div class="phone-frame">
+        <div class="ph-status"><span>9:41</span><span>Онлайн-гимназия</span></div>
+        <div class="topbar" style="height:54px;padding:0 14px;position:static"><a class="brand" href="#"><span class="brand-mark" style="width:30px;height:30px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong style="font-size:13.5px">Онлайн-гимназия</strong></a><div class="topbar-right"><button class="btn ghost small" aria-label="Меню" style="min-height:36px;padding:6px 9px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></div></div>
+        <div class="ph-page">
+          <b style="font-size:16px;display:block;margin-bottom:12px">История платежей</b>
+          <div class="ph-row" style="flex-wrap:wrap"><div style="flex:1;min-width:100%"><div class="spread"><b>Четверть, ноябрь 2026</b><span class="money small">18 500 ₽</span></div><div class="spread" style="margin-top:4px"><span class="badge amber" style="font-size:11px"><i class="dot"></i>Ожидает оплаты</span><small class="faint">№128</small></div></div></div>
+          <div class="ph-row" style="flex-wrap:wrap"><div style="flex:1;min-width:100%"><div class="spread"><b>Четверть, сентябрь 2026</b><span class="money small">18 500 ₽</span></div><div class="spread" style="margin-top:4px"><span class="badge green" style="font-size:11px"><i class="dot"></i>Оплачено</span><small class="faint">№96</small></div></div></div>
+          <div class="ph-row" style="flex-wrap:wrap;border-style:dashed"><div style="flex:1;min-width:100%"><div class="spread"><b>Четверть, ноябрь 2026</b><span class="money small">18 500 ₽</span></div><div class="spread" style="margin-top:4px"><span class="badge outline" style="font-size:11px"><i class="dot"></i>Уточняем результат</span><small class="faint">№119</small></div></div></div>
+          <button class="btn secondary small" style="width:100%">Обновить список</button>
+        </div>
+        <nav class="ph-nav"><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="9" rx="1.5"/><rect x="13" y="4" width="7" height="5" rx="1.5"/><rect x="13" y="11" width="7" height="9" rx="1.5"/><rect x="4" y="15" width="7" height="5" rx="1.5"/></svg>Главная</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Расписание</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h13l3 3v11H4z"/><path d="M8 5v14M4 10h4"/></svg>Задания</a><a class="active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M4 10h16M8 14h5"/></svg>Ещё</a></nav>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ 11. ВЫХОД ============ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">У-11</span><h2>Выход и истёкшая сессия</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="two-col">
+        <div class="card pad" style="min-height:280px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+          <span class="icon" style="width:44px;height:44px;border-radius:14px;background:var(--sunken);display:grid;place-items:center;color:var(--muted)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 8 6 12l4 4M6 12h9"/></svg></span>
+          <h3 style="font:600 16px var(--font-ui);margin-top:10px">Выходим из аккаунта…</h3>
+          <p class="small muted" style="max-width:340px;margin-top:4px">Кнопка «Выйти» отзывает сессию на сервере. Пока идёт запрос, повторное нажатие заблокировано.</p>
+          <button class="btn" disabled style="margin-top:12px"><span class="spinner" style="width:15px;height:15px;border-width:2px"></span>Выходим…</button>
+        </div>
+        <div class="card pad" style="min-height:280px;display:flex;flex-direction:column;justify-content:center">
+          <div class="alert warn" style="margin:0 0 14px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg><div><b>Сессия истекла.</b> Войдите заново, чтобы продолжить.<div class="alert-actions"><button class="btn small secondary">Повторить выход</button></div></div></div>
+          <div class="field"><label>Email</label><input class="input" value="m.ivanov@example.com"></div>
+          <div class="field"><label>Пароль</label><input class="input" type="password" placeholder="••••••••"></div>
+          <button class="btn">Войти</button>
+          <p class="hint mt">Если выход не подтверждается сервером, на странице входа появляется кнопка «Повторить выход» — она завершает сессию принудительно.</p>
+        </div>
+      </div>
+    </div></div>
+  </section>
+</div>
+</body>
+</html>

@@ -64,7 +64,7 @@ export default function Schedule() {
     }
   }
   return (
-    <>
+    <div className="workspace-page schedule-management-page">
       <PageHeader
         title="Расписание"
         eyebrow="Школьный ритм"
@@ -262,6 +262,6 @@ export default function Schedule() {
           </Button>
         </div>
       </Dialog>
-    </>
+    </div>
   );
 }

@@ -11,6 +11,9 @@ export const currentUserSchema = z.object({
   id: uuidSchema,
   email: z.email(),
   role: roleSchema,
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  middle_name: z.string().optional(),
 });
 
 export const tokenResponseSchema = z.object({ access_token: z.string().min(1) });

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Онлайн-гимназия — Администратор · портал</title>
+<link rel="stylesheet" href="css.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="gallery">
+  <header class="gallery-header">
+    <span class="kicker">Онлайн-гимназия · макеты</span>
+    <h1>Администратор · портал</h1>
+    <p>Разделы React-портала для роли «администратор»: главная, управление расписанием, нагрузка класса и документы. Переходы в Django-админку (успеваемость, платежи, пользователи) — отдельными ссылками в меню.</p>
+    <nav class="gallery-nav"><a href="index.html">Обзор</a><a href="01-dizain-sistema.html">Дизайн-система</a><a href="02-uchenik.html">Ученик</a><a href="03-prepodavatel.html">Преподаватель</a><a href="04-roditel.html">Родитель</a><a href="06-backoffice.html">Backoffice</a><a href="07-sostoyaniya.html">Состояния и мобильные</a></nav>
+  </header>
+
+  <!-- А-01 ГЛАВНАЯ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">А-01</span><h2>Главная администратора портала</h2><span class="state">переходы в разделы и Backoffice</span></div>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav">
+          <a class="active" href="#">Главная</a><a href="#">Расписание</a><a href="#">Нагрузка</a><a href="#">Документы</a>
+          <a href="#">Успеваемость и аудит ↗</a><a href="#">История платежей ↗</a><a href="#">Администрирование ↗</a>
+        </nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg></a><div class="account"><div><b>Ольга Дементьева</b><span>Администратор</span></div><span class="avatar">О</span></div></div>
+      </header>
+      <main class="page">
+        <div class="page-head"><div><span class="kicker">Рабочее пространство</span><h1>Что сделаем сегодня?</h1><p class="sub">Расписание, расчёты, документы и служебные разделы школы.</p></div></div>
+        <div class="alert info"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><div>Ссылки со стрелкой открывают Django-админку Backoffice — вход происходит автоматически по вашей сессии портала.</div></div>
+        <div class="grid3" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr))">
+          <a class="card pad" href="#" style="display:block"><div class="panel-head"><div><span class="kicker">Раздел портала</span><h2>Расписание</h2></div></div><p class="small muted">Планируйте уроки, переносите время и отменяйте занятия.</p><span class="link small" style="color:var(--accent);font-weight:500">Открыть день →</span></a>
+          <a class="card pad" href="#" style="display:block"><div class="panel-head"><div><span class="kicker">Раздел портала</span><h2>Нагрузка класса</h2></div></div><p class="small muted">Плановые уроки и минуты за выбранный день.</p><span class="link small" style="color:var(--accent);font-weight:500">Посмотреть расчёт →</span></a>
+          <a class="card pad" href="#" style="display:block"><div class="panel-head"><div><span class="kicker">Раздел портала</span><h2>Документы</h2></div></div><p class="small muted">Справки, договоры, акты и квитанции в PDF.</p><span class="link small" style="color:var(--accent);font-weight:500">Создать документ →</span></a>
+          <a class="card pad" href="#" style="display:block;border-color:#C9DCEA"><div class="panel-head"><div><span class="kicker">Backoffice</span><h2>Успеваемость и аудит</h2></div></div><p class="small muted">Оценки класса и журнал действий за период.</p><span class="link small" style="color:var(--accent);font-weight:500">Открыть в админке ↗</span></a>
+          <a class="card pad" href="#" style="display:block;border-color:#C9DCEA"><div class="panel-head"><div><span class="kicker">Backoffice</span><h2>История платежей</h2></div></div><p class="small muted">Все платежи школы, сверка и возвраты.</p><span class="link small" style="color:var(--accent);font-weight:500">Открыть в админке ↗</span></a>
+          <a class="card pad" href="#" style="display:block;border-color:#C9DCEA"><div class="panel-head"><div><span class="kicker">Backoffice</span><h2>Администрирование</h2></div></div><p class="small muted">Пользователи, классы, преподаватели.</p><span class="link small" style="color:var(--accent);font-weight:500">Открыть в админке ↗</span></a>
+        </div>
+      </main>
+    </div></div>
+  </section>
+
+  <!-- А-02 РАСПИСАНИЕ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">А-02</span><h2>Управление расписанием</h2><span class="state">выбор класса и дня · список уроков · создание</span></div>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav"><a href="#">Главная</a><a class="active" href="#">Расписание</a><a href="#">Нагрузка</a><a href="#">Документы</a><a href="#">Администрирование ↗</a></nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg></a><div class="account"><div><b>Ольга Дементьева</b><span>Администратор</span></div><span class="avatar">О</span></div></div>
+      </header>
+      <main class="page">
+        <div class="page-head"><div><span class="kicker">Школьный ритм</span><h1>Расписание</h1><p class="sub">Уроки выбранного класса на один день. Время показано в UTC, а не в часовом поясе устройства.</p></div><div class="actions"><button class="btn">+ Новый урок</button></div></div>
+        <div class="card pad" style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px">
+          <div class="field" style="margin:0;width:170px"><label>ID класса</label><input class="input" value="7А (ID 14)"></div>
+          <div class="field" style="margin:0;width:160px"><label>День</label><input class="input" type="date" value="2026-11-19"></div>
+          <button class="btn secondary">Показать</button>
+          <span class="hint" style="margin-left:auto">Ссылка «Нагрузка дня» ведёт на расчёт этого же дня</span>
+        </div>
+        <section class="card pad">
+          <div class="panel-head"><div><h2>7А · четверг, 19 ноября</h2></div><div class="row"><a class="btn secondary small" href="#">Нагрузка дня</a><button class="btn ghost small">Обновить</button></div></div>
+          <div class="lesson-row"><span class="time">09:00–09:45<small>UTC · версия 3</small></span><div class="main"><b>Алгебра</b><span>Елена Соколова · активен</span></div><div class="row"><a class="btn secondary small" href="#">Перенести</a><button class="btn danger small">Отменить</button></div></div>
+          <div class="lesson-row"><span class="time">10:00–10:45<small>UTC · версия 1</small></span><div class="main"><b>Русский язык</b><span>Анна Кузнецова · активен</span></div><div class="row"><a class="btn secondary small" href="#">Перенести</a><button class="btn danger small">Отменить</button></div></div>
+          <div class="lesson-row"><span class="time">11:00–11:45<small>UTC · версия 2</small></span><div class="main"><b>Литература</b><span>Анна Кузнецова · активен</span></div><div class="row"><a class="btn secondary small" href="#">Перенести</a><button class="btn danger small">Отменить</button></div></div>
+          <div class="lesson-row canceled"><span class="time">13:00–13:45<small>UTC · версия 4</small></span><div class="main"><b>География</b><span>Пётр Никитин</span></div><span class="badge gray"><i class="dot"></i>Отменён</span></div>
+        </section>
+      </main>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">А-02b</span><h2>Создание урока, перенос и подтверждения</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px;background:var(--sunken)">
+      <div class="shots-row" style="gap:16px">
+        <div class="dialog-backdrop" style="padding:20px;background:none">
+          <div class="dialog">
+            <h3>Новый урок · 7А, 19 ноября</h3>
+            <p class="desc">Время вводится в UTC. Создание защищено ключом запроса — повтор при сбое не создаст дубль.</p>
+            <div class="form-row">
+              <div class="field"><label>Начало (UTC)</label><input class="input" type="time" value="04:00"></div>
+              <div class="field"><label>Конец (UTC)</label><input class="input" type="time" value="04:45"></div>
+            </div>
+            <div class="field"><label>Предмет · ID</label><input class="input" value="Алгебра (ID 3)"></div>
+            <div class="field"><label>Преподаватель · ID</label><input class="input" value="Соколова Е. В. (ID 27)"></div>
+            <div class="form-actions"><button class="btn">Создать урок</button><button class="btn secondary">Отмена</button></div>
+          </div>
+        </div>
+        <div class="dialog-backdrop" style="padding:20px;background:none">
+          <div class="dialog">
+            <h3>Отменить урок?</h3>
+            <p class="desc">Литература, 11:00–11:45 UTC, версия 2. Урок исчезнет из планового расписания класса; выданные задания сохранятся.</p>
+            <div class="confirm-box danger">
+              <p class="small"><b>Действие необратимо.</b> Чтобы вернуть урок в план, создайте его заново.</p>
+            </div>
+            <div class="form-actions mt"><button class="btn danger">Подтвердить отмену</button><button class="btn secondary">Оставить урок</button></div>
+          </div>
+        </div>
+        <div class="dialog-backdrop" style="padding:20px;background:none">
+          <div class="dialog">
+            <h3>Перенос не прошёл: урок изменился</h3>
+            <p class="desc">Кто-то уже изменил этот урок, пока у вас была открыта карточка.</p>
+            <div class="alert warn" style="margin-bottom:14px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div>Текущее состояние: версия 4, 19.11 12:00 — 12:45 UTC. Сверьте его перед повторным сохранением.</div></div>
+            <div class="form-actions"><button class="btn secondary">Использовать версию 4 после сверки</button><button class="btn ghost">Закрыть</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="alert success mt" style="max-width:640px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5.5"/></svg><div><b>Урок 341 перенесён.</b> Затронутые дни перечитываются автоматически; кеш может отражать изменение с задержкой.</div></div>
+    </div></div>
+  </section>
+
+  <!-- А-03 НАГРУЗКА -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">А-03</span><h2>Нагрузка класса за день</h2><span class="state">расчёт · отсутствует · ошибка</span></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="two-col">
+        <section class="card pad">
+          <div class="panel-head"><div><span class="kicker">Один день в цифрах</span><h2>7А · четверг, 19 ноября</h2></div><button class="btn secondary small">Обновить</button></div>
+          <div class="pay-summary" style="margin-bottom:16px">
+            <div><b>4</b><span>плановых урока</span></div>
+            <div><b>180 мин</b><span>плановых минут</span></div>
+            <div><b>3</b><span>активных урока</span></div>
+          </div>
+          <div class="table-wrap"><table class="t">
+            <tr><th>Урок</th><th>Время (UTC)</th><th>Статус</th></tr>
+            <tr><td>Алгебра</td><td class="num">09:00–09:45</td><td><span class="badge green"><i class="dot"></i>Активен</span></td></tr>
+            <tr><td>Русский язык</td><td class="num">10:00–10:45</td><td><span class="badge green"><i class="dot"></i>Активен</span></td></tr>
+            <tr><td>Литература</td><td class="num">11:00–11:45</td><td><span class="badge green"><i class="dot"></i>Активен</span></td></tr>
+            <tr><td>География</td><td class="num">13:00–13:45</td><td><span class="badge gray"><i class="dot"></i>Отменён · в расчёт не входит</span></td></tr>
+          </table></div>
+        </section>
+        <div class="stack">
+          <div class="card" style="display:flex;align-items:center;min-height:190px"><div class="state-block" style="width:100%">
+            <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="9" rx="1.5"/><rect x="13" y="4" width="7" height="5" rx="1.5"/></svg></span>
+            <h3>Расчёт пока отсутствует</h3><p>Для этого класса и дня ещё нет результата. Это не означает нулевую нагрузку.</p>
+            <button class="btn secondary">Обновить</button>
+          </div></div>
+          <div class="card" style="display:flex;align-items:center;min-height:190px"><div class="state-block" style="width:100%">
+            <span class="icon" style="background:var(--red-bg);color:var(--red)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg></span>
+            <h3>Расчёт недоступен</h3><p>Сервис аналитики не ответил. Повторите попытку.</p>
+            <button class="btn secondary">Повторить</button>
+          </div></div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- А-04 ДОКУМЕНТЫ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">А-04</span><h2>Документы — создание</h2><span class="state">справка, договор, акт, квитанция</span></div>
+    <p class="shot-note">Все шаблоны учебные. Квитанция доступна только по номеру подтверждённой тестовой оплаты — имя, месяц и сумму подставляет сервер.</p>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="alert info"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><div>Все шаблоны учебные: они не заменяют юридические документы и фискальные чеки.</div></div>
+      <div class="two-col">
+        <section class="card pad">
+          <div class="panel-head"><div><span class="kicker">Новый документ</span><h2>Создание</h2></div></div>
+          <div class="field"><label>Тип документа</label><select class="select"><option selected>Справка об обучении</option><option>Договор об обучении</option><option>Акт об оказании услуг</option><option>Квитанция тестовой оплаты</option></select></div>
+          <div class="form-row">
+            <div class="field"><label>ФИО ученика</label><input class="input" placeholder="Иван Петров" value="Иванов Михаил Андреевич"></div>
+            <div class="field"><label>Класс</label><input class="input" value="7А"></div>
+          </div>
+          <div class="field"><label>Учебный год</label><input class="input" value="2026/2027"></div>
+          <div class="form-actions"><button class="btn">Создать справку</button></div>
+        </section>
+        <section class="card pad">
+          <div class="panel-head"><div><span class="kicker">Квитанция — другой ввод</span><h2>По номеру платежа</h2></div></div>
+          <div class="field"><label>Номер платежа в портале</label><input class="input" type="number" value="96"><span class="hint">Имя ученика, месяц и сумму сервер подставит по подтверждённому платежу.</span></div>
+          <div class="form-actions"><button class="btn">Создать квитанцию</button></div>
+          <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+          <div class="panel-head"><div><span class="kicker">Уже есть задание?</span><h2>Найти по ID</h2></div></div>
+          <div class="field"><label>ID задания</label><input class="input" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+          <button class="btn secondary">Открыть задание</button>
+        </section>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">А-05</span><h2>Список заданий и страница документа</h2><span class="state">в очереди · готовим PDF · готов · ошибка</span></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="two-col">
+        <section class="card pad">
+          <div class="panel-head"><div><h2>Мои задания</h2></div><button class="btn secondary small">Обновить задания</button></div>
+          <div class="table-wrap"><table class="t">
+            <tr><th>Документ</th><th>Статус</th><th>Создан</th></tr>
+            <tr><td><a class="rowlink" href="#">Справка об обучении · Иванов М.</a></td><td><span class="badge green"><i class="dot"></i>Готов</span></td><td class="muted">19 ноября, 10:02</td></tr>
+            <tr><td><a class="rowlink" href="#">Квитанция · платёж №96</a></td><td><span class="badge amber"><i class="dot"></i>Готовим PDF</span></td><td class="muted">19 ноября, 10:00</td></tr>
+            <tr><td><a class="rowlink" href="#">Договор · Белова О.</a></td><td><span class="badge gray"><i class="dot"></i>В очереди</span></td><td class="muted">19 ноября, 09:58</td></tr>
+            <tr><td><a class="rowlink" href="#">Акт · Крылов Д.</a></td><td><span class="badge red"><i class="dot"></i>Ошибка генерации</span></td><td class="muted">18 ноября, 17:20</td></tr>
+          </table></div>
+          <p class="hint mt">Ссылку на задание можно сохранить — страница результата постоянная.</p>
+        </section>
+        <div class="stack">
+          <section class="card pad">
+            <div class="panel-head"><div><span class="kicker">Задание генерации</span><h2>Справка об обучении</h2></div><span class="badge green"><i class="dot"></i>Готов</span></div>
+            <div class="pen-canvas" style="min-height:200px;display:grid;place-items:center;background:#FDFDFE">
+              <div style="text-align:center;max-width:280px">
+                <span class="icon" style="width:40px;height:40px;border-radius:11px;background:var(--sunken);display:inline-grid;place-items:center;color:var(--muted)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v5h5M6 3h9l5 5v13H6z"/></svg></span>
+                <p class="small muted" style="margin-top:8px">Здесь открывается предпросмотр PDF</p>
+                <p class="small muted">«Справка об обучении · Иванов Михаил Андреевич, 7А, 2026/2027»</p>
+              </div>
+            </div>
+            <div class="form-actions mt"><button class="btn">Скачать PDF</button><button class="btn secondary">Открыть в новой вкладке</button></div>
+          </section>
+          <section class="card pad" style="border-color:#EFCAC5">
+            <div class="panel-head"><div><span class="kicker">Задание генерации</span><h2>Акт об оказании услуг</h2></div><span class="badge red"><i class="dot"></i>Ошибка генерации</span></div>
+            <div class="alert error"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg><div>Не удалось собрать PDF: сервис документов не ответил. Повторите с теми же данными — дубля не будет, ключ запроса сохранён.</div></div>
+            <div class="form-actions"><button class="btn">Повторить генерацию</button></div>
+          </section>
+        </div>
+      </div>
+    </div></div>
+  </section>
+</div>
+</body>
+</html>

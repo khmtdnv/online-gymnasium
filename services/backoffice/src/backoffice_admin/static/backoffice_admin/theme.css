@@ -14,16 +14,16 @@
   src: url('fonts/manrope-latin-wght-normal.woff2') format('woff2');
 }
 :root, html[data-theme='light'], html[data-theme='dark'] {
-  --canvas: #f0f2ed;
-  --sidebar: #f9fbf7;
-  --surface: #fffefa;
-  --text: #223b36;
-  --muted: #62706a;
-  --accent: #17645c;
-  --accent-hover: #12564f;
-  --accent-soft: #e2eee8;
-  --peach: #f4d9c6;
-  --border: #dde5df;
+  --canvas: #f3f5f7;
+  --sidebar: #ffffff;
+  --surface: #ffffff;
+  --text: #232a31;
+  --muted: #5a6672;
+  --accent: #2f5d7e;
+  --accent-hover: #244963;
+  --accent-soft: #e4eef5;
+  --peach: #e8f0f2;
+  --border: #dfe5ea;
   --danger: #a33630;
   --danger-soft: #fff0ec;
   --success: #24634a;
@@ -122,3 +122,27 @@ div.breadcrumbs { padding: 12px 32px; font-size: 12px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Общая структура списков, форм и таблиц для сотрудников. */
+#header { gap: 12px 24px; padding: 18px 28px; background: #fff; }
+#site-name { font-size: 19px; letter-spacing: -.03em; }
+.og-brand-mark { border-radius: 10px; }
+.og-staff-badge { background: var(--accent-soft); color: var(--accent-hover); }
+.og-admin-nav a { border-radius: 9px; background: transparent; font-size: 13px; padding: 8px 10px; }
+.og-admin-nav a:hover, .og-admin-nav a:focus { background: var(--accent-soft); }
+div.breadcrumbs { padding: 12px 28px; background: #eaf1f5; font-size: 13px; }
+#content { max-width: 1440px; margin: 0 auto; }
+#content h1 { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(26px, 3vw, 34px); }
+.module, .inline-group, #changelist, .og-form-card { border-radius: 15px; box-shadow: 0 1px 2px rgba(35,42,49,.05); }
+.module h2, .module caption, .inline-group h2 { background: #f4f7f9; }
+.og-form-card label { font-size: 14px; }
+.og-form-card input, .og-form-card select { border-radius: 9px; }
+.og-form-card button, .button, input[type=submit], .submit-row input { border-radius: 9px; font-size: 14px; }
+#result_list { width: 100%; border-collapse: collapse; }
+#result_list thead th { background: #f4f7f9; color: var(--muted); padding: 12px; }
+#result_list tbody th, #result_list tbody td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+#result_list tbody tr:hover { background: #f7fafc; }
+.messagelist li.info, .messagelist li.success { background-color: var(--accent-soft); color: var(--text); }
+.messagelist li.warning { background-color: #f9f0dc; color: #785008; }
+.messagelist li.error { background-color: #f9e9e7; color: var(--danger); }
+@media (max-width: 767px) { #header, div.breadcrumbs { padding: 16px; } #content { padding: 18px 14px; } .og-admin-nav { overflow-x: auto; flex-wrap: nowrap; } .og-admin-nav a { white-space: nowrap; font-size: 12px; } }

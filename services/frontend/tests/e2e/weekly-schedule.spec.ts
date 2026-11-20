@@ -65,7 +65,7 @@ test('UI mock: неделя, мобильный день, урок и ДЗ с п
         json: {
           lesson,
           next_lesson: null,
-          homework_for_lesson: [],
+          homework_for_lesson: [homework],
           homework_from_lesson: [homework],
         },
       });
@@ -99,6 +99,12 @@ test('UI mock: неделя, мобильный день, урок и ДЗ с п
   for (const width of [1440, 768, 360]) {
     await page.setViewportSize({ width, height: 1000 });
     await expect(page.locator('.week-day:visible')).toHaveCount(width === 1440 ? 6 : 1);
+    if (width === 1440) {
+      const edges = await page
+        .locator('.week-day > header')
+        .evaluateAll((headers) => headers.map((header) => header.getBoundingClientRect().bottom));
+      expect(Math.max(...edges) - Math.min(...edges)).toBeLessThan(1);
+    }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
       true,
     );
@@ -107,6 +113,7 @@ test('UI mock: неделя, мобильный день, урок и ДЗ с п
   await page.getByRole('link', { name: /Математика/ }).click();
   await expect(page.getByRole('heading', { name: 'Математика', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Подготовить к этому уроку' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Задано на этом уроке' })).toHaveCount(0);
   await page.getByRole('link', { name: 'Открыть задание', exact: true }).click();
   await expect(page.getByText('Решить задачи и объяснить решение', { exact: true })).toBeVisible();
   await page.goto('/homework');

@@ -48,7 +48,7 @@ export default function Documents() {
     queryFn: ({ signal }) => documents.listJobs(offset, signal),
   });
   return (
-    <>
+    <div className="workspace-page documents-page">
       <PageHeader
         title="Документы"
         eyebrow="Школьные документы"
@@ -58,7 +58,7 @@ export default function Documents() {
         Все шаблоны учебные. Они не заменяют юридические документы и фискальные чеки. Квитанция
         доступна только для подтверждённой тестовой оплаты.
       </Alert>
-      <div className="document-grid">
+      <div className="document-grid documents-workspace">
         <section className="card">
           <h2>Новый документ</h2>
           <label>
@@ -182,7 +182,7 @@ export default function Documents() {
           </p>
         </section>
       </div>
-      <section className="card">
+      <section className="card document-history">
         <h2>Мои задания</h2>
         <Button
           variant="secondary"
@@ -221,6 +221,6 @@ export default function Documents() {
           Дальше
         </Button>
       </section>
-    </>
+    </div>
   );
 }

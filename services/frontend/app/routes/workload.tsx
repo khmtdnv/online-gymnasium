@@ -18,7 +18,7 @@ export default function Workload() {
     queryFn: ({ signal }) => workload.getWorkload(selection.classId!, selection.day, signal),
   });
   return (
-    <>
+    <div className="workspace-page workload-page">
       <PageHeader
         title="Нагрузка расписания"
         eyebrow="Один день в цифрах"
@@ -69,6 +69,6 @@ export default function Workload() {
       ) : (
         <WorkloadCard workload={query.data} />
       )}
-    </>
+    </div>
   );
 }

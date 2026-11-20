@@ -1,16 +1,16 @@
 {% extends "admin/base.html" %}
 {% load static %}
 
-{% block title %}{{ title }} · OG Backoffice{% endblock %}
+{% block title %}{{ title }} · Онлайн-гимназия{% endblock %}
 
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'backoffice_admin/theme.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'backoffice_admin/theme.css' %}?v=4">
 {% endblock %}
 
 {% block branding %}
-  <div id="site-name"><a href="{% url 'admin:index' %}" class="og-brand"><span class="og-brand-mark">о</span> OG <span class="og-brand-caption">Backoffice</span></a></div>
-  <span class="og-staff-badge">{% if request.session.gateway_session_id %}Общий вход{% else %}Staff-сессия · отдельный вход{% endif %}</span>
+  <div id="site-name"><a href="{% url 'admin:index' %}" class="og-brand"><span class="og-brand-mark" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14M3 18V5a1 1 0 0 1 1-1h3a5 5 0 0 1 5 3 5 5 0 0 1 5-3h3a1 1 0 0 1 1 1v13h-4a5 5 0 0 0-5 3 5 5 0 0 0-5-3z"/></svg></span> Онлайн-гимназия <span class="og-brand-caption">Администрирование</span></a></div>
+  <span class="og-staff-badge">{% if request.session.gateway_session_id %}Общий вход{% else %}Вход для сотрудников{% endif %}</span>
 {% endblock %}
 
 {% block nav-global %}

@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Онлайн-гимназия — Backoffice</title>
+<link rel="stylesheet" href="css.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="gallery">
+  <header class="gallery-header">
+    <span class="kicker">Онлайн-гимназия · макеты</span>
+    <h1>Backoffice · Django-админка</h1>
+    <p>Служебный интерфейс сотрудников: та же палитра и шрифт, что у портала, но рабочая компоновка — тёмная шапка, боковое меню, плотные таблицы и формы. Вход через портал по SSO, есть и прямая страница входа.</p>
+    <nav class="gallery-nav"><a href="index.html">Обзор</a><a href="01-dizain-sistema.html">Дизайн-система</a><a href="02-uchenik.html">Ученик</a><a href="03-prepodavatel.html">Преподаватель</a><a href="04-roditel.html">Родитель</a><a href="05-portal-admin.html">Админ · портал</a><a href="07-sostoyaniya.html">Состояния и мобильные</a></nav>
+  </header>
+
+  <!-- Б-01 ГЛАВНАЯ АДМИНКИ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-01</span><h2>Главная админки</h2><span class="state">навигация по разделам · возврат в портал</span></div>
+    <div class="canvas"><div class="app dj">
+      <div class="dj-header">
+        <a class="brand" href="#"><span class="brand-mark" style="background:rgba(255,255,255,.14)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#232A31" stroke-width="1.6"/></svg></span><strong style="color:#fff;font-size:14px">Онлайн-гимназия · Backoffice</strong></a>
+        <span class="crumb">Администрирование</span>
+        <div class="user"><a href="05-portal-admin.html" style="font-weight:500">← Вернуться в портал</a><span>Ольга Дементьева · staff</span><a href="#">Выйти</a></div>
+      </div>
+      <div class="dj-body">
+        <aside class="dj-side">
+          <div class="cap">Разделы</div>
+          <a class="current" href="#">Главная <span class="faint">▸</span></a>
+          <a href="#">Пользователи</a>
+          <a href="#">Создать пользователя</a>
+          <a href="#">Привязать родителя к ученику</a>
+          <a href="#">Добавить ученика в класс</a>
+          <a href="#">Классы преподавателей</a>
+          <div class="cap" style="margin-top:10px">Отчёты</div>
+          <a href="#">Успеваемость и аудит</a>
+          <a href="#">История платежей</a>
+          <div class="cap" style="margin-top:10px">Служебное</div>
+          <a href="#">Журнал действий <span class="faint">▸</span></a>
+        </aside>
+        <main class="dj-main">
+          <h1>Администрирование</h1>
+          <p class="subtitle">Выберите раздел. Действия записываются в журнал.</p>
+          <ul class="msglist"><li class="success">Вход выполнен через портал по защищённой сессии.</li></ul>
+          <div class="dj-module">
+            <h2>Люди</h2>
+            <ul>
+              <li><a href="#">Создать пользователя <span class="arrow">→</span></a></li>
+              <li><a href="#">Пользователи: поиск и ФИО <span class="arrow">→</span></a></li>
+              <li><a href="#">Привязать родителя к ученику <span class="arrow">→</span></a></li>
+            </ul>
+          </div>
+          <div class="dj-module">
+            <h2>Классы</h2>
+            <ul>
+              <li><a href="#">Добавить ученика в класс <span class="arrow">→</span></a></li>
+              <li><a href="#">Перевод и завершение периода <span class="arrow">→</span></a></li>
+              <li><a href="#">Назначение преподавателей <span class="arrow">→</span></a></li>
+            </ul>
+          </div>
+          <div class="dj-module">
+            <h2>Деньги и отчёты</h2>
+            <ul>
+              <li><a href="#">История платежей <span class="arrow">→</span></a></li>
+              <li><a href="#">Успеваемость и аудит <span class="arrow">→</span></a></li>
+            </ul>
+          </div>
+          <div class="dj-module">
+            <h2>Служебное (стандартная админка Django)</h2>
+            <ul>
+              <li><a href="#">Журнал действий сотрудников <span class="arrow">→</span></a></li>
+            </ul>
+          </div>
+        </main>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- Б-02 ПОЛЬЗОВАТЕЛИ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-02</span><h2>Пользователи — поиск и результаты</h2></div>
+    <div class="canvas"><div class="app dj">
+      <div class="dj-header"><a class="brand" href="#"><span class="brand-mark" style="background:rgba(255,255,255,.14)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#232A31" stroke-width="1.6"/></svg></span><strong style="color:#fff;font-size:14px">Онлайн-гимназия · Backoffice</strong></a><span class="crumb">Пользователи</span><div class="user"><a href="05-portal-admin.html">← Портал</a><span>Ольга Дементьева</span><a href="#">Выйти</a></div></div>
+      <div class="dj-body">
+        <aside class="dj-side"><div class="cap">Разделы</div><a href="#">Главная</a><a class="current" href="#">Пользователи</a><a href="#">Создать пользователя</a><a href="#">Привязать родителя к ученику</a><a href="#">Добавить ученика в класс</a><a href="#">Классы преподавателей</a><div class="cap" style="margin-top:10px">Отчёты</div><a href="#">Успеваемость и аудит</a><a href="#">История платежей</a></aside>
+        <main class="dj-main">
+          <div class="dj-breadcrumbs"><a href="#">Администрирование</a> › Пользователи</div>
+          <h1>Пользователи</h1>
+          <p class="subtitle">Поиск по ФИО или email во всех ролях. Изменение ФИО — на странице пользователя.</p>
+          <form class="dj-tools">
+            <input class="input" style="max-width:340px" value="иван" placeholder="ФИО или email">
+            <button class="btn">Найти</button>
+            <a class="btn secondary" href="#">Создать пользователя</a>
+          </form>
+          <div class="table-wrap"><table class="t">
+            <tr><th>ФИО</th><th>Email</th><th>Роль</th><th></th></tr>
+            <tr><td><a class="rowlink" href="#">Иванов Михаил Андреевич</a></td><td class="muted">m.ivanov@example.com</td><td><span class="badge blue"><i class="dot"></i>Ученик</span></td><td><a class="btn secondary small" href="#">Изменить ФИО</a></td></tr>
+            <tr><td><a class="rowlink" href="#">Иванова Наталья Сергеевна</a></td><td class="muted">n.ivanova@example.com</td><td><span class="badge green"><i class="dot"></i>Родитель</span></td><td><a class="btn secondary small" href="#">Изменить ФИО</a></td></tr>
+            <tr><td><a class="rowlink" href="#">Иванюк Пётр Ильич</a></td><td class="muted">p.ivanyuk@example.com</td><td><span class="badge amber"><i class="dot"></i>Учитель</span></td><td><a class="btn secondary small" href="#">Изменить ФИО</a></td></tr>
+          </table></div>
+          <p class="hint" style="margin-top:12px">Найдено: 3. Если Gateway недоступен, вместо таблицы появится сообщение об ошибке и кнопка повтора — список не подменяется пустым.</p>
+        </main>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- Б-03 СОЗДАНИЕ ПОЛЬЗОВАТЕЛЯ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-03</span><h2>Создание пользователя</h2><span class="state">форма · ошибка поля · неизвестный результат</span></div>
+    <div class="canvas"><div class="app dj" style="padding:26px;background:var(--surface)">
+      <div class="shots-row" style="gap:16px">
+        <div class="card pad">
+          <div class="dj-breadcrumbs"><a href="#">Администрирование</a> › Создать пользователя</div>
+          <div class="panel-head"><div><h2 style="font-size:18px">Создать пользователя</h2><p class="small muted">Учётная запись создаётся в Gateway. Пароль передайте владельцу лично.</p></div></div>
+          <div class="form-row">
+            <div class="field"><label>Фамилия *</label><input class="input" value="Белова"></div>
+            <div class="field"><label>Имя *</label><input class="input" value="Ольга"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Отчество</label><input class="input" value="Дмитриевна"></div>
+            <div class="field"><label>Роль *</label><select class="select"><option selected>Ученик</option><option>Учитель</option><option>Родитель</option><option>Администратор</option></select></div>
+          </div>
+          <div class="field"><label>Email *</label><input class="input" value="o.belova@example.com"></div>
+          <div class="field"><label>Пароль *</label><input class="input" type="password" value="••••••••••"><span class="hint">Пароль не сохраняется в журнале действий</span></div>
+          <div class="form-actions"><button class="btn">Создать пользователя</button></div>
+        </div>
+        <div class="stack">
+          <div class="card pad">
+            <div class="panel-head"><div><span class="kicker">Ошибка поля</span><h2>Занятый email</h2></div></div>
+            <div class="field invalid"><label>Email *</label><input class="input" value="o.belova@example.com"><span class="err-msg">Пользователь с таким email уже существует.</span></div>
+            <p class="hint">Ошибки конкретного поля показываются у поля; остальное сохраняется.</p>
+          </div>
+          <div class="card pad" style="border-color:#EAD9AE">
+            <div class="panel-head"><div><span class="kicker">Неизвестный результат</span><h2>Gateway не ответил</h2></div></div>
+            <div class="alert warn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div>Не удалось получить результат от Gateway. <b>Перед повторной отправкой проверьте, создан ли пользователь</b> — возможно, учётная запись уже появилась.</div></div>
+            <div class="form-actions"><a class="btn secondary small" href="#">Проверить в поиске</a></div>
+          </div>
+          <ul class="msglist"><li class="success">Пользователь o.belova@example.com создан. Запишите действие в журнал: create_user.</li></ul>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- Б-04 ФИО И ПРИВЯЗКА -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-04</span><h2>Изменение ФИО и привязка родителя</h2></div>
+    <div class="canvas"><div class="app dj" style="padding:26px;background:var(--surface)">
+      <div class="two-col">
+        <div class="card pad">
+          <div class="dj-breadcrumbs"><a href="#">Пользователи</a> › Иванов Михаил Андреевич › ФИО</div>
+          <div class="panel-head"><div><h2 style="font-size:18px">Изменение ФИО</h2><p class="small muted">m.ivanov@example.com · Ученик. Изменения применяются сразу после сохранения.</p></div></div>
+          <div class="form-row">
+            <div class="field"><label>Фамилия *</label><input class="input" value="Иванов"></div>
+            <div class="field"><label>Имя *</label><input class="input" value="Михаил"></div>
+          </div>
+          <div class="field"><label>Отчество</label><input class="input" value="Андреевич"></div>
+          <div class="form-actions"><button class="btn">Сохранить</button><a class="btn ghost" href="#">Отмена</a></div>
+          <ul class="msglist" style="margin-top:16px"><li class="success">ФИО обновлено: Иванов Михаил Андреевич.</li></ul>
+        </div>
+        <div class="card pad">
+          <div class="dj-breadcrumbs"><a href="#">Администрирование</a> › Привязать родителя к ученику</div>
+          <div class="panel-head"><div><h2 style="font-size:18px">Привязка родителя к ученику</h2><p class="small muted">Существование пользователей и роли проверяет шлюз.</p></div></div>
+          <div class="field"><label>ID родителя (UUID)</label><input class="input" style="font-family:ui-monospace,monospace" value="c1a92f34-7b20-4d8e-9f01-6d84b2a5xxxx"><span class="hint">Скопируйте UUID из карточки пользователя</span></div>
+          <div class="field"><label>ID ученика (UUID)</label><input class="input" style="font-family:ui-monospace,monospace" value="f3b21c8a-52d6-4c17-b9a0-3e5f7c9dxxxx"></div>
+          <div class="field invalid"><label>ID родителя (UUID)</label><input class="input" style="font-family:ui-monospace,monospace" value="c1a92f34"><span class="err-msg">Введите корректный UUID.</span></div>
+          <div class="form-actions"><button class="btn">Привязать</button></div>
+          <ul class="msglist" style="margin-top:16px"><li class="success">Родитель Иванова Н. С. привязан к ученику Иванову М. А.</li></ul>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- Б-05 ЗАЧИСЛЕНИЕ И КЛАСС -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-05</span><h2>Добавление ученика в класс</h2><span class="state">поиск по имени, фамилии и почте</span></div>
+    <div class="canvas"><div class="app dj" style="padding:26px;background:var(--surface)">
+      <div class="two-col">
+        <div class="card pad">
+          <div class="dj-breadcrumbs"><a href="#">Администрирование</a> › Добавить ученика в класс</div>
+          <div class="panel-head"><div><h2 style="font-size:18px">Добавить ученика в класс</h2><p class="small muted">Найдите активного ученика и выберите класс текущего учебного года.</p></div></div>
+          <div class="field"><label>Ученик · поиск</label><input class="input" value="бело" placeholder="Начните вводить фамилию, имя или email"><span class="hint">Минимум 2 символа · поиск по имени, фамилии и почте</span></div>
+          <div class="stack" style="gap:6px;margin-bottom:14px">
+            <label class="row" style="gap:10px;border:1px solid var(--accent);background:var(--accent-bg);border-radius:10px;padding:10px 12px;font-size:13.5px;cursor:pointer"><input type="radio" name="st" checked> <b>Белова Ольга Дмитриевна</b> <span class="muted">o.belova@example.com</span></label>
+            <label class="row" style="gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;cursor:pointer"><input type="radio" name="st"> <b>Белов Артём Игоревич</b> <span class="muted">a.belov@example.com</span></label>
+          </div>
+          <div class="field"><label>Класс</label><select class="select"><option selected>7А · 2026/2027</option><option>7Б · 2026/2027</option><option>8А · 2026/2027</option></select></div>
+          <div class="form-actions"><button class="btn">Зачислить в класс</button></div>
+        </div>
+        <div class="stack">
+          <div class="card" style="display:flex;align-items:center;min-height:170px"><div class="state-block" style="width:100%">
+            <span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></span>
+            <h3>Начните вводить фамилию</h3><p>Подсказки появятся, когда введёте минимум 2 символа.</p>
+          </div></div>
+          <div class="card" style="display:flex;align-items:center;min-height:170px"><div class="state-block" style="width:100%">
+            <span class="icon" style="background:var(--red-bg);color:var(--red)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg></span>
+            <h3>Не удалось найти учеников</h3><p>Сервис недоступен. Попробуйте позже.</p>
+          </div></div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- Б-06 ПЕРЕВОД -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-06</span><h2>Текущий класс ученика: перевод и завершение</h2><span class="state">история периодов</span></div>
+    <div class="canvas"><div class="app dj" style="padding:26px;background:var(--surface)">
+      <div class="two-col">
+        <div class="card pad">
+          <div class="dj-breadcrumbs"><a href="#">Пользователи</a> › Иванов Михаил › Класс</div>
+          <div class="panel-head"><div><h2 style="font-size:18px">Текущий класс: 7А · с 1 сентября 2026</h2><p class="small muted">Период 2026/2027. Перевод закрывает текущий период и открывает новый.</p></div></div>
+          <div class="field"><label>Действие</label>
+            <div class="stack" style="gap:8px">
+              <label class="row" style="gap:8px;font-weight:400;font-size:13.5px"><input type="radio" name="op" checked> Перевести в другой класс</label>
+              <label class="row" style="gap:8px;font-weight:400;font-size:13.5px"><input type="radio" name="op"> Завершить пребывание в классе</label>
+            </div>
+          </div>
+          <div class="field"><label>Новый класс</label><select class="select"><option selected>7Б · 2026/2027</option><option>8А · 2026/2027</option></select></div>
+          <div class="confirm-box"><p class="small">Ученик покинет 7А с текущей даты и будет зачислён в 7Б. История периодов сохраняется.</p></div>
+          <div class="form-actions mt"><button class="btn">Выполнить перевод</button><button class="btn ghost">Отмена</button></div>
+        </div>
+        <div class="stack">
+          <div class="card pad">
+            <div class="panel-head"><div><span class="kicker">Подтверждение завершения</span><h2>Без нового класса</h2></div></div>
+            <label class="row" style="gap:8px;font-weight:400;font-size:13.5px;align-items:flex-start"><input type="checkbox" checked> <span>Подтверждаю завершение пребывания <b>без назначения нового класса</b>. Расписание ученику станет недоступно.</span></label>
+            <div class="form-actions mt"><button class="btn danger">Завершить пребывание</button></div>
+          </div>
+          <div class="card pad">
+            <div class="panel-head"><div><h2>История периодов · Иванов Михаил</h2></div></div>
+            <div class="table-wrap"><table class="t">
+              <tr><th>Класс</th><th>Период</th><th>Статус</th></tr>
+              <tr><td>7А · 2026/2027</td><td class="muted">с 01.09.2026</td><td><span class="badge green"><i class="dot"></i>Текущий</span></td></tr>
+              <tr><td>6А · 2025/2026</td><td class="muted">01.09.2025 — 31.05.2026</td><td><span class="badge gray"><i class="dot"></i>Завершён</span></td></tr>
+            </table></div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- Б-07 ПРЕПОДАВАТЕЛИ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-07</span><h2>Назначение преподавателей классам</h2></div>
+    <div class="canvas"><div class="app dj" style="padding:26px;background:var(--surface)">
+      <div class="two-col">
+        <div class="card pad">
+          <div class="dj-breadcrumbs"><a href="#">Администрирование</a> › Классы преподавателей</div>
+          <div class="panel-head"><div><h2 style="font-size:18px">Классы преподавателя</h2><p class="small muted">Найдите преподавателя и назначьте или снимите класс.</p></div></div>
+          <div class="field"><label>Поиск преподавателя</label><input class="input" value="соколова" placeholder="ФИО или email"><span class="hint">Поиск по ФИО и почте</span></div>
+          <div class="alert neutral" style="margin:0 0 14px"><div><b>Соколова Елена Викторовна</b> · e.sokolova@example.com<br><span class="small muted">Назначенные классы: 7А, 7Б, 9В</span></div></div>
+          <div class="form-row">
+            <div class="field"><label>Класс</label><select class="select"><option>7А · 2026/2027</option><option selected>8А · 2026/2027</option><option>9В · 2026/2027</option></select></div>
+            <div class="field"><label>Действие</label><select class="select"><option selected>Назначить</option><option>Снять</option></select></div>
+          </div>
+          <div class="form-actions"><button class="btn">Назначить класс</button></div>
+        </div>
+        <div class="stack">
+          <ul class="msglist"><li class="success">Соколова Е. В. назначена классу 8А.</li><li class="warning">Соколова Е. В. снята с класса 8А. Активные уроки сохраняются.</li></ul>
+          <div class="card pad">
+            <div class="panel-head"><div><h2>Назначения · 7А</h2></div></div>
+            <div class="table-wrap"><table class="t">
+              <tr><th>Преподаватель</th><th>Предмет</th><th></th></tr>
+              <tr><td>Соколова Е. В.</td><td class="muted">Алгебра</td><td><button class="btn danger small">Снять</button></td></tr>
+              <tr><td>Кузнецова А. И.</td><td class="muted">Русский язык, литература</td><td><button class="btn danger small">Снять</button></td></tr>
+            </table></div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- Б-08 ПЛАТЕЖИ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-08</span><h2>История платежей администратора</h2><span class="state">сверка · возврат · тестовый режим</span></div>
+    <div class="canvas"><div class="app dj">
+      <div class="dj-header"><a class="brand" href="#"><span class="brand-mark" style="background:rgba(255,255,255,.14)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#232A31" stroke-width="1.6"/></svg></span><strong style="color:#fff;font-size:14px">Онлайн-гимназия · Backoffice</strong></a><span class="crumb">История платежей</span><div class="user"><a href="05-portal-admin.html">← Портал</a><span>Ольга Дементьева</span><a href="#">Выйти</a></div></div>
+      <div class="dj-body">
+        <aside class="dj-side"><div class="cap">Разделы</div><a href="#">Главная</a><a href="#">Пользователи</a><a href="#">Создать пользователя</a><a href="#">Добавить ученика в класс</a><a href="#">Классы преподавателей</a><div class="cap" style="margin-top:10px">Отчёты</div><a href="#">Успеваемость и аудит</a><a class="current" href="#">История платежей</a></aside>
+        <main class="dj-main">
+          <div class="dj-breadcrumbs"><a href="#">Администрирование</a> › История платежей</div>
+          <h1>История платежей</h1>
+          <p class="subtitle">Все платежи школы. Список обновляется автоматически каждые 30 секунд.</p>
+          <div class="alert warn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><b>Тестовый магазин ЮKassa.</b> Настоящих списаний нет; возвраты выполняются в тестовом контуре.</div></div>
+          <div class="dj-tools"><button class="btn secondary small">Обновить список</button><span class="hint">Показано 1–50 из 84</span></div>
+          <div class="table-wrap"><table class="t">
+            <tr><th>№</th><th>Ученик</th><th>Период</th><th class="num">Сумма</th><th>Статус</th><th>Действия</th></tr>
+            <tr><td class="muted">128</td><td>Иванов М. А.</td><td>Четверть · ноябрь 2026</td><td class="num money">18 500,00 ₽</td><td><span class="badge amber"><i class="dot"></i>Ожидает оплаты</span></td><td><button class="btn secondary small">Проверить в ЮKassa</button></td></tr>
+            <tr><td class="muted">96</td><td>Иванов М. А.</td><td>Четверть · сентябрь 2026</td><td class="num money">18 500,00 ₽</td><td><span class="badge green"><i class="dot"></i>Оплачено</span></td><td><button class="btn danger small">Полный возврат</button></td></tr>
+            <tr><td class="muted">121</td><td>Крылов Д. С.</td><td>Четверть · ноябрь 2026</td><td class="num money">18 500,00 ₽</td><td><span class="badge plum"><i class="dot"></i>Нужна ручная сверка</span></td><td><button class="btn secondary small">Сверить платёж</button></td></tr>
+            <tr><td class="muted">119</td><td>Белова О. Д.</td><td>Четверть · ноябрь 2026</td><td class="num money">18 500,00 ₽</td><td><span class="badge outline"><i class="dot"></i>Уточняем результат</span></td><td><button class="btn secondary small">Проверить в ЮKassa</button></td></tr>
+            <tr><td class="muted">89</td><td>Лаптева М. И.</td><td>Четверть · сентябрь 2026</td><td class="num money">18 500,00 ₽</td><td><span class="badge blue"><i class="dot"></i>Возвращено</span></td><td class="faint">—</td></tr>
+          </table></div>
+          <div class="pager"><button class="btn secondary small disabled">Назад</button><span class="info">Страница 1 из 2</span><button class="btn secondary small">Дальше</button></div>
+        </main>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-08b</span><h2>Возврат и сверка — подтверждения</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px;background:var(--sunken)">
+      <div class="shots-row" style="gap:16px">
+        <div class="dialog">
+          <h3>Полный возврат платежа №96</h3>
+          <p class="desc">Иванов М. А. · четверть с сентября 2026 · 18 500,00 ₽</p>
+          <div class="confirm-box danger">
+            <p class="small"><b>Вернуть всю сумму 18 500,00 ₽?</b> Частичный возврат не поддерживается. Повтор запроса при сбое не создаст второй возврат — ключ попытки сохраняется.</p>
+          </div>
+          <div class="form-actions mt"><button class="btn danger">Подтвердить полный возврат</button><button class="btn secondary">Отмена</button></div>
+        </div>
+        <div class="dialog">
+          <h3>Ручная сверка платежа №121</h3>
+          <p class="desc">Платёж не найден у провайдера. Найдите UUID платежа в тестовом кабинете ЮKassa.</p>
+          <div class="field"><label>UUID платежа из тестового кабинета</label><input class="input" style="font-family:ui-monospace,monospace" placeholder="00000000-0000-0000-0000-000000000000"></div>
+          <div class="form-actions mt"><button class="btn">Сверить платёж</button><button class="btn secondary">Отмена</button></div>
+          <ul class="msglist" style="margin-top:14px"><li class="success">Платёж №121 сверен: подтверждена оплата 18 500,00 ₽.</li></ul>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- Б-09 АНАЛИТИКА -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-09</span><h2>Успеваемость и аудит</h2><span class="state">фильтры · таблицы · данные отсутствуют</span></div>
+    <div class="canvas"><div class="app dj">
+      <div class="dj-header"><a class="brand" href="#"><span class="brand-mark" style="background:rgba(255,255,255,.14)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#232A31" stroke-width="1.6"/></svg></span><strong style="color:#fff;font-size:14px">Онлайн-гимназия · Backoffice</strong></a><span class="crumb">Успеваемость и аудит</span><div class="user"><a href="05-portal-admin.html">← Портал</a><span>Ольга Дементьева</span><a href="#">Выйти</a></div></div>
+      <div class="dj-body">
+        <aside class="dj-side"><div class="cap">Разделы</div><a href="#">Главная</a><a href="#">Пользователи</a><a href="#">Классы преподавателей</a><div class="cap" style="margin-top:10px">Отчёты</div><a class="current" href="#">Успеваемость и аудит</a><a href="#">История платежей</a></aside>
+        <main class="dj-main">
+          <div class="dj-breadcrumbs"><a href="#">Администрирование</a> › Успеваемость и аудит</div>
+          <h1>Успеваемость и аудит</h1>
+          <p class="subtitle">История действий и оценки проверенных работ. Период — по датам событий UTC.</p>
+          <div class="alert neutral"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><div>Отчёт включает события после подключения аудита. Старые оценки автоматически в историю не переносились.</div></div>
+          <div class="dj-tools">
+            <input class="input" style="max-width:150px" type="date" value="2026-11-01">
+            <input class="input" style="max-width:150px" type="date" value="2026-11-19">
+            <select class="select" style="max-width:220px"><option selected>7А · 2026/2027</option></select>
+            <button class="btn secondary small">Загрузить ещё классы</button>
+            <button class="btn small">Обновить</button>
+          </div>
+          <section class="card pad" style="margin-bottom:18px">
+            <div class="panel-head"><div><h2>Успеваемость класса · 7А</h2></div><span class="small muted">оценки проверенных работ</span></div>
+            <div class="table-wrap"><table class="t">
+              <tr><th>Ученик</th><th class="num">Средний балл</th><th>Последние оценки</th><th class="num">Проверено</th></tr>
+              <tr><td>Белова Ольга</td><td class="num"><b>4,8</b></td><td><span class="row" style="gap:6px"><span class="grade g5">5</span><span class="grade g5">5</span><span class="grade g4">4</span></span></td><td class="num muted">12</td></tr>
+              <tr><td>Иванов Михаил</td><td class="num"><b>4,6</b></td><td><span class="row" style="gap:6px"><span class="grade g5">5</span><span class="grade g4">4</span><span class="grade g5">5</span></span></td><td class="num muted">11</td></tr>
+              <tr><td>Крылов Даниил</td><td class="num"><b>3,9</b></td><td><span class="row" style="gap:6px"><span class="grade g4">4</span><span class="grade g3">3</span><span class="grade g4">4</span></span></td><td class="num muted">9</td></tr>
+            </table></div>
+          </section>
+          <section class="card pad">
+            <div class="panel-head"><div><h2>Общий журнал действий</h2></div><span class="small muted">UTC</span></div>
+            <div class="table-wrap"><table class="t">
+              <tr><th>Время</th><th>Событие</th><th>Источник</th><th>Инициатор</th></tr>
+              <tr><td class="muted" style="white-space:nowrap">19.11 10:12:03</td><td><span class="badge green"><i class="dot"></i>homework.graded</span></td><td class="muted">homework-service</td><td class="muted">teacher / Соколова Е. В.</td></tr>
+              <tr><td class="muted" style="white-space:nowrap">19.11 09:58:41</td><td><span class="badge blue"><i class="dot"></i>homework.answer_submitted</span></td><td class="muted">homework-service</td><td class="muted">student / Белова О. Д.</td></tr>
+              <tr><td class="muted" style="white-space:nowrap">18.11 16:40:10</td><td><span class="badge amber"><i class="dot"></i>schedule.lesson_moved</span></td><td class="muted">schedule-service</td><td class="muted">admin / Дементьева О. С.</td></tr>
+            </table></div>
+            <details class="tech" style="margin-top:10px"><summary>Данные события (JSON)</summary><span>{ "homework_id": 512, "grade": 5, "attempt": 3, … }</span></details>
+            <div class="pager"><button class="btn secondary small disabled">Предыдущие</button><span class="info">1–50 из 132</span><button class="btn secondary small">Следующие</button></div>
+          </section>
+        </main>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-09b</span><h2>Аналитика — загрузка, нет данных, ошибка</span></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="shots-row" style="gap:16px">
+        <div class="card pad"><p class="hint" style="margin-bottom:12px">Загрузка</p><div class="sk-line skeleton" style="width:100%;height:38px"></div><div class="sk-line skeleton" style="width:100%;height:38px"></div><div class="sk-line skeleton" style="width:80%;height:38px"></div><p class="row" style="gap:10px;margin-top:6px"><span class="spinner"></span><span class="small muted">Загружаем оценки…</span></p></div>
+        <div class="card" style="display:flex;align-items:center;min-height:220px"><div class="state-block" style="width:100%"><span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h9l5 5v11H5z"/></svg></span><h3>Событий на этой странице нет</h3><p>За выбранный период аудит ничего не зафиксировал.</p></div></div>
+        <div class="card" style="display:flex;align-items:center;min-height:220px"><div class="state-block" style="width:100%"><span class="icon" style="background:var(--red-bg);color:var(--red)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg></span><h3>Отчёт недоступен</h3><p>Сервис аналитики не ответил (запрос 8f3c…). Повторите попытку.</p><button class="btn secondary">Повторить</button></div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- Б-10 СТАНДАРТНЫЕ СТРАНИЦЫ DJANGO -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-10</span><h2>Стандартные страницы Django-админки</h2><span class="state">список журнала · вход по SSO</span></div>
+    <div class="canvas"><div class="app dj">
+      <div class="dj-header"><a class="brand" href="#"><span class="brand-mark" style="background:rgba(255,255,255,.14)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#232A31" stroke-width="1.6"/></svg></span><strong style="color:#fff;font-size:14px">Онлайн-гимназия · Backoffice</strong></a><span class="crumb">Журнал действий</span><div class="user"><a href="05-portal-admin.html">← Портал</a><span>Ольга Дементьева</span><a href="#">Выйти</a></div></div>
+      <div class="dj-body">
+        <aside class="dj-side"><div class="cap">Служебное</div><a href="#">Главная</a><a class="current" href="#">Журнал действий</a></aside>
+        <main class="dj-main">
+          <div class="dj-breadcrumbs"><a href="#">Администрирование</a> › Журнал действий</div>
+          <h1>Журнал действий</h1>
+          <p class="subtitle">Только для чтения: записи создаются автоматически.</p>
+          <div class="dj-tools">
+            <input class="input" style="max-width:260px" placeholder="Поиск по сотруднику или коду">
+            <select class="select" style="max-width:200px"><option>Все действия</option><option>create_user</option><option>link_parent_student</option></select>
+            <select class="select" style="max-width:160px"><option>Успешно</option><option>С ошибкой</option></select>
+            <button class="btn small">Применить</button>
+          </div>
+          <div class="table-wrap"><table class="t">
+            <tr><th>Время</th><th>Сотрудник</th><th>Действие</th><th>Результат</th><th>Код</th></tr>
+            <tr><td class="muted" style="white-space:nowrap">19.11 09:41</td><td>Дементьева О. С.</td><td>create_user</td><td><span class="badge green"><i class="dot"></i>Успешно</span></td><td class="muted" style="font-family:ui-monospace,monospace;font-size:12px">—</td></tr>
+            <tr><td class="muted" style="white-space:nowrap">18.11 17:02</td><td>Дементьева О. С.</td><td>link_parent_student</td><td><span class="badge green"><i class="dot"></i>Успешно</span></td><td class="muted" style="font-family:ui-monospace,monospace;font-size:12px">—</td></tr>
+            <tr><td class="muted" style="white-space:nowrap">18.11 12:15</td><td>Дементьева О. С.</td><td>create_user</td><td><span class="badge red"><i class="dot"></i>Ошибка</span></td><td class="muted" style="font-family:ui-monospace,monospace;font-size:12px">gateway_result_unknown</td></tr>
+          </table></div>
+          <p class="hint" style="margin-top:12px">Строки журнала нельзя изменить или удалить из интерфейса — записи только читаются.</p>
+        </main>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="shot">
+    <div class="shot-label"><span class="num">Б-10b</span><h2>Вход в Backoffice и подтверждение действия</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px;background:var(--sunken)">
+      <div class="shots-row" style="gap:16px">
+        <div class="card pad" style="max-width:400px;margin:0 auto">
+          <div style="text-align:center;margin-bottom:16px">
+            <span class="brand-mark" style="margin:0 auto 12px;width:42px;height:42px;border-radius:12px"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span>
+            <h2 style="font:600 18px var(--font-ui)">Вход для сотрудников</h2>
+            <p class="small muted" style="margin-top:6px">Backoffice принимает сотрудников школы. Ученики и родители входят на портале.</p>
+          </div>
+          <div class="field"><label>Email</label><input class="input" placeholder="name@example.com"></div>
+          <div class="field"><label>Пароль</label><input class="input" type="password" placeholder="••••••••"></div>
+          <button class="btn" style="width:100%">Войти</button>
+          <p class="hint" style="margin-top:14px;text-align:center">Если вы уже вошли на портале, переход в админку происходит автоматически.</p>
+        </div>
+        <div class="dialog" style="max-width:440px">
+          <h3>Подтверждение действия</h3>
+          <p class="desc">Пример стандартного подтверждения Django перед необратимой операцией.</p>
+          <div class="confirm-box"><p class="small">Вы собираетесь снять преподавателя <b>Соколову Е. В.</b> с класса <b>7А</b>. Активные уроки сохранятся в расписании.</p></div>
+          <div class="form-actions mt"><button class="btn danger">Да, снять</button><button class="btn secondary">Нет, отмена</button></div>
+        </div>
+        <div class="card pad" style="max-width:400px">
+          <div class="panel-head"><div><span class="kicker">Ошибка доступа</span><h2>Недостаточно прав</h2></div></div>
+          <div class="alert error"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h7V5a7 7 0 1 0 7 7h-7v7a7 7 0 1 1-7-7Z"/></svg><div>Раздел доступен только сотрудникам с правами администратора. Если права должны быть — обратитесь к администратору школы.</div></div>
+          <a class="btn secondary small" href="#">Вернуться на главную</a>
+        </div>
+      </div>
+    </div></div>
+  </section>
+</div>
+</body>
+</html>

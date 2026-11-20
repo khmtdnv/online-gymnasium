@@ -13,6 +13,7 @@ from gateway_service.application.homework_answers import (
     HomeworkAnswerInput,
     HomeworkAnswerResult,
     HomeworkAnswerReviewInput,
+    TeacherReviewPage,
 )
 
 ERRORS = {
@@ -32,6 +33,29 @@ class HomeworkAnswersClient:
         """Использует пул, жизненным циклом которого управляет приложение."""
         self._http_client = http_client
         self._service_token = service_token
+
+    async def review_queue(self, teacher_id: UUID, cursor: int) -> TeacherReviewPage:
+        try:
+            response = await self._http_client.get(
+                "/internal/homework/review-queue",
+                headers={
+                    "Authorization": f"Bearer {self._service_token}",
+                    "X-User-ID": str(teacher_id),
+                    "X-User-Role": "teacher",
+                },
+                params={"cursor": cursor},
+                timeout=30.0,
+                follow_redirects=False,
+            )
+            response.raise_for_status()
+            page = TeacherReviewPage.model_validate_json(response.content)
+            if len(page.items) > 100 or (
+                page.next_cursor is not None and page.next_cursor <= cursor
+            ):
+                raise ValueError("Invalid review page")
+            return page
+        except (httpx.HTTPError, ValidationError, ValueError) as exc:
+            raise HomeworkUnavailableError from exc
 
     async def _request(
         self,

@@ -1,17 +1,17 @@
 :root {
-  --canvas: #f0f2ed;
-  --sidebar: #f9fbf7;
-  --surface: #fffefa;
-  --text: #223b36;
-  --muted: #62706a;
-  --accent: #17645c;
-  --accent-hover: #12564f;
-  --accent-soft: #e2eee8;
-  --peach: #f4d9c6;
-  --border: #dde5df;
+  --canvas: #f3f5f7;
+  --sidebar: #ffffff;
+  --surface: #ffffff;
+  --text: #232a31;
+  --muted: #5a6672;
+  --accent: #2f5d7e;
+  --accent-hover: #244963;
+  --accent-soft: #e4eef5;
+  --peach: #e8f0f2;
+  --border: #dfe5ea;
   --danger: #a33630;
   --danger-soft: #fff0ec;
   --success: #24634a;
-  --radius: 24px;
+  --radius: 16px;
   --font-sans: 'Manrope', system-ui, sans-serif;
 }

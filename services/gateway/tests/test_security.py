@@ -116,6 +116,9 @@ def test_teacher_only_route_enforces_current_user_role(
             "id": str(user.id),
             "email": "teacher@example.com",
             "role": "teacher",
+            "first_name": "Тестовый",
+            "last_name": "Пользователь",
+            "middle_name": "",
         }
         assert reached == [user.id]
     else:

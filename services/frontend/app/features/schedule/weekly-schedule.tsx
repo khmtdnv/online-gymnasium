@@ -96,7 +96,7 @@ export function WeeklySchedule({
                   {formatSchoolDay(day.date, { weekday: 'long', month: undefined, day: undefined })}
                 </h2>
                 <span>{formatSchoolDay(day.date)}</span>
-                {day.date === today && <span className="badge">Сегодня</span>}
+                {day.date === today && <span className="week-today-label">Сегодня</span>}
               </header>
               <div className="day-lessons">
                 {day.lessons.map((lesson) => (

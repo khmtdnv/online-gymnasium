@@ -6,10 +6,12 @@ import {
   GraduationCap,
   UserRound,
 } from 'lucide-react';
-import { Link, Navigate } from 'react-router';
+import { Link } from 'react-router';
 import { PageHeader } from '../components/page-header';
 import { Alert } from '../components/ui/alert';
 import { useSession } from '../features/auth/session-context';
+import { StudentDay } from '../features/dashboard/student-day';
+import { TeacherDay } from '../features/dashboard/teacher-day';
 import type { CurrentUser } from '../lib/api/contracts';
 
 export function HomeContent({ user }: { user: CurrentUser }) {
@@ -114,7 +116,7 @@ export function HomeContent({ user }: { user: CurrentUser }) {
 
 export default function Home() {
   const { state } = useSession();
-  if (state.status === 'authenticated' && ['student', 'teacher'].includes(state.user.role))
-    return <Navigate to="/my-schedule" replace />;
+  if (state.status === 'authenticated' && state.user.role === 'student') return <StudentDay />;
+  if (state.status === 'authenticated' && state.user.role === 'teacher') return <TeacherDay />;
   return state.status === 'authenticated' ? <HomeContent user={state.user} /> : null;
 }

@@ -35,8 +35,16 @@ test('личные уведомления: прочтение обновляет
   await page.goto('/notifications');
   await expect(page.getByRole('heading', { level: 1, name: 'Уведомления' })).toBeVisible();
   await expect(page.getByText('Непрочитанных: 1', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Отметить прочитанным' }).click();
+  await page.getByRole('button', { name: 'Уведомления: непрочитанных 1' }).click();
+  const popup = page.getByRole('dialog', { name: 'Уведомления' });
+  await expect(popup.getByText('Домашнее задание проверено')).toBeVisible();
+  await expect(popup.getByRole('link', { name: 'Открыть' })).toHaveAttribute('href', '/homework/7');
+  await popup.getByRole('button', { name: 'Прочитать показанные' }).click();
   await expect(page.getByText('Непрочитанных: 0', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Уведомления', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(popup).not.toBeVisible();
+  await expect(page).toHaveURL(/\/notifications$/);
   await expect(page.getByRole('button', { name: 'Отметить прочитанным' })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Открыть', exact: true })).toHaveAttribute(
     'href',
