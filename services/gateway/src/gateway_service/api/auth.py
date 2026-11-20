@@ -81,8 +81,16 @@ async def login(
         password=request_model.password,
         previous_refresh_token=refresh_token,
     )
+    throttle = request.app.state.login_throttle
+    if throttle.is_blocked(command.email):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many failed login attempts",
+            headers={"Retry-After": str(throttle.retry_after_seconds(command.email))},
+        )
     try:
         result = await handler.handle(command)
+        throttle.reset(command.email)
         set_refresh_cookie(
             response=response,
             token=result.refresh_token,
@@ -92,6 +100,7 @@ async def login(
         return LoginResponse(access_token=result.access_token)
 
     except AuthenticationError as exc:
+        throttle.register_failure(command.email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",

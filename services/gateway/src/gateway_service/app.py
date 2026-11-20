@@ -22,6 +22,7 @@ from gateway_service.infrastructure.document_client import DocumentClient
 from gateway_service.infrastructure.homework_client import HomeworkClient
 from gateway_service.infrastructure.homework_file_client import HomeworkFileClient
 from gateway_service.infrastructure.journal_client import JournalClient
+from gateway_service.infrastructure.login_throttle import LoginThrottle
 from gateway_service.infrastructure.notification_client import NotificationClient
 from gateway_service.infrastructure.pen_client import PenClient
 from gateway_service.infrastructure.schedule_client import ScheduleClient
@@ -333,6 +334,7 @@ def create_app(
             404: "not_found",
             409: "conflict",
             422: "validation_error",
+            429: "rate_limit_exceeded",
         }
         message = (
             exc.detail
@@ -394,6 +396,10 @@ def create_app(
     app.state.uow_factory = uow_factory
     app.state.password_service = password_service
     app.state.token_service = token_service
+    app.state.login_throttle = LoginThrottle(
+        max_failures=settings.login_throttle_max_failures,
+        window_seconds=settings.login_throttle_window_seconds,
+    )
     app.state.homework_client = homework_client
     app.state.injected_homework_client = homework_client
     app.state.homework_file_client = homework_file_client

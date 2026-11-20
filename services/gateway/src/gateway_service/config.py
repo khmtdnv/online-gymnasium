@@ -33,5 +33,7 @@ class GatewaySettings(BaseSettings):
     refresh_token_ttl_seconds: int = 7 * 24 * 60 * 60
     refresh_cookie_secure: bool = False
     public_origin: str = "http://localhost:8080"
+    login_throttle_max_failures: int = 10
+    login_throttle_window_seconds: int = 15 * 60
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
