@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import { WeeklySchedule } from '../app/features/schedule/weekly-schedule';
@@ -34,8 +34,12 @@ it('показывает школьную неделю, названия и пе
       />
     </MemoryRouter>,
   );
-  expect(screen.getByRole('link', { name: /Математика/ })).toHaveAttribute('href', '/lessons/1');
-  expect(screen.getByText('09:00–09:45')).toBeInTheDocument();
+  const sheet = document.querySelector('.week-sheet') as HTMLElement;
+  expect(within(sheet).getByRole('link', { name: /Математика/ })).toHaveAttribute(
+    'href',
+    '/lessons/1',
+  );
+  expect(sheet.textContent).toContain('09:00–09:45');
   expect(screen.getAllByText('Уроков нет')).toHaveLength(5);
   fireEvent.click(screen.getByRole('button', { name: 'Следующая неделя' }));
   expect(change).toHaveBeenCalledWith('2026-10-26');

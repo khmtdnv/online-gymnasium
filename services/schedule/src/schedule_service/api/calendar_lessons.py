@@ -110,6 +110,21 @@ class SubjectResponse(BaseModel):
     name: str | None
 
 
+@router.get(
+    "/internal/subjects",
+    response_model=list[SubjectResponse],
+    dependencies=[Depends(require_gateway)],
+)
+async def list_subjects(request: Request) -> list[SubjectResponse]:
+    """Возвращает весь справочник предметов только для Gateway."""
+    try:
+        async with request.app.state.uow_factory() as uow:
+            subjects = await uow.subjects.list_all()
+    except (SQLAlchemyError, OSError) as exc:
+        raise HTTPException(503, "Schedule unavailable") from exc
+    return [SubjectResponse(**asdict(subject)) for subject in subjects]
+
+
 @router.post(
     "/internal/subjects/lookup",
     response_model=list[SubjectResponse],

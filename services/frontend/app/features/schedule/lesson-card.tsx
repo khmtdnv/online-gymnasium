@@ -1,11 +1,20 @@
 import { Link } from 'react-router';
 import type { LessonCardData } from './my-schedule-api';
 import { schoolTime } from './school-dates';
-export function LessonCard({ lesson }: { lesson: LessonCardData }) {
+export function LessonCard({
+  lesson,
+  compact = false,
+}: {
+  lesson: LessonCardData;
+  compact?: boolean;
+}) {
   return (
     <Link
       to={`/lessons/${lesson.id}`}
-      className={`calendar-lesson${lesson.status === 'canceled' ? ' is-canceled' : ''}`}
+      data-subject={lesson.subject_name}
+      className={`calendar-lesson${compact ? ' calendar-lesson--compact' : ''}${
+        lesson.status === 'canceled' ? ' is-canceled' : ''
+      }`}
     >
       <span className="lesson-time">
         {schoolTime(lesson.starts_at)}–{schoolTime(lesson.ends_at)}

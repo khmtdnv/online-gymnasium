@@ -21,6 +21,7 @@ from gateway_service.api.internal_users import router as internal_users_router
 from gateway_service.api.my_schedule import router as my_schedule_router
 from gateway_service.api.notifications import router as notifications_router
 from gateway_service.api.pen import router as pen_router
+from gateway_service.api.schedule_admin import router as schedule_admin_router
 from gateway_service.api.student_homework import router as student_homework_router
 from gateway_service.api.teacher_lessons import router as teacher_lessons_router
 from gateway_service.api.tuition_access import require_learning_access
@@ -54,6 +55,7 @@ router.include_router(teacher_lessons_router)
 router.include_router(
     my_schedule_router, dependencies=[Depends(require_learning_access)]
 )
+router.include_router(schedule_admin_router)
 router.include_router(
     homework_list_router, dependencies=[Depends(require_learning_access)]
 )

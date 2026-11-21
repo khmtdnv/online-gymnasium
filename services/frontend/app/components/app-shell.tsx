@@ -34,8 +34,9 @@ export function Brand() {
           <path d="M12 6.2v13.2" stroke="var(--accent)" strokeWidth="1.6" />
         </svg>
       </span>
-      <div>
+      <div className="brand-text">
         <strong>Онлайн-гимназия</strong>
+        <span>Академический реестр</span>
       </div>
     </Link>
   );
@@ -70,7 +71,7 @@ export function AppShell({
     }
   }
   const links = [
-    { to: '/', label: 'Главная', icon: LayoutDashboard },
+    { to: '/', label: 'Сегодня', icon: LayoutDashboard },
     ...(user.role === 'admin'
       ? [
           { to: '/schedule', label: 'Расписание', icon: CalendarDays },
@@ -80,7 +81,11 @@ export function AppShell({
       : []),
     ...(['teacher', 'student'].includes(user.role)
       ? [
-          { to: '/schedule', label: 'Моё расписание', icon: CalendarDays },
+          {
+            to: '/schedule',
+            label: user.role === 'student' ? 'Моё расписание' : 'Расписание',
+            icon: CalendarDays,
+          },
           {
             to: '/homework',
             label: user.role === 'teacher' ? 'Уроки и проверка ДЗ' : 'Домашние задания',
@@ -89,7 +94,7 @@ export function AppShell({
         ]
       : []),
     ...(['student', 'parent'].includes(user.role)
-      ? [{ to: '/billing', label: 'Оплата обучения', icon: Files }]
+      ? [{ to: '/billing', label: 'Оплата и биллинг', icon: Files }]
       : []),
   ];
   const navigation = (
@@ -221,6 +226,13 @@ export function AppShell({
           )}
           {children}
         </main>
+        <footer className="site-footer">
+          <span>Онлайн-гимназия — единый портал академического сопровождения</span>
+          <span className="site-footer-links">
+            <Link to="/notifications">Уведомления</Link>
+            <Link to="/profile">Профиль</Link>
+          </span>
+        </footer>
       </div>
     </div>
   );

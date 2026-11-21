@@ -53,6 +53,7 @@ export function HomeworkList({
               <Link
                 to={`/homework/${row.id}`}
                 key={row.id}
+                data-subject={row.subject_name}
                 className={`homework-row${key === 'overdue' ? ' is-overdue' : ''}`}
               >
                 <div className="homework-row-content">

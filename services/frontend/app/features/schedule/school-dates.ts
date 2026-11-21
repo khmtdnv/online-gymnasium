@@ -37,3 +37,14 @@ export function schoolTime(instant: string): string {
 export function schoolDatetime(instant: string): string {
   return `${formatSchoolDay(schoolDay(new Date(instant)))} в ${schoolTime(instant)}`;
 }
+
+/** Час начала урока по школьному времени (для колонок недельного листа). */
+export function schoolHour(instant: string): number {
+  return Number(
+    new Intl.DateTimeFormat('ru-RU', {
+      hour: '2-digit',
+      hour12: false,
+      timeZone: schoolTimezone,
+    }).format(new Date(instant)),
+  );
+}

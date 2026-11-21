@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "tertiary-fixed-dim": "#ffb596", "surface-dim": "#d8dade", "surface-variant": "#e1e2e6", "tertiary": "#712800", "surface-container": "#eceef2", "on-primary-container": "#afceff", "primary": "#004077", "surface-container-low": "#f2f3f7", "primary-fixed": "#d4e3ff", "secondary-fixed-dim": "#bfc7d2", "outline-variant": "#c2c6d1", "inverse-surface": "#2e3134", "on-tertiary-fixed-variant": "#7d2d00", "secondary": "#575f68", "primary-container": "#245892", "on-error": "#ffffff", "on-primary": "#ffffff", "surface-container-high": "#e7e8ec", "surface-container-highest": "#e1e2e6", "on-tertiary-fixed": "#360f00", "tertiary-fixed": "#ffdbcd", "surface-bright": "#f8f9fd", "error": "#ba1a1a", "secondary-fixed": "#dbe3ee", "outline": "#727781", "on-secondary-container": "#5d656e", "secondary-container": "#dbe3ee", "on-tertiary-container": "#ffbea3", "tertiary-container": "#973800", "on-surface-variant": "#424750", "surface-tint": "#2e609a", "on-tertiary": "#ffffff", "on-primary-fixed-variant": "#094881", "background": "#f8f9fd", "on-secondary-fixed-variant": "#404850", "primary-fixed-dim": "#a4c9ff", "surface": "#f8f9fd", "inverse-primary": "#a4c9ff", "on-surface": "#191c1f", "surface-container-lowest": "#ffffff", "inverse-on-surface": "#eff1f5", "on-secondary-fixed": "#141c24", "on-error-container": "#93000a", "on-secondary": "#ffffff", "on-background": "#191c1f", "error-container": "#ffdad6", "on-primary-fixed": "#001c39" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "space-sm": "0.5rem", "margin-desktop": "2.5rem", "space-xs": "0.25rem", "gutter": "1rem", "space-lg": "1.5rem", "space-md": "1rem", "gutter-desktop": "1.5rem", "space-xl": "2.5rem", "margin": "1rem" }, fontFamily: { "label-md": ["Manrope"], "headline-lg": ["\"Source Serif 4\""], "body-lg": ["Manrope"], "body-md": ["Manrope"], "headline-md": ["\"Source Serif 4\""], "headline-lg-mobile": ["\"Source Serif 4\""], "code-num": ["Manrope"], "headline-sm": ["\"Source Serif 4\""], "display": ["\"Source Serif 4\""], "body-sm": ["Manrope"], "label-sm": ["Manrope"] }, fontSize: { "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.04em", fontWeight: "600" }], "headline-lg": ["28px", { lineHeight: "36px", letterSpacing: "-0.01em", fontWeight: "600" }], "body-lg": ["16px", { lineHeight: "26px", fontWeight: "400" }], "body-md": ["14px", { lineHeight: "22px", fontWeight: "400" }], "headline-md": ["22px", { lineHeight: "28px", fontWeight: "600" }], "headline-lg-mobile": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }], "code-num": ["14px", { lineHeight: "20px", letterSpacing: "-0.02em", fontWeight: "600" }], "headline-sm": ["18px", { lineHeight: "24px", fontWeight: "600" }], "display": ["36px", { lineHeight: "44px", letterSpacing: "-0.015em", fontWeight: "600" }], "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }], "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "500" }] } } } };</script></head><body class="bg-background font-body-md text-body-md text-on-surface min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 max-w-[1360px] mx-auto px-margin-desktop flex items-center justify-between"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-primary text-[28px]">menu_book</span><span class="font-headline-sm text-headline-sm text-primary tracking-tight">Онлайн-гимназия</span></div><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary font-label-md text-label-md rounded"><a class="px-space-md py-space-sm font-label-md text-label-md text-on-surface-variant hover:text-on-surface rounded transition-colors" data-path="today" href="#">Сегодня</a><a class="px-space-md py-space-sm font-label-md text-label-md text-on-surface-variant hover:text-on-surface rounded transition-colors" data-path="schedule" href="#">Расписание</a><a class="px-space-md py-space-sm font-label-md text-label-md text-on-surface-variant hover:text-on-surface rounded transition-colors" data-path="homework" href="#">Домашние задания</a><a class="px-space-md py-space-sm font-label-md text-label-md text-on-surface-variant hover:text-on-surface rounded transition-colors" data-path="billing" href="#">Оплата и биллинг</a><a class="px-space-md py-space-sm font-label-md text-label-md text-on-surface-variant hover:text-on-surface rounded transition-colors" data-path="administration" href="#">Администрирование</a></nav></div><div class="flex items-center gap-space-lg"><button class="relative p-space-xs text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error ring-2 ring-surface-container-lowest"></span></button><div class="flex items-center gap-space-md"><div class="text-right hidden sm:block"><div class="font-label-md text-label-md text-on-surface">Артём Иванов</div><div class="font-body-sm text-body-sm text-secondary">7 «А» класс</div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-100px)]"><div class="flex flex-col w-full pb-16">
+<!-- Top Metabar & Role Header -->
+<div class="w-full bg-surface-container-low px-margin-desktop py-space-md shadow-sm">
+<div class="max-w-[1360px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded bg-primary-container text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+</div>
+<div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Служебный реестр</span>
+<span class="w-1 h-1 rounded-full bg-outline"></span>
+<span class="font-code-num text-code-num text-primary">SEC-AUDIT-2027-Q2</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface">Ковалёв С. П. (Главный администратор)</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="bg-surface-container-lowest px-space-md py-space-xs rounded shadow-sm flex items-center gap-space-sm text-secondary">
+<span class="material-symbols-outlined text-[16px] text-primary">schedule</span>
+<span class="font-label-md text-label-md">UTC+5 (Екатеринбург, GMT+5)</span>
+</div>
+<div class="bg-surface-container-lowest px-space-md py-space-xs rounded shadow-sm flex items-center gap-space-sm">
+<span class="w-2 h-2 rounded-full bg-[#2F855A]"></span>
+<span class="font-label-md text-label-md text-on-surface">Шлюз аудита активен</span>
+</div>
+</div>
+</div>
+</div>
+<div class="max-w-[1360px] w-full mx-auto px-margin-desktop mt-space-lg flex flex-col gap-space-lg">
+<!-- Title & Primary Filter Navigation -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div>
+<div class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Государственная аккредитация № 481-Г</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mt-space-xs">Сводная академическая успеваемость и журнал системного аудита</h1>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container-high p-1 rounded">
+<button class="px-space-md py-space-sm rounded font-label-md text-label-md transition-all bg-surface-container-lowest text-primary shadow-sm flex items-center gap-space-xs" id="tab-btn-academic" onclick="switchTab('academic')">
+<span class="material-symbols-outlined text-[18px]">table_chart</span>
+          Сводный журнал успеваемости
+        </button>
+<button class="px-space-md py-space-sm rounded font-label-md text-label-md transition-all text-on-surface-variant hover:text-on-surface flex items-center gap-space-xs" id="tab-btn-audit" onclick="switchTab('audit')">
+<span class="material-symbols-outlined text-[18px]">security</span>
+          Реестр аудита транзакций (Security Log)
+        </button>
+</div>
+</div>
+<!-- TAB 1: ACADEMIC PERFORMANCE SUMMARY -->
+<div class="flex flex-col gap-space-lg" id="tab-content-academic">
+<!-- High-level KPI Ledger Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-space-md">
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#2B6CB0]"></div>
+<div class="font-label-sm text-label-sm text-secondary uppercase">Качество знаний (II четв.)</div>
+<div class="font-display text-display text-on-surface mt-space-xs">78.4%</div>
+<div class="flex items-center gap-space-xs mt-space-xs text-secondary font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-[#2F855A]">trending_up</span>
+<span class="text-on-surface font-code-num">+2.1%</span> относительно I четверти
+          </div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#2F855A]"></div>
+<div class="font-label-sm text-label-sm text-secondary uppercase">Сдача ДЗ в срок</div>
+<div class="font-display text-display text-on-surface mt-space-xs">96.4%</div>
+<div class="flex items-center gap-space-xs mt-space-xs text-secondary font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">assignment_turned_in</span>
+<span class="text-on-surface font-code-num">1 420 из 1 473</span> проверено
+          </div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#C05621]"></div>
+<div class="font-label-sm text-label-sm text-secondary uppercase">Средневзвешенный балл</div>
+<div class="font-display text-display text-on-surface mt-space-xs">4.38</div>
+<div class="flex items-center gap-space-xs mt-space-xs text-secondary font-body-sm text-body-sm">
+<span class="font-code-num text-on-surface">5-балльная</span> академическая шкала
+          </div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#6B46C1]"></div>
+<div class="font-label-sm text-label-sm text-secondary uppercase">Академ. задолженности</div>
+<div class="font-display text-display text-on-surface mt-space-xs">0</div>
+<div class="flex items-center gap-space-xs mt-space-xs text-secondary font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-[#2F855A]">verified</span>
+<span class="text-on-surface">100%</span> аттестация контингента
+          </div>
+</div>
+</div>
+<!-- Main Academic Table / Register -->
+<div class="bg-surface-container-lowest rounded shadow-sm overflow-hidden">
+<div class="p-space-md bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface">Сводный академический регистр по параллелям</div>
+<div class="font-body-sm text-body-sm text-secondary">Учебный период: II четверть 2026/2027 учебного года (Очная онлайн-программа)</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md h-10 rounded bg-surface-container-lowest text-on-surface font-label-md text-label-md shadow-sm hover:bg-surface-container transition-colors flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+              Экспорт ведомости (XLSX)
+            </button>
+<button class="px-space-md h-10 rounded bg-primary text-on-primary font-label-md text-label-md shadow-sm hover:bg-primary-container transition-colors flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px]">print</span>
+              Печать в архив
+            </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-md text-body-md">
+<thead>
+<tr class="bg-surface-container-high text-secondary font-label-md text-label-md uppercase tracking-wider">
+<th class="py-space-sm px-space-md w-24">Класс</th>
+<th class="py-space-sm px-space-md">Куратор / Классный руководитель</th>
+<th class="py-space-sm px-space-md text-center">Контингент</th>
+<th class="py-space-sm px-space-md text-center">Средний балл</th>
+<th class="py-space-sm px-space-md text-center">Качество знаний</th>
+<th class="py-space-sm px-space-md text-center">Сдача ДЗ (%)</th>
+<th class="py-space-sm px-space-md text-center">Задолженности</th>
+<th class="py-space-sm px-space-md text-right">Статус ведомости</th>
+</tr>
+</thead>
+<tbody class="text-on-surface">
+<!-- 7 А -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-space-md px-space-md font-headline-sm text-headline-sm text-primary">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-6 rounded-full bg-[#2B6CB0]"></span>
+                    7 «А»
+                  </div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">Морозова Екатерина Ильинична</div>
+<div class="font-body-sm text-body-sm text-secondary">Учитель русского языка и литературы</div>
+</td>
+<td class="py-space-md px-space-md text-center font-code-num text-code-num">24 уч.</td>
+<td class="py-space-md px-space-md text-center">
+<div class="inline-flex items-center justify-center w-8 h-8 rounded bg-surface-container text-on-surface font-headline-sm text-headline-sm">4.42</div>
+</td>
+<td class="py-space-md px-space-md text-center font-code-num text-code-num text-[#2F855A]">83.3%</td>
+<td class="py-space-md px-space-md text-center">
+<div class="flex items-center justify-center gap-space-xs font-code-num text-code-num">
+<span>97.8%</span>
+<span class="material-symbols-outlined text-[14px] text-[#2F855A]">check_circle</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<span class="px-space-sm py-0.5 rounded bg-surface-container text-secondary font-label-sm text-label-sm">Отсутствуют</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="inline-flex items-center gap-1 px-space-sm py-1 rounded bg-[#F0FFF4] text-[#2F855A] font-label-sm text-label-sm uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-[#2F855A]"></span>
+                    Утверждена
+                  </span>
+</td>
+</tr>
+<!-- 7 Б -->
+<tr class="hover:bg-surface-container-low transition-colors bg-surface-container-lowest">
+<td class="py-space-md px-space-md font-headline-sm text-headline-sm text-primary">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-6 rounded-full bg-[#2B6CB0]"></span>
+                    7 «Б»
+                  </div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">Соколов Арсений Давидович</div>
+<div class="font-body-sm text-body-sm text-secondary">Учитель алгебры и геометрии</div>
+</td>
+<td class="py-space-md px-space-md text-center font-code-num text-code-num">22 уч.</td>
+<td class="py-space-md px-space-md text-center">
+<div class="inline-flex items-center justify-center w-8 h-8 rounded bg-surface-container text-on-surface font-headline-sm text-headline-sm">4.18</div>
+</td>
+<td class="py-space-md px-space-md text-center font-code-num text-code-num text-on-surface">72.7%</td>
+<td class="py-space-md px-space-md text-center">
+<div class="flex items-center justify-center gap-space-xs font-code-num text-code-num">
+<span>94.1%</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">schedule</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<span class="px-space-sm py-0.5 rounded bg-surface-container text-secondary font-label-sm text-label-sm">Отсутствуют</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="inline-flex items-center gap-1 px-space-sm py-1 rounded bg-[#F0FFF4] text-[#2F855A] font-label-sm text-label-sm uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-[#2F855A]"></span>
+                    Утверждена
+                  </span>
+</td>
+</tr>
+<!-- 8 А -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-space-md px-space-md font-headline-sm text-headline-sm text-primary">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-6 rounded-full bg-[#2F855A]"></span>
+                    8 «А»
+                  </div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">Власова Мария Леонидовна</div>
+<div class="font-body-sm text-body-sm text-secondary">Учитель биологии и химии</div>
+</td>
+<td class="py-space-md px-space-md text-center font-code-num text-code-num">26 уч.</td>
+<td class="py-space-md px-space-md text-center">
+<div class="inline-flex items-center justify-center w-8 h-8 rounded bg-surface-container text-on-surface font-headline-sm text-headline-sm">4.35</div>
+</td>
+<td class="py-space-md px-space-md text-center font-code-num text-code-num text-[#2F855A]">76.9%</td>
+<td class="py-space-md px-space-md text-center">
+<div class="flex items-center justify-center gap-space-xs font-code-num text-code-num">
+<span>96.5%</span>
+<span class="material-symbols-outlined text-[14px] text-[#2F855A]">check_circle</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<span class="px-space-sm py-0.5 rounded bg-surface-container text-secondary font-label-sm text-label-sm">Отсутствуют</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="inline-flex items-center gap-1 px-space-sm py-1 rounded bg-[#F0FFF4] text-[#2F855A] font-label-sm text-label-sm uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-[#2F855A]"></span>
+                    Утверждена
+                  </span>
+</td>
+</tr>
+<!-- 9 А -->
+<tr class="hover:bg-surface-container-low transition-colors bg-surface-container-lowest">
+<td class="py-space-md px-space-md font-headline-sm text-headline-sm text-primary">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-6 rounded-full bg-[#C05621]"></span>
+                    9 «А»
+                  </div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">Горбунов Владислав Павлович</div>
+<div class="font-body-sm text-body-sm text-secondary">Учитель истории и обществознания</div>
+</td>
+<td class="py-space-md px-space-md text-center font-code-num text-code-num">25 уч.</td>
+<td class="py-space-md px-space-md text-center">
+<div class="inline-flex items-center justify-center w-8 h-8 rounded bg-surface-container text-on-surface font-headline-sm text-headline-sm">4.26</div>
+</td>
+<td class="py-space-md px-space-md text-center font-code-num text-code-num text-[#2F855A]">80.0%</td>
+<td class="py-space-md px-space-md text-center">
+<div class="flex items-center justify-center gap-space-xs font-code-num text-code-num">
+<span>95.2%</span>
+<span class="material-symbols-outlined text-[14px] text-[#2F855A]">check_circle</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<span class="px-space-sm py-0.5 rounded bg-surface-container text-secondary font-label-sm text-label-sm">Отсутствуют</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="inline-flex items-center gap-1 px-space-sm py-1 rounded bg-[#FFFAF0] text-[#975A16] font-label-sm text-label-sm uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-[#975A16]"></span>
+                    На проверке
+                  </span>
+</td>
+</tr>
+<!-- 10 А профиль -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-space-md px-space-md font-headline-sm text-headline-sm text-primary">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-6 rounded-full bg-[#6B46C1]"></span>
+                    10 «А» <span class="font-label-sm text-label-sm text-secondary font-normal uppercase">Техно</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">Рябинин Кирилл Сергеевич</div>
+<div class="font-body-sm text-body-sm text-secondary">Учитель информатики и физики</div>
+</td>
+<td class="py-space-md px-space-md text-center font-code-num text-code-num">19 уч.</td>
+<td class="py-space-md px-space-md text-center">
+<div class="inline-flex items-center justify-center w-8 h-8 rounded bg-surface-container text-on-surface font-headline-sm text-headline-sm">4.62</div>
+</td>
+<td class="py-space-md px-space-md text-center font-code-num text-code-num text-[#2F855A]">89.5%</td>
+<td class="py-space-md px-space-md text-center">
+<div class="flex items-center justify-center gap-space-xs font-code-num text-code-num">
+<span>98.6%</span>
+<span class="material-symbols-outlined text-[14px] text-[#2F855A]">check_circle</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<span class="px-space-sm py-0.5 rounded bg-surface-container text-secondary font-label-sm text-label-sm">Отсутствуют</span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<span class="inline-flex items-center gap-1 px-space-sm py-1 rounded bg-[#F0FFF4] text-[#2F855A] font-label-sm text-label-sm uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-[#2F855A]"></span>
+                    Утверждена
+                  </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-space-md bg-surface-container-low flex flex-col md:flex-row items-center justify-between text-secondary font-body-sm text-body-sm gap-space-sm">
+<div class="flex items-center gap-space-md">
+<span>Всего обучающихся в выборке: <strong class="text-on-surface font-code-num">116</strong></span>
+<span>•</span>
+<span>Преподавательский состав: <strong class="text-on-surface font-code-num">18 педагогов</strong></span>
+</div>
+<div class="font-label-sm text-label-sm">
+            Последняя синхронизация с ФГИС «Моя школа»: 20.02.2027 14:10:02 UTC+5
+          </div>
+</div>
+</div>
+<!-- Pedagogical Analysis & Breakdown Split -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-space-lg">
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-col justify-between">
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface mb-space-xs">Распределение оценок</div>
+<div class="font-body-sm text-body-sm text-secondary mb-space-md">Соотношение итоговых отметок по гимназии</div>
+<div class="flex flex-col gap-space-sm">
+<div>
+<div class="flex justify-between font-label-md text-label-md mb-1">
+<span>Отлично («5»)</span>
+<span class="font-code-num text-primary">48.2% (56)</span>
+</div>
+<div class="w-full h-2 rounded bg-surface-container overflow-hidden">
+<div class="h-full bg-primary" style="width: 48.2%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-md text-label-md mb-1">
+<span>Хорошо («4»)</span>
+<span class="font-code-num text-[#2F855A]">30.2% (35)</span>
+</div>
+<div class="w-full h-2 rounded bg-surface-container overflow-hidden">
+<div class="h-full bg-[#2F855A]" style="width: 30.2%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-md text-label-md mb-1">
+<span>Удовлетворительно («3»)</span>
+<span class="font-code-num text-[#975A16]">21.6% (25)</span>
+</div>
+<div class="w-full h-2 rounded bg-surface-container overflow-hidden">
+<div class="h-full bg-[#975A16]" style="width: 21.6%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-md text-label-md mb-1">
+<span>Неудовлетворительно («2»)</span>
+<span class="font-code-num text-error">0.0% (0)</span>
+</div>
+<div class="w-full h-2 rounded bg-surface-container overflow-hidden">
+<div class="h-full bg-error" style="width: 0%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-space-md mt-space-md bg-surface-container-low -mx-space-md -mb-space-md p-space-md rounded-b">
+<span class="font-label-sm text-label-sm text-secondary">Учебный комитет подтвердил отсутствие критических академических рисков.</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm lg:col-span-2 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-xs">
+<div class="font-headline-sm text-headline-sm text-on-surface">Динамика сдачи домашних заданий по декадам</div>
+<span class="font-label-sm text-label-sm text-secondary">Январь — Февраль 2027</span>
+</div>
+<div class="font-body-sm text-body-sm text-secondary mb-space-md">Процент своевременной отправки работ на проверку через LMS</div>
+<!-- Stylized Minimal Bar Chart SVG -->
+<div class="w-full h-44 flex items-end gap-space-md pt-space-md">
+<div class="flex-1 flex flex-col items-center gap-space-xs h-full justify-end">
+<span class="font-code-num text-code-num text-secondary text-xs">94.8%</span>
+<div class="w-full bg-surface-container rounded-t h-[75%] hover:bg-primary-fixed transition-colors"></div>
+<span class="font-label-sm text-label-sm text-secondary">I дек. янв</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-space-xs h-full justify-end">
+<span class="font-code-num text-code-num text-secondary text-xs">95.2%</span>
+<div class="w-full bg-surface-container rounded-t h-[79%] hover:bg-primary-fixed transition-colors"></div>
+<span class="font-label-sm text-label-sm text-secondary">II дек. янв</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-space-xs h-full justify-end">
+<span class="font-code-num text-code-num text-secondary text-xs">95.9%</span>
+<div class="w-full bg-surface-container rounded-t h-[84%] hover:bg-primary-fixed transition-colors"></div>
+<span class="font-label-sm text-label-sm text-secondary">III дек. янв</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-space-xs h-full justify-end">
+<span class="font-code-num text-code-num text-secondary text-xs">96.1%</span>
+<div class="w-full bg-surface-container rounded-t h-[87%] hover:bg-primary-fixed transition-colors"></div>
+<span class="font-label-sm text-label-sm text-secondary">I дек. фев</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-space-xs h-full justify-end">
+<span class="font-code-num text-code-num text-primary font-bold text-xs">97.3%</span>
+<div class="w-full bg-primary rounded-t h-[95%]"></div>
+<span class="font-label-sm text-label-sm text-primary font-bold">II дек. фев</span>
+</div>
+</div>
+</div>
+<div class="pt-space-md flex items-center justify-between text-secondary font-body-sm text-body-sm">
+<span>Целевой показатель регламента гимназии: <strong class="text-on-surface font-code-num">≥ 95.0%</strong></span>
+<span class="text-[#2F855A] flex items-center gap-1 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Норматив выполнен
+            </span>
+</div>
+</div>
+</div>
+</div>
+<!-- TAB 2: SYSTEM SECURITY & AUDIT LOG -->
+<div class="flex flex-col gap-space-md hidden" id="tab-content-audit">
+<!-- Filter Toolbar -->
+<div class="bg-surface-container-lowest p-space-md rounded shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md">
+<!-- Search Input -->
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-secondary text-[20px]">search</span>
+<input class="w-full h-10 pl-10 pr-space-md bg-surface text-on-surface font-body-md text-body-md rounded placeholder-secondary focus:outline-none focus:bg-surface-container-lowest shadow-inner" placeholder="Поиск по субъекту, IP, идентификатору транзакции или действию..." type="text" value=""/>
+</div>
+<!-- Filter Controls -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded">
+<span class="font-label-sm text-label-sm text-secondary">Инициатор:</span>
+<select class="bg-transparent font-label-md text-label-md text-on-surface focus:outline-none cursor-pointer py-1">
+<option value="all">Все субъекты (Все роли)</option>
+<option selected="" value="admin">Администратор</option>
+<option value="teacher">Учитель</option>
+<option value="parent">Родитель</option>
+<option value="system">Сервер / System Cron</option>
+</select>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded">
+<span class="font-label-sm text-label-sm text-secondary">Период:</span>
+<select class="bg-transparent font-label-md text-label-md text-on-surface focus:outline-none cursor-pointer py-1">
+<option value="today">Текущие сутки</option>
+<option selected="" value="week">Последние 7 дней</option>
+<option value="month">Февраль 2027</option>
+</select>
+</div>
+<button class="h-10 px-space-md bg-surface-container-high hover:bg-surface-variant text-on-surface rounded font-label-md text-label-md transition-colors flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+            Сбросить
+          </button>
+<button class="h-10 px-space-md bg-primary text-on-primary hover:bg-primary-container rounded font-label-md text-label-md transition-colors flex items-center gap-space-xs shadow-sm">
+<span class="material-symbols-outlined text-[18px]">download</span>
+            Выгрузить журнал JSON
+          </button>
+</div>
+</div>
+<!-- Audit Table -->
+<div class="bg-surface-container-lowest rounded shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-md text-body-md">
+<thead>
+<tr class="bg-surface-container-high text-secondary font-label-md text-label-md uppercase tracking-wider">
+<th class="py-space-sm px-space-md w-36">Время (UTC+5 / UTC)</th>
+<th class="py-space-sm px-space-md">Субъект / Пользователь</th>
+<th class="py-space-sm px-space-md">Тип действия (Событие)</th>
+<th class="py-space-sm px-space-md">IP-адрес / Сессия</th>
+<th class="py-space-sm px-space-md text-center">Статус</th>
+<th class="py-space-sm px-space-md text-right w-24">Аудит-дамп</th>
+</tr>
+</thead>
+<tbody class="text-on-surface">
+<!-- Event 1: Student Transfer -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-space-md px-space-md">
+<div class="font-code-num text-code-num text-on-surface">20.02 15:42:19</div>
+<div class="font-label-sm text-label-sm text-secondary">10:42:19 UTC</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">Ковалёв С. П.</div>
+<div class="font-body-sm text-body-sm text-secondary flex items-center gap-1">
+<span class="px-1.5 py-0.2 rounded bg-surface-container text-secondary text-[10px] uppercase font-bold">Администратор</span>
+<span>kovalev@gymnasium.online</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-primary font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">swap_horiz</span>
+                    Перевод ученика в класс
+                  </div>
+<div class="font-body-sm text-body-sm text-secondary">Ученик: Белов М. В. (ID 9802) → Из 7 «Б» в 7 «А»</div>
+</td>
+<td class="py-space-md px-space-md font-code-num text-code-num text-secondary">
+<div>194.226.112.44</div>
+<div class="font-label-sm text-label-sm text-secondary">SES-a98f-410c-99</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded bg-[#F0FFF4] text-[#2F855A] font-code-num text-label-sm font-semibold">
+                    HTTP 200 OK
+                  </span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<button class="p-1.5 rounded hover:bg-surface-container text-primary transition-colors inline-flex items-center justify-center" onclick="togglePayload('payload-1')" title="Показать параметры JSON">
+<span class="material-symbols-outlined text-[20px]">code</span>
+</button>
+</td>
+</tr>
+<!-- Expanded Payload 1 -->
+<tr class="hidden bg-surface-container-low" id="payload-1">
+<td class="p-space-md" colspan="6">
+<div class="bg-inverse-surface text-inverse-on-surface p-space-md rounded font-code-num text-xs overflow-x-auto shadow-inner">
+<div class="text-secondary font-bold uppercase tracking-wider mb-1">Payload inspection [sec.class.transfer]</div>
+<pre class="whitespace-pre-wrap leading-relaxed"><code>{
+  "event_id": "evt_01JN749B2XZY94M4",
+  "initiator_uuid": "usr_kovalev_admin_001",
+  "action": "STUDENT_CLASS_TRANSFER",
+  "target_student_id": 9802,
+  "source_class_id": "CLS-7B-2027",
+  "destination_class_id": "CLS-7A-2027",
+  "pedagogical_order_num": "Пр-114-ОД",
+  "http_status": 200,
+  "auth_token_scope": ["portal.admin.write", "academic.records.manage"],
+  "tls_fingerprint": "TLS_AES_256_GCM_SHA384"
+}</code></pre>
+</div>
+</td>
+</tr>
+<!-- Event 2: Schedule Update -->
+<tr class="hover:bg-surface-container-low transition-colors bg-surface-container-lowest">
+<td class="py-space-md px-space-md">
+<div class="font-code-num text-code-num text-on-surface">20.02 14:18:04</div>
+<div class="font-label-sm text-label-sm text-secondary">09:18:04 UTC</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">Соколов Арсений Д.</div>
+<div class="font-body-sm text-body-sm text-secondary flex items-center gap-1">
+<span class="px-1.5 py-0.2 rounded bg-surface-container text-secondary text-[10px] uppercase font-bold">Учитель</span>
+<span>sokolov.math@gymnasium.online</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-[#2B6CB0] font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-[#2B6CB0]">event_available</span>
+                    Назначение расписания / Смещение пары
+                  </div>
+<div class="font-body-sm text-body-sm text-secondary">Перенос консультации по алгебре (7 «Б») на 22.02 16:00</div>
+</td>
+<td class="py-space-md px-space-md font-code-num text-code-num text-secondary">
+<div>85.143.120.91</div>
+<div class="font-label-sm text-label-sm text-secondary">SES-4091-fe82-12</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded bg-[#F0FFF4] text-[#2F855A] font-code-num text-label-sm font-semibold">
+                    HTTP 200 OK
+                  </span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<button class="p-1.5 rounded hover:bg-surface-container text-primary transition-colors inline-flex items-center justify-center" onclick="togglePayload('payload-2')" title="Показать параметры JSON">
+<span class="material-symbols-outlined text-[20px]">code</span>
+</button>
+</td>
+</tr>
+<!-- Expanded Payload 2 -->
+<tr class="hidden bg-surface-container-low" id="payload-2">
+<td class="p-space-md" colspan="6">
+<div class="bg-inverse-surface text-inverse-on-surface p-space-md rounded font-code-num text-xs overflow-x-auto shadow-inner">
+<div class="text-secondary font-bold uppercase tracking-wider mb-1">Payload inspection [sec.schedule.override]</div>
+<pre class="whitespace-pre-wrap leading-relaxed"><code>{
+  "event_id": "evt_01JN735N1K03GZ55",
+  "initiator_uuid": "usr_teacher_sokolov_044",
+  "action": "SCHEDULE_SLOT_UPDATE",
+  "target_timetable_id": "TT-2027-Q2-7B",
+  "slot_previous": "2027-02-21T15:00:00+05:00",
+  "slot_updated": "2027-02-22T16:00:00+05:00",
+  "subject_code": "MATH-ALG-7",
+  "classroom_id": "VIRTUAL-ROOM-04",
+  "http_status": 200
+}</code></pre>
+</div>
+</td>
+</tr>
+<!-- Event 3: Billing Refund -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-space-md px-space-md">
+<div class="font-code-num text-code-num text-on-surface">20.02 12:05:40</div>
+<div class="font-label-sm text-label-sm text-secondary">07:05:40 UTC</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">Ковалёв С. П.</div>
+<div class="font-body-sm text-body-sm text-secondary flex items-center gap-1">
+<span class="px-1.5 py-0.2 rounded bg-surface-container text-secondary text-[10px] uppercase font-bold">Администратор</span>
+<span>kovalev@gymnasium.online</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-[#712800] font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-tertiary">currency_ruble</span>
+                    Регистрация возврата платежа (Refund)
+                  </div>
+<div class="font-body-sm text-body-sm text-secondary">Договор 2026/A-701, сумма 8 400.00 ₽ (Олимпиадный спецкурс)</div>
+</td>
+<td class="py-space-md px-space-md font-code-num text-code-num text-secondary">
+<div>194.226.112.44</div>
+<div class="font-label-sm text-label-sm text-secondary">SES-a98f-410c-99</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded bg-[#F0FFF4] text-[#2F855A] font-code-num text-label-sm font-semibold">
+                    HTTP 200 OK
+                  </span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<button class="p-1.5 rounded hover:bg-surface-container text-primary transition-colors inline-flex items-center justify-center" onclick="togglePayload('payload-3')" title="Показать параметры JSON">
+<span class="material-symbols-outlined text-[20px]">code</span>
+</button>
+</td>
+</tr>
+<!-- Expanded Payload 3 -->
+<tr class="hidden bg-surface-container-low" id="payload-3">
+<td class="p-space-md" colspan="6">
+<div class="bg-inverse-surface text-inverse-on-surface p-space-md rounded font-code-num text-xs overflow-x-auto shadow-inner">
+<div class="text-secondary font-bold uppercase tracking-wider mb-1">Payload inspection [fin.billing.refund]</div>
+<pre class="whitespace-pre-wrap leading-relaxed"><code>{
+  "event_id": "evt_01JN717H0142MN98",
+  "initiator_uuid": "usr_kovalev_admin_001",
+  "action": "PAYMENT_TRANSACTION_REVERSAL",
+  "order_id": "ORD-20270119-91823",
+  "reversal_amount_rub": 8400.00,
+  "gateway_transaction_id": "YOO-REF-9921448102",
+  "contract_num": "2026/A-701",
+  "payer_parent_id": "PRNT-8812-IVANOVA",
+  "reason_code": "STUDENT_SCHEDULE_CONFLICT",
+  "http_status": 200
+}</code></pre>
+</div>
+</td>
+</tr>
+<!-- Event 4: Password Change / Security Auth -->
+<tr class="hover:bg-surface-container-low transition-colors bg-surface-container-lowest">
+<td class="py-space-md px-space-md">
+</td><td class="py-space-md px-space-md">
+<div class="font-code-num text-code-num text-on-surface">20.02 09:12:11</div>
+<div class="font-label-sm text-label-sm text-secondary">04:12:11 UTC</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">Смирнов В. И. (Родитель)</div>
+<div class="font-body-sm text-body-sm text-secondary flex items-center gap-1">
+<span class="px-1.5 py-0.2 rounded bg-surface-container text-secondary text-[10px] uppercase font-bold">Родитель</span>
+<span>vladimir.smirnov@mail.ru</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-error font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-error">lock_reset</span>
+                    Смена пароля учетной записи
+                  </div>
+<div class="font-body-sm text-body-sm text-secondary">Успешное подтверждение через 2FA SMS-шлюз гимназии</div>
+</td>
+<td class="py-space-md px-space-md font-code-num text-code-num text-secondary">
+<div>178.62.204.15</div>
+<div class="font-label-sm text-label-sm text-secondary">SES-11bc-90e8-03</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded bg-[#F0FFF4] text-[#2F855A] font-code-num text-label-sm font-semibold">
+                    HTTP 200 OK
+                  </span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<button class="p-1.5 rounded hover:bg-surface-container text-primary transition-colors inline-flex items-center justify-center" onclick="togglePayload('payload-4')" title="Показать параметры JSON">
+<span class="material-symbols-outlined text-[20px]">code</span>
+</button>
+</td>
+</tr>
+<!-- Expanded Payload 4 -->
+<tr class="hidden bg-surface-container-low" id="payload-4">
+<td class="p-space-md" colspan="6">
+<div class="bg-inverse-surface text-inverse-on-surface p-space-md rounded font-code-num text-xs overflow-x-auto shadow-inner">
+<div class="text-secondary font-bold uppercase tracking-wider mb-1">Payload inspection [sec.auth.pwd_reset]</div>
+<pre class="whitespace-pre-wrap leading-relaxed"><code>{
+  "event_id": "evt_01JN6Z50K920VA77",
+  "initiator_uuid": "usr_parent_smirnov_904",
+  "action": "CREDENTIAL_UPDATE_PASSWORD",
+  "two_factor_method": "SMS_OTP",
+  "otp_reference_id": "OTP-RU-482109",
+  "client_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+  "session_revoked_count": 2,
+  "http_status": 200
+}</code></pre>
+</div>
+</td>
+</tr>
+<!-- Event 5: System Cron Backup -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-space-md px-space-md">
+<div class="font-code-num text-code-num text-on-surface">20.02 04:00:00</div>
+<div class="font-label-sm text-label-sm text-secondary">23:00:00 UTC</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">SYSTEM_DAEMON_BACKUP</div>
+<div class="font-body-sm text-body-sm text-secondary flex items-center gap-1">
+<span class="px-1.5 py-0.2 rounded bg-surface-container-highest text-secondary text-[10px] uppercase font-bold">Сервер</span>
+<span>cron@node-01.internal</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-secondary font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">dns</span>
+                    Репликация базы данных успеваемости
+                  </div>
+<div class="font-body-sm text-body-sm text-secondary">Автоматический снапшот таблиц оценок и журналов посещаемости</div>
+</td>
+<td class="py-space-md px-space-md font-code-num text-code-num text-secondary">
+<div>127.0.0.1 (local)</div>
+<div class="font-label-sm text-label-sm text-secondary">SYS-JOB-DAILY-04</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded bg-[#F0FFF4] text-[#2F855A] font-code-num text-label-sm font-semibold">
+                    HTTP 200 OK
+                  </span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<button class="p-1.5 rounded hover:bg-surface-container text-primary transition-colors inline-flex items-center justify-center" onclick="togglePayload('payload-5')" title="Показать параметры JSON">
+<span class="material-symbols-outlined text-[20px]">code</span>
+</button>
+</td>
+</tr>
+<!-- Expanded Payload 5 -->
+<tr class="hidden bg-surface-container-low" id="payload-5">
+<td class="p-space-md" colspan="6">
+<div class="bg-inverse-surface text-inverse-on-surface p-space-md rounded font-code-num text-xs overflow-x-auto shadow-inner">
+<div class="text-secondary font-bold uppercase tracking-wider mb-1">Payload inspection [sys.backup.snapshot]</div>
+<pre class="whitespace-pre-wrap leading-relaxed"><code>{
+  "event_id": "evt_01JN6T00M398BB22",
+  "initiator_uuid": "sys_cron_node01",
+  "action": "DB_SNAPSHOT_REPLICATION",
+  "target_cluster": "pg-cluster-prod-academic",
+  "snapshot_size_bytes": 1492048512,
+  "checksum_sha256": "4f8a8819ef3872c01994b29b4e98f0293da88e2270b284819d9b4c09d84e27f1",
+  "storage_target": "s3-cold-archive.gymnasium.internal",
+  "http_status": 200
+}</code></pre>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Strict Pagination Footer -->
+<div class="p-space-md bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="font-body-sm text-body-sm text-secondary">
+            Показано <strong class="text-on-surface font-code-num">1–10</strong> из <strong class="text-on-surface font-code-num">428</strong> событий системного реестра
+          </div>
+<div class="flex items-center gap-1 font-label-md text-label-md">
+<button class="w-8 h-8 rounded bg-surface-container text-secondary flex items-center justify-center hover:bg-surface-container-high transition-colors" disabled="">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-bold">1</button>
+<button class="w-8 h-8 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container flex items-center justify-center">2</button>
+<button class="w-8 h-8 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container flex items-center justify-center">3</button>
+<span class="px-1 text-secondary">...</span>
+<button class="w-8 h-8 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container flex items-center justify-center">43</button>
+<button class="w-8 h-8 rounded bg-surface-container-lowest text-secondary flex items-center justify-center hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function switchTab(tabName) {
+    const tabAcademic = document.getElementById('tab-content-academic');
+    const tabAudit = document.getElementById('tab-content-audit');
+    const btnAcademic = document.getElementById('tab-btn-academic');
+    const btnAudit = document.getElementById('tab-btn-audit');
+
+    if (tabName === 'academic') {
+      tabAcademic.classList.remove('hidden');
+      tabAudit.classList.add('hidden');
+      btnAcademic.className = "px-space-md py-space-sm rounded font-label-md text-label-md transition-all bg-surface-container-lowest text-primary shadow-sm flex items-center gap-space-xs";
+      btnAudit.className = "px-space-md py-space-sm rounded font-label-md text-label-md transition-all text-on-surface-variant hover:text-on-surface flex items-center gap-space-xs";
+    } else {
+      tabAcademic.classList.add('hidden');
+      tabAudit.classList.remove('hidden');
+      btnAudit.className = "px-space-md py-space-sm rounded font-label-md text-label-md transition-all bg-surface-container-lowest text-primary shadow-sm flex items-center gap-space-xs";
+      btnAcademic.className = "px-space-md py-space-sm rounded font-label-md text-label-md transition-all text-on-surface-variant hover:text-on-surface flex items-center gap-space-xs";
+    }
+  }
+
+  function togglePayload(payloadId) {
+    const el = document.getElementById(payloadId);
+    if (el) {
+      el.classList.toggle('hidden');
+    }
+  }
+</script></main><footer class="w-full bg-surface-container-lowest shadow-[0_-1px_6px_rgba(0,0,0,0.03)] py-space-lg"><div class="max-w-[1360px] mx-auto px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-secondary"><div>© 2025 Академическая онлайн-гимназия. Все права защищены.</div><div class="flex items-center gap-space-lg font-label-sm text-label-sm"><a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">Регламент обучения</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">Электронная приёмная</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">Техническая поддержка</a></div></div></footer></body></html>

@@ -96,14 +96,16 @@ test('UI mock: неделя, мобильный день, урок и ДЗ с п
   });
   await page.goto('/my-schedule');
   await expect(page.getByRole('heading', { name: 'Моё расписание' })).toBeVisible();
-  for (const width of [1440, 768, 360]) {
+  for (const width of [1440, 1024, 768, 360]) {
     await page.setViewportSize({ width, height: 1000 });
-    await expect(page.locator('.week-day:visible')).toHaveCount(width === 1440 ? 6 : 1);
-    if (width === 1440) {
-      const edges = await page
-        .locator('.week-day > header')
-        .evaluateAll((headers) => headers.map((header) => header.getBoundingClientRect().bottom));
-      expect(Math.max(...edges) - Math.min(...edges)).toBeLessThan(1);
+    if (width > 900) {
+      // Настольный лист: шесть строк-дней, уроки в колонках часов.
+      await expect(page.locator('.week-sheet-row')).toHaveCount(6);
+      await expect(page.locator('.week-day:visible')).toHaveCount(0);
+    } else {
+      // Телефон и планшет: один выбранный день вертикальным списком.
+      await expect(page.locator('.week-day:visible')).toHaveCount(1);
+      await expect(page.locator('.week-sheet')).toBeHidden();
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
       true,

@@ -1,0 +1,443 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>Онлайн-гимназия — Ученический портал</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"secondary":"#575f68","on-tertiary-container":"#ffbea3","on-tertiary-fixed-variant":"#7d2d00","on-secondary":"#ffffff","surface-bright":"#f8f9fd","surface-tint":"#2e609a","primary-fixed-dim":"#a4c9ff","on-primary-fixed":"#001c39","on-tertiary-fixed":"#360f00","surface-container-lowest":"#ffffff","surface-container-highest":"#e1e2e6","primary":"#004077","tertiary-fixed":"#ffdbcd","surface-container":"#eceef2","background":"#f8f9fd","secondary-fixed-dim":"#bfc7d2","on-surface":"#191c1f","inverse-primary":"#a4c9ff","tertiary-fixed-dim":"#ffb596","on-primary-fixed-variant":"#094881","on-primary-container":"#afceff","surface-container-high":"#e7e8ec","on-secondary-fixed":"#141c24","surface-container-low":"#f2f3f7","on-secondary-fixed-variant":"#404850","inverse-on-surface":"#eff1f5","on-surface-variant":"#424750","surface":"#f8f9fd","error":"#ba1a1a","secondary-fixed":"#dbe3ee","outline":"#727781","tertiary-container":"#973800","outline-variant":"#c2c6d1","secondary-container":"#dbe3ee","on-primary":"#ffffff","on-background":"#191c1f","surface-variant":"#e1e2e6","inverse-surface":"#2e3134","surface-dim":"#d8dade","primary-fixed":"#d4e3ff","on-secondary-container":"#5d656e","tertiary":"#712800","primary-container":"#245892","on-error":"#ffffff","on-error-container":"#93000a","on-tertiary":"#ffffff","error-container":"#ffdad6"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.5rem","gutter-desktop":"1.5rem","space-xs":"0.25rem","space-xl":"2.5rem","space-lg":"1.5rem","gutter":"1rem","space-md":"1rem","margin":"1rem","margin-desktop":"2.5rem"},"fontFamily":{"headline-sm":["\"Source Serif 4\""],"body-sm":["Manrope"],"body-md":["Manrope"],"headline-lg":["\"Source Serif 4\""],"body-lg":["Manrope"],"code-num":["Manrope"],"headline-md":["\"Source Serif 4\""],"label-md":["Manrope"],"headline-lg-mobile":["\"Source Serif 4\""],"label-sm":["Manrope"],"display":["\"Source Serif 4\""]},"fontSize":{"headline-sm":["18px",{"lineHeight":"24px","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"22px","fontWeight":"400"}],"headline-lg":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"26px","fontWeight":"400"}],"code-num":["14px",{"lineHeight":"20px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-md":["22px",{"lineHeight":"28px","fontWeight":"600"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"600"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.02em","fontWeight":"500"}],"display":["36px",{"lineHeight":"44px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 max-w-[1360px] mx-auto px-6 flex items-center justify-between"><div class="flex items-center gap-8"><a class="flex items-center gap-2.5 text-primary group" data-path="today" href="#"><div class="w-9 h-9 rounded bg-primary-container/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors"><span class="material-symbols-outlined text-[20px]">auto_stories</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight">Онлайн-гимназия</span><span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Ученический портал</span></div></a><nav class="hidden md:flex items-center gap-1.5 p-1 rounded-lg bg-surface-container-low" data-active-classes="bg-primary-container text-on-primary font-semibold shadow-sm"><a class="px-3.5 py-1.5 rounded font-body-md text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="today" href="#">Сегодня</a><a aria-current="page" class="px-3.5 py-1.5 rounded transition-colors bg-primary-container text-on-primary font-semibold shadow-sm" data-path="schedule" href="#">Расписание</a><a class="px-3.5 py-1.5 rounded font-body-md text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="homework" href="#">Домашние задания</a><a class="px-3.5 py-1.5 rounded font-body-md text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="billing" href="#">Оплата и биллинг</a></nav></div><div class="flex items-center gap-3.5"><button aria-label="Уведомления" class="relative w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-error ring-2 ring-surface-container-lowest"></span></button><div class="flex items-center gap-3 pl-2"><div class="hidden sm:flex flex-col text-right"><span class="font-body-md text-body-md font-semibold text-on-surface">Артём Иванов</span><span class="font-label-sm text-label-sm text-secondary">7 «А» класс</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-80px)]"><div class="flex flex-col w-full">
+<div class="w-full max-w-[1360px] mx-auto px-4 sm:px-6 py-6 space-y-6">
+<!-- Top Academic Context Bar -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-5">
+<div class="flex flex-wrap items-center gap-4">
+<div class="flex items-center gap-1.5 bg-surface-container-low rounded-lg p-1">
+<button aria-label="Предыдущая неделя" class="w-8 h-8 flex items-center justify-center rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<span class="font-headline-sm text-headline-sm text-on-surface px-2 select-none">
+            23 — 28 ноября 2026
+          </span>
+<button aria-label="Следующая неделя" class="w-8 h-8 flex items-center justify-center rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+<button class="h-9 px-3.5 rounded bg-surface-container text-primary font-body-sm text-body-sm font-semibold hover:bg-surface-container-high transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px]">today</span>
+          Текущая неделя
+        </button>
+<div class="hidden sm:flex items-center gap-2 text-secondary font-body-sm text-body-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed-dim"></span>
+<span>12-я академическая неделя, II четверть</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-surface-container-low text-secondary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">schedule</span>
+<span>UTC+5 (Екатеринбург)</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded bg-primary-fixed/40 text-on-primary-fixed-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">menu_book</span>
+<span>28 академических часов (самоподготовка в сб)</span>
+</div>
+</div>
+</div>
+<!-- Timeline Overview Strip / Subject Legend -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 text-secondary font-body-sm text-body-sm px-1">
+<div class="flex flex-wrap items-center gap-4">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Предметные циклы:</span>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<span>Математический</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-[#973800]"></span>
+<span>Гуманитарный</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-[#2F855A]"></span>
+<span>Естественнонаучный</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-[#6B46C1]"></span>
+<span>Иностранные языки</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">videocam</span>
+<span>Все уроки проводятся в защищённой аудитории гимназии</span>
+</div>
+</div>
+<!-- Horizontal Schedule Board: Days as Rows -->
+<div class="w-full space-y-4 overflow-x-auto pb-4">
+<div class="min-w-[1100px] space-y-4">
+<!-- Timeline Header Columns -->
+<div class="grid grid-cols-[160px_repeat(7,1fr)] gap-2.5 px-1 text-secondary font-label-md text-label-md">
+<div class="uppercase tracking-wider">День / Время</div>
+<div class="bg-surface-container-low/70 py-1.5 px-2 rounded text-center">
+<span class="text-on-surface font-semibold">1 урок</span>
+<span class="block text-secondary font-normal text-[11px]">08:30 – 09:15</span>
+</div>
+<div class="bg-surface-container-low/70 py-1.5 px-2 rounded text-center">
+<span class="text-on-surface font-semibold">2 урок</span>
+<span class="block text-secondary font-normal text-[11px]">09:25 – 10:10</span>
+</div>
+<div class="bg-surface-container-low/70 py-1.5 px-2 rounded text-center">
+<span class="text-on-surface font-semibold">3 урок</span>
+<span class="block text-secondary font-normal text-[11px]">10:30 – 11:15</span>
+</div>
+<div class="bg-surface-container-low/70 py-1.5 px-2 rounded text-center">
+<span class="text-on-surface font-semibold">4 урок</span>
+<span class="block text-secondary font-normal text-[11px]">11:35 – 12:20</span>
+</div>
+<div class="bg-surface-container-low/70 py-1.5 px-2 rounded text-center">
+<span class="text-on-surface font-semibold">5 урок</span>
+<span class="block text-secondary font-normal text-[11px]">12:35 – 13:20</span>
+</div>
+<div class="bg-surface-container-low/70 py-1.5 px-2 rounded text-center">
+<span class="text-on-surface font-semibold">6 урок</span>
+<span class="block text-secondary font-normal text-[11px]">13:35 – 14:20</span>
+</div>
+<div class="bg-surface-container-low/70 py-1.5 px-2 rounded text-center">
+<span class="text-on-surface font-semibold">7 урок</span>
+<span class="block text-secondary font-normal text-[11px]">14:30 – 15:15</span>
+</div>
+</div>
+<!-- DAY 1: ПОНЕДЕЛЬНИК (СЕГОДНЯ) - ACCENTED -->
+<div class="bg-surface-container-lowest rounded-xl p-3 shadow-md ring-2 ring-primary-container/30 grid grid-cols-[160px_repeat(7,1fr)] gap-2.5 items-stretch transition-all"><div class="bg-primary-container text-on-primary rounded-lg p-3 flex flex-col justify-between shadow-sm relative overflow-hidden h-full"><div class="absolute -right-3 -bottom-3 text-on-primary/10 select-none pointer-events-none"><span class="material-symbols-outlined text-[80px]">calendar_today</span></div><div><div class="inline-flex items-center gap-1.5 bg-surface-container-lowest/90 text-primary font-label-sm text-label-sm uppercase px-2 py-0.5 rounded font-bold tracking-wider mb-2 shadow-xs"><span class="material-symbols-outlined text-[13px] text-primary">radio_button_checked</span><span>Сегодня</span></div><div class="font-headline-md text-headline-md tracking-tight leading-tight">Понедельник</div><div class="font-body-sm text-body-sm text-on-primary/80 mt-0.5">23 ноября</div></div><div class="font-label-sm text-label-sm text-on-primary/90 mt-2">6 уроков • до 14:20</div></div><div class="col-span-2 bg-primary-fixed/20 rounded-lg p-3 flex flex-col justify-between relative shadow-sm ring-1 ring-primary/20 h-full"><div class="w-full flex items-start justify-between gap-1"><div class="flex items-center gap-1.5"><span class="w-1.5 h-4 rounded-full bg-primary-container shrink-0"></span><span class="font-label-sm text-label-sm text-primary font-semibold uppercase">08:30 — 10:10 • Сейчас</span></div><span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary font-label-sm text-label-sm font-semibold">Спаренный урок (1–2)</span></div><div class="my-1.5 flex items-center justify-between gap-2"><div><div class="font-body-md text-body-md font-bold text-on-surface text-[15px]">Математика</div><div class="font-body-sm text-body-sm text-secondary truncate">Соколова М. П. • Практикум</div></div><a class="py-1 px-2.5 bg-primary-container hover:bg-primary text-on-primary rounded text-center font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-1 shadow-sm shrink-0" href="#"><span>В урок</span><span class="material-symbols-outlined text-[14px]">arrow_forward</span></a></div><div class="flex items-center gap-1.5 text-secondary font-label-sm text-label-sm"><span class="material-symbols-outlined text-[14px] text-surface-tint">videocam</span><span class="truncate">Дистанционный класс гимназии</span></div></div><div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors h-full"><div class="w-full flex items-start justify-between gap-1"><span class="w-1.5 h-4 rounded-full bg-[#973800] shrink-0"></span><span class="font-label-sm text-label-sm text-secondary font-medium">10:30</span></div><div class="my-1.5"><div class="font-body-md text-body-md font-bold text-on-surface truncate">Русский язык</div><div class="font-body-sm text-body-sm text-secondary truncate">Воронова Е. В.</div></div><span class="font-label-sm text-label-sm text-secondary truncate">Дистанционный класс</span></div><div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors h-full"><div class="w-full flex items-start justify-between gap-1"><span class="w-1.5 h-4 rounded-full bg-[#973800] shrink-0"></span><span class="font-label-sm text-label-sm text-secondary font-medium">11:35</span></div><div class="my-1.5"><div class="font-body-md text-body-md font-bold text-on-surface truncate">Литература</div><div class="font-body-sm text-body-sm text-secondary truncate">Воронова Е. В.</div></div><span class="font-label-sm text-label-sm text-secondary truncate">Дистанционный класс</span></div><div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors h-full"><div class="w-full flex items-start justify-between gap-1"><span class="w-1.5 h-4 rounded-full bg-[#2F855A] shrink-0"></span><span class="font-label-sm text-label-sm text-secondary font-medium">12:35</span></div><div class="my-1.5"><div class="font-body-md text-body-md font-bold text-on-surface truncate">Физика</div><div class="font-body-sm text-body-sm text-secondary truncate">Лебедев С. А.</div></div><span class="font-label-sm text-label-sm text-secondary truncate">Лабораторный блок</span></div><div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors h-full"><div class="w-full flex items-start justify-between gap-1"><span class="w-1.5 h-4 rounded-full bg-[#6B46C1] shrink-0"></span><span class="font-label-sm text-label-sm text-secondary font-medium">13:35</span></div><div class="my-1.5"><div class="font-body-md text-body-md font-bold text-on-surface truncate">Английский яз.</div><div class="font-body-sm text-body-sm text-secondary truncate">Харрисон Э. Д.</div></div><span class="font-label-sm text-label-sm text-secondary truncate">Group A • Speaking</span></div><div class="bg-surface-container-lowest/60 rounded-lg p-3 flex flex-col items-center justify-center text-center border-dashed border-2 border-surface-container-highest h-full"><span class="material-symbols-outlined text-[18px] text-outline-variant">bedtime</span><span class="font-label-sm text-label-sm text-secondary mt-1">Окно</span><span class="text-[11px] text-secondary/70">Урока нет</span></div></div>
+<!-- DAY 2: ВТОРНИК -->
+<div class="bg-surface-container-lowest rounded-xl p-3 shadow-sm grid grid-cols-[160px_repeat(7,1fr)] gap-2.5 items-stretch">
+<!-- Day Title Card -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between h-full"><div><div class="font-headline-sm text-headline-sm text-on-surface">Вторник</div><div class="font-body-sm text-body-sm text-secondary mt-0.5">24 ноября</div></div><div class="font-label-sm text-label-sm text-secondary">5 уроков • до 13:20</div></div>
+<!-- Lesson 1 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#973800] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">08:30</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">История</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Данилов К. Н.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Семинар</span>
+</div>
+<!-- Lesson 2 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#973800] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">09:25</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Обществознание</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Данилов К. Н.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Лекция</span>
+</div>
+<!-- Lesson 3 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-primary-container shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">10:30</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Геометрия</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Соколова М. П.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Практикум</span>
+</div>
+<!-- Lesson 4 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-primary-container shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">11:35</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Информатика</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Белов И. Г.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Python IDE</span>
+</div>
+<!-- Lesson 5 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#2F855A] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">12:35</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Физика</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Лебедев С. А.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Теория</span>
+</div>
+<!-- Lesson 6: Empty -->
+<div class="col-span-2 bg-surface-container-lowest/60 rounded-lg p-3 flex flex-col items-center justify-center text-center border-dashed border-2 border-surface-container-highest h-full"><span class="material-symbols-outlined text-[18px] text-outline-variant">bedtime</span><span class="font-label-sm text-label-sm text-secondary mt-1">Окно (6–7 уроки)</span><span class="text-[11px] text-secondary/70">Уроков нет</span></div>
+<!-- Lesson 7: Empty -->
+
+</div>
+<!-- DAY 3: СРЕДА (С ОТМЕНОЙ УРОКА) -->
+<div class="bg-surface-container-lowest rounded-xl p-3 shadow-sm grid grid-cols-[160px_repeat(7,1fr)] gap-2.5 items-stretch">
+<!-- Day Title Card -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between h-full"><div><div class="font-headline-sm text-headline-sm text-on-surface">Среда</div><div class="font-body-sm text-body-sm text-secondary mt-0.5">25 ноября</div></div><div class="font-label-sm text-label-sm text-secondary">4 урока • 1 отмена</div></div>
+<!-- Lesson 1 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-primary-container shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">08:30</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Математика</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Соколова М. П.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Тест</span>
+</div>
+<!-- Lesson 2 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#973800] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">09:25</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Русский язык</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Воронова Е. В.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Синтаксис</span>
+</div>
+<!-- Lesson 3: CANCELED -->
+<div class="bg-error-container/20 rounded-lg p-3 flex flex-col justify-between relative border border-error/20">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-error shrink-0"></span>
+<span class="font-label-sm text-label-sm text-error font-semibold uppercase">Отменён</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface line-through decoration-error/50">Химия</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Смирнов В. А.</div>
+</div>
+<div class="bg-surface-container-lowest px-1.5 py-1 rounded text-[11px] leading-tight text-error font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">info</span>
+<span class="truncate">Болезнь преподавателя</span>
+</div>
+</div>
+<!-- Lesson 4 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#6B46C1] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">11:35</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Английский яз.</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Харрисон Э. Д.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Grammar Clinic</span>
+</div>
+<!-- Lesson 5 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#2F855A] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">12:35</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface truncate">Физкультура</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Попов Д. М.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Теория онлайн</span>
+</div>
+<!-- Lesson 6: Empty -->
+<div class="col-span-2 bg-surface-container-lowest/60 rounded-lg p-3 flex flex-col items-center justify-center text-center border-dashed border-2 border-surface-container-highest h-full"><span class="material-symbols-outlined text-[18px] text-outline-variant">bedtime</span><span class="font-label-sm text-label-sm text-secondary mt-1">Окно (6–7 уроки)</span><span class="text-[11px] text-secondary/70">Уроков нет</span></div>
+<!-- Lesson 7: Empty -->
+
+</div>
+<!-- DAY 4: ЧЕТВЕРГ (7 УРОКОВ - НАСЫЩЕННЫЙ ДЕНЬ) -->
+<div class="bg-surface-container-lowest rounded-xl p-3 shadow-sm grid grid-cols-[160px_repeat(7,1fr)] gap-2.5 items-stretch">
+<!-- Day Title Card -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between h-full"><div><div class="font-headline-sm text-headline-sm text-on-surface">Четверг</div><div class="font-body-sm text-body-sm text-secondary mt-0.5">26 ноября</div></div><div class="font-label-sm text-label-sm text-secondary">7 уроков • до 15:15</div></div>
+<!-- Lesson 1 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-primary-container shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">08:30</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Геометрия</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Соколова М. П.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Теоремы подобия</span>
+</div>
+<!-- Lesson 2 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#973800] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">09:25</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Русский язык</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Воронова Е. В.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Разбор текста</span>
+</div>
+<!-- Lesson 3 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#2F855A] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">10:30</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Физика</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Лебедев С. А.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Законы механики</span>
+</div>
+<!-- Lesson 4 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-primary-container shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">11:35</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Информатика</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Белов И. Г.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Алгоритмы</span>
+</div>
+<!-- Lesson 5 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#973800] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">12:35</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface truncate">Обществозн.</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Данилов К. Н.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Правовое гос-во</span>
+</div>
+<!-- Lesson 6 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#2F855A] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">13:35</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Биология</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Зуева О. В.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Ботаника</span>
+</div>
+<!-- Lesson 7 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-primary-container shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">14:30</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface truncate">IT-факультатив</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Белов И. Г.</div>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-medium">Проектный клуб</span>
+</div>
+</div>
+<!-- DAY 5: ПЯТНИЦА -->
+<div class="bg-surface-container-lowest rounded-xl p-3 shadow-sm grid grid-cols-[160px_repeat(7,1fr)] gap-2.5 items-stretch">
+<!-- Day Title Card -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between h-full"><div><div class="font-headline-sm text-headline-sm text-on-surface">Пятница</div><div class="font-body-sm text-body-sm text-secondary mt-0.5">27 ноября</div></div><div class="font-label-sm text-label-sm text-secondary">5 уроков • до 13:20</div></div>
+<!-- Lesson 1 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#973800] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">08:30</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Литература</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Воронова Е. В.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Чтения</span>
+</div>
+<!-- Lesson 2 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-primary-container shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">09:25</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Математика</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Соколова М. П.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Итоговая работа</span>
+</div>
+<!-- Lesson 3 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#6B46C1] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">10:30</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Английский яз.</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Харрисон Э. Д.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Аудирование</span>
+</div>
+<!-- Lesson 4 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#973800] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">11:35</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">История</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Данилов К. Н.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Картография</span>
+</div>
+<!-- Lesson 5 -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between hover:bg-surface-container transition-colors">
+<div class="w-full flex items-start justify-between gap-1">
+<span class="w-1.5 h-4 rounded-full bg-[#2F855A] shrink-0"></span>
+<span class="font-label-sm text-label-sm text-secondary">12:35</span>
+</div>
+<div class="my-1.5">
+<div class="font-body-md text-body-md font-bold text-on-surface">Астрономия</div>
+<div class="font-body-sm text-body-sm text-secondary truncate">Лебедев С. А.</div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Телескоп 3D</span>
+</div>
+<!-- Lesson 6: Empty -->
+<div class="col-span-2 bg-surface-container-lowest/60 rounded-lg p-3 flex flex-col items-center justify-center text-center border-dashed border-2 border-surface-container-highest h-full"><span class="material-symbols-outlined text-[18px] text-outline-variant">bedtime</span><span class="font-label-sm text-label-sm text-secondary mt-1">Окно (6–7 уроки)</span><span class="text-[11px] text-secondary/70">Уроков нет</span></div>
+<!-- Lesson 7: Empty -->
+
+</div>
+<!-- DAY 6: СУББОТА (САМОПОДГОТОВКА) -->
+<div class="bg-surface-container-lowest/80 rounded-xl p-3 shadow-xs grid grid-cols-[160px_1fr] gap-2.5 items-center border border-dashed border-outline-variant/60">
+<!-- Day Title Card -->
+<div class="bg-surface-container-low rounded-lg p-3 flex flex-col justify-between h-full"><div><div class="font-headline-sm text-headline-sm text-secondary">Суббота</div><div class="font-body-sm text-body-sm text-secondary/70 mt-0.5">28 ноября</div></div><div class="font-label-sm text-label-sm text-secondary/60">Самоподготовка</div></div>
+<!-- Full Row Informational Banner -->
+<div class="bg-surface-container-low/50 rounded-lg p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[24px]">workspace_premium</span>
+</div>
+<div>
+<div class="font-body-md text-body-md font-bold text-on-surface">Уроков нет. Академический день самостоятельной подготовки</div>
+<div class="font-body-sm text-body-sm text-secondary">Время для проектных исследований, решений задач ВсОШ и повторения пройденного материала.</div>
+</div>
+</div>
+<a class="h-9 px-4 rounded bg-surface-container-high hover:bg-surface-container text-on-surface font-body-sm text-body-sm font-semibold transition-colors flex items-center gap-1.5 shrink-0" href="#">
+<span class="material-symbols-outlined text-[16px]">menu_book</span>
+<span>Банк олимпиадных задач</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Useful Notice for Student -->
+<div class="bg-surface-container-low rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-secondary font-body-sm text-body-sm">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[22px]">info</span>
+<span>Расписание синхронизировано со школьным календарем. Ссылки на видеовстречи активируются за 5 минут до начала урока.</span>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="text-primary hover:underline font-semibold font-body-sm text-body-sm flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">download</span>
+          Скачать расписание (iCal)
+        </button>
+</div>
+</div>
+</div>
+</div></main><footer class="w-full bg-surface-container-lowest shadow-[0_-1px_6px_rgba(0,0,0,0.03)] py-8 mt-12"><div class="max-w-[1360px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4"><div class="flex flex-col sm:flex-row items-center gap-4 text-secondary font-body-sm text-body-sm"><span class="font-body-sm text-body-sm text-on-surface-variant">© 2026 Онлайн-гимназия. Все права защищены.</span><span class="hidden sm:inline text-outline-variant">•</span><a class="text-secondary hover:text-primary transition-colors" data-path="rules" href="#">Академические правила и устав</a><span class="hidden sm:inline text-outline-variant">•</span><a class="text-secondary hover:text-primary transition-colors" data-path="support" href="#">Служба академической поддержки</a></div><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-surface-tint"></span><span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Учебный семестр 2025/2026</span></div></div></footer>
+
+
+
+
+
+</body></html>

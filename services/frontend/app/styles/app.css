@@ -253,6 +253,54 @@
 }
 
 @font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/source-serif-4-cyrillic-400-normal.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/source-serif-4-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F;
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/source-serif-4-cyrillic-600-normal.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/source-serif-4-latin-600-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F;
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/source-serif-4-cyrillic-700-normal.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/source-serif-4-latin-700-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F;
+}
+@font-face {
   font-family: 'Manrope';
   font-style: normal;
   font-weight: 200 800;
@@ -3056,3 +3104,332 @@ body {
     gap: 10px;
   }
 }
+
+/* ============================================================
+   Слой темы «Academic Stationery» (перенос из Google Stitch).
+   Поверх прежних стилей: бумага, графит, чернильное действие.
+   ============================================================ */
+
+/* --- Типографика: антиква для заголовков и предметов --- */
+h1, h2, h3, .page-header h1, .page-header p strong, .hero h1, .hero h2,
+.dialog-title, .login-panel h1, .brand-text strong, .lesson-heading,
+.homework-group-heading, .calendar-lesson strong, .document-grid h3,
+.billing-payment-amount, .metric strong, .eyebrow-title {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+}
+body { font-weight: 500; }
+
+/* --- Знак школы: книга в чернильном квадрате --- */
+.brand-mark {
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  border: none;
+}
+.brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+.brand-text strong { font-size: 17px; font-weight: 600; }
+.brand-text span {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* --- Шапка: лист с линовкой, пилюли навигации --- */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: none;
+}
+.nav-links { gap: 2px; background: var(--surface-dim); border-radius: var(--radius-lg); padding: 3px; }
+.nav-link {
+  border-radius: var(--radius);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 14px;
+}
+.nav-link.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: none;
+}
+.nav-link:not(.active):hover { background: var(--accent-soft); }
+
+/* --- Кнопки и поля: 40px, строгие края --- */
+.button { border-radius: var(--radius); font-weight: 600; min-height: 40px; }
+.button-primary { background: var(--accent); box-shadow: none; }
+.button-primary:hover { background: var(--accent-hover); }
+.button-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+.button-secondary:hover { background: var(--sidebar); border-color: var(--muted); }
+.input, select.input, textarea.input {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  min-height: 40px;
+  background: var(--surface);
+  box-shadow: none;
+}
+.input:focus-visible, .input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* --- Листы: белая бумага с обрезом 1px, без глубоких теней --- */
+.card, .login-panel, .dialog-content, .notification-popover {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
+}
+.card { box-shadow: none; }
+
+/* --- Статусы: короткая подпись, мягкая плашка --- */
+.badge, .homework-row-status, .billing-payment-status, .notification-status {
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+}
+.badge-error, .homework-status--overdue { color: #9b2c2c; background: var(--danger-soft); border-color: #fed7d7; }
+.homework-status--assigned { color: #4a5568; background: #edf2f7; border-color: #e2e8f0; }
+.homework-status--submitted { color: var(--warn); background: var(--peach); border-color: var(--warn-border); }
+.homework-status--returned { color: var(--return); background: var(--peach); border-color: var(--warn-border); }
+.homework-status--graded, .badge-success { color: var(--success); background: var(--success-soft); border-color: #c6f6d5; }
+.alert-success { color: var(--success); background: var(--success-soft); border-color: #c6f6d5; }
+.alert-error { color: #9b2c2c; background: var(--danger-soft); border-color: #fed7d7; }
+.alert-info { color: var(--accent-hover); background: var(--accent-soft); border-color: #c9dcf0; }
+
+/* --- Предметные закладки --- */
+.subject-stripe { width: 3px; border-radius: 0; align-self: stretch; flex: none; }
+
+/* --- Таблицы: линовка 44px --- */
+.billing-history table, .teacher-reviews table, .analytics table {
+  border-collapse: collapse;
+}
+.billing-history th, .teacher-reviews th, .analytics th {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.billing-history td, .teacher-reviews td, .analytics td {
+  border-bottom: 1px solid var(--border-inner);
+  padding: 10px 12px;
+}
+.billing-history tr:last-child td { border-bottom: none; }
+
+/* --- Подвал портала --- */
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 20px var(--gutter, 32px);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+  background: var(--surface);
+}
+.site-footer a { color: var(--accent); text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+.site-footer-links { display: flex; gap: 16px; }
+
+/* --- Календарь недели: строка-день, карточки уроков --- */
+.calendar-lesson {
+  border: 1px solid var(--border-inner);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+}
+.calendar-lesson::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--subject-default, var(--muted));
+}
+.calendar-lesson[data-subject='Математика']::before { background: var(--subject-math); }
+.calendar-lesson[data-subject='Русский язык']::before { background: var(--subject-russian); }
+.calendar-lesson[data-subject='Литература']::before { background: var(--subject-literature); }
+.calendar-lesson[data-subject='Физика']::before { background: var(--subject-physics); }
+.calendar-lesson[data-subject='История']::before { background: var(--subject-history); }
+.calendar-lesson[data-subject='Биология']::before,
+.calendar-lesson[data-subject='Окружающий мир']::before { background: var(--subject-nature); }
+.calendar-lesson[data-subject='Английский язык']::before { background: var(--subject-language); }
+.calendar-lesson.is-canceled { background: var(--danger-soft); border-color: #fed7d7; }
+
+/* --- Строки ДЗ: дата отдельной строкой, приоритет предмета --- */
+.homework-group-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  margin-top: 26px;
+  font-size: 20px;
+}
+.homework-group:first-of-type .homework-group-heading { border-top: none; margin-top: 0; padding-top: 0; }
+.homework-row { border: 1px solid var(--border-inner); border-radius: var(--radius); position: relative; overflow: hidden; }
+.homework-row::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--subject-default);
+}
+.homework-row[data-subject='Математика']::before { background: var(--subject-math); }
+.homework-row[data-subject='Русский язык']::before { background: var(--subject-russian); }
+.homework-row[data-subject='Литература']::before { background: var(--subject-literature); }
+.homework-row[data-subject='Физика']::before { background: var(--subject-physics); }
+.homework-row[data-subject='История']::before { background: var(--subject-history); }
+
+/* --- Вход: лист по центру стола --- */
+.login-layout { background: var(--canvas); }
+.login-panel { text-align: left; }
+.login-panel h1 { font-size: 28px; line-height: 36px; }
+
+/* --- Уведомления: панель поверх страницы --- */
+.notification-popover { background: var(--surface); }
+.notification-item-unread { background: var(--accent-soft); }
+
+/* --- Недельный лист (Stitch S02/T02): дни строками --- */
+.week-sheet {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+}
+.week-sheet-head,
+.week-sheet-row {
+  display: grid;
+  grid-template-columns: 168px repeat(6, minmax(120px, 1fr));
+}
+.week-sheet-head {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-dim);
+  position: sticky;
+  top: 0;
+}
+.week-sheet-corner,
+.week-sheet-hour {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 10px;
+}
+.week-sheet-hour { border-left: 1px solid var(--border-inner); }
+.week-sheet-row { border-bottom: 1px solid var(--border-inner); }
+.week-sheet-row:last-child { border-bottom: none; }
+.week-sheet-row.is-today { background: var(--accent-soft); }
+.week-sheet-day {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.week-sheet-day strong { font-family: var(--font-serif); font-size: 15px; }
+.week-sheet-day > span { font-size: 12px; color: var(--muted); }
+.week-sheet-count { color: var(--muted); }
+.week-sheet-cell {
+  border-left: 1px solid var(--border-inner);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 64px;
+}
+.week-sheet-cell:empty::after {
+  content: '';
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  flex: 1;
+}
+.calendar-lesson--compact { padding: 6px 8px 6px 10px; font-size: 12.5px; }
+.calendar-lesson--compact h3 { font-size: 13px; margin: 2px 0; }
+.calendar-lesson--compact .lesson-time { font-size: 11px; }
+.calendar-lesson--compact .lesson-class {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 600;
+  background: var(--surface-dim);
+  border-radius: 2px;
+  padding: 1px 6px;
+  margin: 2px 0;
+  width: fit-content;
+}
+.calendar-lesson--compact .lesson-teacher { font-size: 11px; color: var(--muted); }
+.calendar-lesson--compact .lesson-open { display: none; }
+
+/* На телефоне лист скрыт, работает выбор дня выше. */
+.week-mobile-day { display: none; }
+@media (max-width: 900px) {
+  .week-sheet { display: none; }
+  .week-mobile-day { display: block; }
+}
+/* Промежуточная ширина: шесть колонок часов ужимаются, но не ниже читаемости. */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .week-sheet-head, .week-sheet-row { grid-template-columns: 120px repeat(6, minmax(92px, 1fr)); }
+  .week-sheet-day strong { font-size: 13px; }
+}
+/* Телефон: мобильный день на весь экран, метка «Сегодня» не растягивает строку. */
+.week-today-label {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 2px;
+  padding: 2px 6px;
+  width: fit-content;
+}
+.week-sheet-day .week-today-label { margin-top: 4px; }
+
+/* Мобильный день показывается всегда: выбором управляют вкладки выше. */
+.week-mobile-day .week-day:not(.is-selected) { display: block; }
+
+/* --- Поиск преподавателя в форме урока --- */
+.teacher-options {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  max-height: 200px;
+  overflow-y: auto;
+}
+.teacher-options button {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 1px solid var(--border-inner);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+}
+.teacher-options li:last-child button { border-bottom: 0; }
+.teacher-options button:hover { background: var(--accent-soft); }
+.teacher-options button span { color: var(--muted); font-size: 12px; }
+.teacher-uuid-fallback { margin-top: 8px; font-size: 13px; }
+.teacher-uuid-fallback summary { color: var(--muted); cursor: pointer; }
+.field-hint { color: var(--muted); font-size: 12px; margin: 4px 0 0; }

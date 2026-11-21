@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-surface": "#191c1f", "outline-variant": "#c2c6d1", "outline": "#727781", "surface-container-highest": "#e1e2e6", "on-secondary": "#ffffff", "on-tertiary-fixed": "#360f00", "secondary-container": "#dbe3ee", "surface-container-lowest": "#ffffff", "surface-container-high": "#e7e8ec", "secondary-fixed": "#dbe3ee", "tertiary-container": "#973800", "on-tertiary": "#ffffff", "on-primary-fixed": "#001c39", "inverse-on-surface": "#eff1f5", "on-surface-variant": "#424750", "surface-dim": "#d8dade", "on-primary-container": "#afceff", "inverse-primary": "#a4c9ff", "on-primary": "#ffffff", "error-container": "#ffdad6", "tertiary-fixed-dim": "#ffb596", "surface-bright": "#f8f9fd", "on-secondary-container": "#5d656e", "primary-fixed-dim": "#a4c9ff", "tertiary-fixed": "#ffdbcd", "surface-tint": "#2e609a", "error": "#ba1a1a", "on-secondary-fixed": "#141c24", "surface-container-low": "#f2f3f7", "tertiary": "#712800", "secondary-fixed-dim": "#bfc7d2", "inverse-surface": "#2e3134", "on-secondary-fixed-variant": "#404850", "on-tertiary-container": "#ffbea3", "background": "#f8f9fd", "on-error": "#ffffff", "surface": "#f8f9fd", "primary-fixed": "#d4e3ff", "surface-variant": "#e1e2e6", "on-background": "#191c1f", "primary": "#004077", "on-tertiary-fixed-variant": "#7d2d00", "secondary": "#575f68", "surface-container": "#eceef2", "on-primary-fixed-variant": "#094881", "on-error-container": "#93000a", "primary-container": "#245892" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "margin": "1rem", "space-sm": "0.5rem", "gutter": "1rem", "space-md": "1rem", "space-xs": "0.25rem", "gutter-desktop": "1.5rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "margin-desktop": "2.5rem" }, "fontFamily": { "headline-sm": ["\"Source Serif 4\""], "headline-lg": ["\"Source Serif 4\""], "label-sm": ["Manrope"], "code-num": ["Manrope"], "body-md": ["Manrope"], "headline-md": ["\"Source Serif 4\""], "body-lg": ["Manrope"], "display": ["\"Source Serif 4\""], "label-md": ["Manrope"], "headline-lg-mobile": ["\"Source Serif 4\""], "body-sm": ["Manrope"] }, "fontSize": { "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "code-num": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }] } } } }</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-fixed"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(30,33,36,0.06)]"><div class="h-16 max-w-[1360px] mx-auto px-margin lg:px-margin-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><a class="flex items-center gap-space-sm group" data-path="today" href="#"><div class="w-9 h-9 rounded-lg bg-primary-container text-on-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">menu_book</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight leading-none">Онлайн-гимназия</span><span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest leading-none mt-1">Академический реестр</span></div></a><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-secondary-container text-on-secondary-fixed font-semibold rounded-lg"><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="today" href="#">Сегодня</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="schedule" href="#">Расписание</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="homework" href="#">Домашние задания</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="billing" href="#">Оплата и биллинг</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="administration" href="#">Администрирование</a></nav></div><div class="flex items-center gap-space-md"><button aria-label="Уведомления" class="relative p-space-sm rounded-lg text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-error ring-2 ring-surface-container-lowest"></span></button><div class="h-6 w-px bg-outline-variant/40 hidden sm:block"></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="text-right hidden md:flex flex-col"><span class="font-label-md text-label-md text-on-surface font-semibold leading-tight">Артём Иванов</span><span class="font-label-sm text-label-sm text-secondary leading-tight">10 «А» класс</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-80px)]"><div class="flex flex-col w-full">
+<div class="max-w-[1360px] w-full mx-auto px-margin lg:px-margin-desktop py-space-md flex flex-col gap-space-md">
+<!-- Top Ledger Navigation / Academic Queue Header -->
+<div class="bg-surface-container-lowest shadow-sm rounded-lg p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<a class="inline-flex items-center gap-space-xs font-label-md text-label-md text-primary hover:text-primary-container transition-colors py-space-xs px-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container" href="#">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>К списку работ очереди</span>
+</a>
+<div class="flex items-center gap-space-xs font-code-num text-code-num text-on-surface-variant bg-surface-container-high px-2.5 py-1 rounded">
+<span class="material-symbols-outlined text-[16px] text-primary">rate_review</span>
+<span>1 из 7 на проверке</span>
+</div>
+</div>
+<div class="flex items-center gap-space-lg">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Ученик:</span>
+<div class="flex items-center gap-1.5 font-label-md text-label-md text-on-surface font-semibold">
+<span class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-fixed flex items-center justify-center text-[11px] font-bold">ИА</span>
+<span>Иванов Артём</span>
+<span class="text-secondary font-normal">(7 «А» класс)</span>
+</div>
+</div>
+<div class="h-4 w-px bg-outline-variant/50 hidden sm:block"></div>
+<div class="flex items-center gap-space-xs">
+<button class="p-1.5 rounded text-secondary/40 cursor-not-allowed flex items-center" disabled="" title="Предыдущая работа" type="button">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<a class="inline-flex items-center gap-1 text-on-primary bg-primary hover:bg-primary-container px-3 py-1.5 rounded font-label-md text-label-md transition-colors shadow-sm" href="#" title="Перейти к следующей работе">
+<span>Следующая</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Main Split Assessment Stage -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-md items-start">
+<!-- Left Column: Student Submission & Source Assignment (7 cols) -->
+<section class="xl:col-span-7 flex flex-col gap-space-md">
+<!-- Assignment Condition Card -->
+<article class="bg-surface-container-lowest shadow-sm rounded-lg p-space-md relative overflow-hidden">
+<div class="absolute top-0 left-0 bottom-0 w-1.5 bg-[#2B6CB0]"></div>
+<div class="pl-2">
+<div class="flex items-center justify-between gap-2 mb-1.5">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-[#2B6CB0] font-bold">Алгебра • Задание № 214–215</span>
+<span class="font-label-sm text-label-sm text-secondary">Учитель: Соколова М. П.</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-on-surface tracking-tight mb-2">
+              Задачи № 214 и 215. Дроби и линейные уравнения
+            </h1>
+<div class="bg-surface-container-low p-space-sm rounded font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+<span class="font-semibold text-on-surface">Формулировка задания:</span> Решите задачи № 214 и 215 из параграфа 9 учебника (стр. 64). Обязательно укажите область допустимых значений (ОДЗ) для рациональных выражений, приведите дроби к общему знаменателю и выполните проверку корней подстановкой.
+            </div>
+</div>
+</article>
+<!-- Student Submission Workspace & Ledger -->
+<article class="bg-surface-container-lowest shadow-sm rounded-lg p-space-md flex flex-col gap-space-md">
+<!-- Submission Meta Ribbon -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm pb-space-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs font-label-md text-label-md text-on-surface font-semibold">
+<span class="material-symbols-outlined text-[18px] text-primary">history_edu</span>
+<span>Скан рукописной тетради (Neo Smartpen M1+)</span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary mt-0.5">
+                Сдано: Сегодня в 08:45 • <span class="text-[#2F855A] font-medium">Вовремя</span> • Формат: Умная ручка + скан разворота
+              </span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="px-2.5 py-1 rounded bg-[#F2FBF5] text-[#2F855A] font-label-sm text-label-sm uppercase font-bold tracking-wide">
+                Готово к проверке
+              </span>
+</div>
+</div>
+<!-- Student's Attached Note -->
+<div class="p-space-sm bg-surface-container-low rounded flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">format_quote</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider font-semibold">Комментарий ученика:</span>
+<p class="font-body-sm text-body-sm text-on-surface italic mt-0.5">
+                «Задачи решены в тетради. В номере 214 оба корня проверены подстановкой. Во второй задаче дробь сократил сразу.»
+              </p>
+</div>
+</div>
+<!-- Manuscript Inspector Toolbar -->
+<div class="bg-surface-container rounded-lg p-1.5 flex flex-wrap items-center justify-between gap-2 shadow-inner">
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1 rounded bg-surface-container-lowest text-primary shadow-sm font-label-sm text-label-sm flex items-center gap-1 font-semibold" id="tool-cursor" title="Курсор просмотра" type="button">
+<span class="material-symbols-outlined text-[16px]">pan_tool</span>
+<span>Просмотр</span>
+</button>
+<button class="px-2.5 py-1 rounded hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface transition-colors font-label-sm text-label-sm flex items-center gap-1" id="tool-highlighter" title="Текстовыделитель" type="button">
+<span class="material-symbols-outlined text-[16px] text-[#C05621]">draw</span>
+<span>Маркер</span>
+</button>
+<button class="px-2.5 py-1 rounded hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface transition-colors font-label-sm text-label-sm flex items-center gap-1" id="tool-annotation" title="Заметка на полях" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">add_comment</span>
+<span>Заметка на полях</span>
+</button>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<button class="p-1 rounded hover:bg-surface-container-lowest hover:text-on-surface" title="Уменьшить масштаб" type="button">
+<span class="material-symbols-outlined text-[18px]">zoom_out</span>
+</button>
+<span class="font-code-num text-code-num px-1.5 py-0.5 text-secondary">100%</span>
+<button class="p-1 rounded hover:bg-surface-container-lowest hover:text-on-surface" title="Увеличить масштаб" type="button">
+<span class="material-symbols-outlined text-[18px]">zoom_in</span>
+</button>
+<div class="h-4 w-px bg-outline-variant/40 mx-1"></div>
+<button class="p-1 rounded hover:bg-surface-container-lowest hover:text-on-surface" title="Полноэкранный режим листа" type="button">
+<span class="material-symbols-outlined text-[18px]">fullscreen</span>
+</button>
+</div>
+</div>
+<!-- High-Fidelity Paper Canvas with Ruled Grid & Vector Smartpen Strokes -->
+<div class="relative w-full rounded-lg overflow-hidden bg-[#FAF9F5] shadow-inner select-none p-4 flex flex-col items-center justify-center min-h-[580px]">
+<!-- Mathematical Graph-Paper Texture (Custom Hairline Ruled Pattern) -->
+<div class="absolute inset-0 opacity-40 pointer-events-none" style="background-image: linear-gradient(to right, #cfd3dc 1px, transparent 1px), linear-gradient(to bottom, #cfd3dc 1px, transparent 1px); background-size: 24px 24px;"></div>
+<!-- Page Margins Red Vertical Ink Line (Traditional Gymnasium Diary Cue) -->
+<div class="absolute top-0 bottom-0 left-16 w-[1.5px] bg-[#e57373]/60 pointer-events-none"></div>
+<!-- Authentic Notebook Artifact Preview Container -->
+<div class="relative w-full max-w-[620px] bg-white rounded shadow-md p-6 my-2 text-on-surface">
+<!-- Paper Header Stamp -->
+<div class="flex justify-between items-baseline mb-4 text-secondary/70 font-code-num text-label-sm border-b border-surface-container pb-2">
+<span>№ 214, 215 • Параграф 9</span>
+<span class="font-mono text-[10px]">DIGI-PEN-STREAM #08-45-12</span>
+</div>
+<!-- Student Handwriting & Digital Pen Recreation Area -->
+<div class="space-y-6 font-display text-on-surface text-[17px] leading-relaxed">
+<!-- Exercise 214 -->
+<div class="relative">
+<div class="flex items-center justify-between">
+<span class="font-semibold text-primary">№ 214.</span>
+<span class="font-label-sm text-label-sm text-secondary font-mono italic">ОДЗ: x ≠ 3, x ≠ -3</span>
+</div>
+<div class="mt-2 pl-4 space-y-1 font-serif">
+<p class="text-[17px] text-[#1a2332] tracking-wide">
+                      \(\frac{x + 3}{x - 3} + \frac{x - 3}{x + 3} = \frac{10}{3}\)
+                    </p>
+<p class="text-[16px] text-secondary pl-2">
+                      Приводим к общему знаменателю \(3(x^2 - 9)\):
+                    </p>
+<p class="text-[17px] text-[#1a2332] pl-2">
+                      \(3(x + 3)^2 + 3(x - 3)^2 = 10(x^2 - 9)\)
+                    </p>
+<p class="text-[17px] text-[#1a2332] pl-2">
+                      \(3(x^2 + 6x + 9) + 3(x^2 - 6x + 9) = 10x^2 - 90\)
+                    </p>
+<p class="text-[17px] text-[#1a2332] pl-2">
+                      \(6x^2 + 54 = 10x^2 - 90 \implies 4x^2 = 144 \implies x^2 = 36\)
+                    </p>
+<div class="flex items-center gap-3 pt-1">
+<span class="text-[#2F855A] font-semibold bg-[#2F855A]/10 px-2 py-0.5 rounded text-[15px]">
+                        \(x_1 = 6; \quad x_2 = -6\)
+                      </span>
+<span class="text-label-sm font-label-sm text-secondary italic">(оба корня удовлетворяют ОДЗ)</span>
+</div>
+</div>
+<!-- Teacher's Dynamic Interactive Annotation on Margins -->
+<div class="absolute -right-3 top-8 transform translate-x-1/2 bg-[#FFF9E6] text-[#712800] p-2.5 rounded shadow-md max-w-[210px] text-left z-20">
+<div class="flex items-center gap-1 font-label-sm text-label-sm font-bold text-[#973800] mb-0.5">
+<span class="material-symbols-outlined text-[14px]">edit_note</span>
+<span>Заметка Соколовой</span>
+</div>
+<p class="font-body-sm text-[12px] leading-snug">
+                      Корни найдены безупречно! Проверка сокращения выполнена.
+                    </p>
+</div>
+</div>
+<!-- Exercise 215 with Highlighting Marker Overlay -->
+<div class="relative pt-2">
+<div class="flex items-center justify-between">
+<span class="font-semibold text-primary">№ 215.</span>
+</div>
+<div class="mt-2 pl-4 space-y-1 font-serif">
+<p class="text-[17px] text-[#1a2332]">
+                      \(\frac{2y - 1}{y + 2} - \frac{y + 3}{y - 2} = 1\)
+                    </p>
+<div class="relative inline-block bg-[#FEF08A]/40 px-1.5 py-0.5 rounded">
+<p class="text-[16px] text-secondary italic">
+                        Знаменатель: \((y + 2)(y - 2) \ne 0 \implies y \ne \pm 2\)
+                      </p>
+</div>
+<p class="text-[17px] text-[#1a2332] pl-2">
+                      \((2y - 1)(y - 2) - (y + 3)(y + 2) = y^2 - 4\)
+                    </p>
+<p class="text-[17px] text-[#1a2332] pl-2">
+                      \(2y^2 - 5y + 2 - (y^2 + 5y + 6) = y^2 - 4\)
+                    </p>
+<p class="text-[17px] text-[#1a2332] pl-2">
+                      \(-10y - 4 = -4 \implies -10y = 0 \implies y = 0\)
+                    </p>
+<p class="text-[#2F855A] font-semibold text-[15px] pt-1">
+                      Ответ: \(y = 0\)
+                    </p>
+</div>
+</div>
+</div>
+<!-- Notebook Watermark / Footer metadata -->
+<div class="mt-8 pt-3 flex items-center justify-between text-secondary/60 font-label-sm text-label-sm border-t border-surface-container">
+<span>Лист 1 из 1 • Скан_тетрадь_стр1.jpg (3.2 МБ)</span>
+<span>Иванов А. • 10.10.2024</span>
+</div>
+</div>
+<!-- Page Index Indicator Overlay -->
+<div class="absolute bottom-3 right-4 bg-surface-container-lowest/90 backdrop-blur px-2.5 py-1 rounded text-secondary font-label-sm text-label-sm shadow-sm">
+              Файл: Скан_тетрадь_стр1.jpg • Разрешение 300 DPI
+            </div>
+</div>
+<!-- Document Attachments Auxiliary Bar -->
+<div class="flex items-center justify-between p-space-sm bg-surface-container-low rounded">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[22px]">attachment</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Скан_тетрадь_стр1.jpg</span>
+<span class="font-label-sm text-label-sm text-secondary">Оригинал высокого разрешения для печати архива</span>
+</div>
+</div>
+<a class="px-3 py-1 bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-label-md rounded shadow-sm transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">download</span>
+<span>Скачать</span>
+</a>
+</div>
+</article>
+</section>
+<!-- Right Column: Review, Feedback & Gradebook Form (5 cols) -->
+<section class="xl:col-span-5 flex flex-col gap-space-md">
+<!-- Teacher Assessment Deck -->
+<div class="bg-surface-container-lowest shadow-sm rounded-lg p-space-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between pb-2 border-b border-surface-container">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded bg-primary-container text-on-primary flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-tight">Оценка и рецензия</h2>
+<span class="font-label-sm text-label-sm text-secondary">Гимназический академический стандарт</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-code-num text-code-num">
+              Код: HW-214
+            </span>
+</div>
+<!-- Academic Grade Selector (5-tier Gymnasium Scale) -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md text-on-surface font-semibold flex items-center justify-between">
+<span>Академический балл:</span>
+<span class="text-primary font-bold text-label-sm uppercase tracking-wider" id="grade-verbal-desc">Отлично (5)</span>
+</label>
+<div class="grid grid-cols-4 gap-2 pt-1" id="grade-selector-group">
+<!-- Grade 5 (Active default) -->
+<button class="grade-btn flex flex-col items-center justify-center py-2.5 px-2 rounded bg-primary text-on-primary shadow-sm ring-2 ring-primary transition-all" data-desc="Отлично (5)" data-grade="5" type="button">
+<span class="font-display text-[24px] leading-none font-bold">5</span>
+<span class="font-label-sm text-[10px] mt-1 uppercase tracking-tight font-semibold">Отлично</span>
+</button>
+<!-- Grade 4 -->
+<button class="grade-btn flex flex-col items-center justify-center py-2.5 px-2 rounded bg-surface-container hover:bg-surface-container-high text-on-surface transition-all" data-desc="Хорошо (4)" data-grade="4" type="button">
+<span class="font-display text-[24px] leading-none font-bold">4</span>
+<span class="font-label-sm text-[10px] mt-1 uppercase tracking-tight text-secondary">Хорошо</span>
+</button>
+<!-- Grade 3 -->
+<button class="grade-btn flex flex-col items-center justify-center py-2.5 px-2 rounded bg-surface-container hover:bg-surface-container-high text-on-surface transition-all" data-desc="Удовлетворительно (3)" data-grade="3" type="button">
+<span class="font-display text-[24px] leading-none font-bold">3</span>
+<span class="font-label-sm text-[10px] mt-1 uppercase tracking-tight text-secondary">Удовл.</span>
+</button>
+<!-- Grade 2 -->
+<button class="grade-btn flex flex-col items-center justify-center py-2.5 px-2 rounded bg-surface-container hover:bg-surface-container-high text-on-surface transition-all" data-desc="Неудовлетворительно (2)" data-grade="2" type="button">
+<span class="font-display text-[24px] leading-none font-bold">2</span>
+<span class="font-label-sm text-[10px] mt-1 uppercase tracking-tight text-secondary">Неуд.</span>
+</button>
+</div>
+</div>
+<!-- Quick Criteria Rubrics Check -->
+<div class="flex flex-col gap-2 pt-1">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider font-semibold">
+              Критерии решения:
+            </span>
+<div class="space-y-1.5 font-body-sm text-body-sm">
+<label class="flex items-center gap-2 text-on-surface cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-primary accent-primary" type="checkbox"/>
+<span>Верность математических преобразований (100%)</span>
+</label>
+<label class="flex items-center gap-2 text-on-surface cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-primary accent-primary" type="checkbox"/>
+<span>Корректность нахождения ОДЗ выражений</span>
+</label>
+<label class="flex items-center gap-2 text-on-surface cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-primary accent-primary" type="checkbox"/>
+<span>Чистота рукописного оформления тетради</span>
+</label>
+</div>
+</div>
+<!-- Editorial Review Textarea -->
+<div class="flex flex-col gap-1.5 pt-1">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface font-semibold" for="teacher-feedback">
+                Рецензия преподавателя:
+              </label>
+<span class="font-label-sm text-label-sm text-secondary">Ученик увидит комментарий</span>
+</div>
+<textarea class="w-full p-space-sm bg-surface-container-lowest text-on-surface font-body-md text-body-md rounded border-0 bg-surface-container-low focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-secondary" id="teacher-feedback" placeholder="Оставьте развернутое замечание или рекомендацию ученику..." rows="5">Отличный аккуратный ход решения. Обрати внимание на оформление ОДЗ во втором пункте: желательно выносить ограничения до начала взаимного умножения многочленов.</textarea>
+<div class="flex items-center justify-between text-secondary font-label-sm text-label-sm px-1">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">auto_fix_high</span>
+<span>Шаблоны фраз доступны</span>
+</span>
+<span>178 / 1000 симв.</span>
+</div>
+</div>
+<!-- Teacher Quick Tags Pills -->
+<div class="flex flex-wrap gap-1.5 pt-1">
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-label-sm text-label-sm transition-colors" type="button">
+              + «Аккуратный почерк»
+            </button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-label-sm text-label-sm transition-colors" type="button">
+              + «ОДЗ указано полно»
+            </button>
+<button class="px-2.5 py-1 rounded bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-label-sm text-label-sm transition-colors" type="button">
+              + «Внимание к деталям»
+            </button>
+</div>
+<!-- Warning: Concurrent Edit & Integrity Notice (As Required by Tech Specs) -->
+<div class="p-space-sm bg-surface-container-low rounded flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-[#975A16] text-[20px] shrink-0 mt-0.5">info</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-[#975A16] uppercase tracking-wider font-bold">
+                Регламент версионности и проверки
+              </span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-snug">
+                Работа заблокирована за Соколовой М. П. Параллельное редактирование другими кураторами ограничено. Оценка сразу отразится в электронном дневнике ученика и родителя.
+              </p>
+</div>
+</div>
+<!-- Primary & Secondary Submission Action Controls -->
+<div class="flex flex-col gap-2 pt-2 border-t border-surface-container">
+<!-- Main Submit Action -->
+<button class="w-full h-11 rounded bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md font-semibold tracking-wide shadow-sm flex items-center justify-center gap-2 transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+<span>Выставить оценку и завершить проверку</span>
+</button>
+<div class="grid grid-cols-2 gap-2">
+<!-- Return for revision -->
+<button class="h-10 px-3 rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-label-md text-label-md font-semibold transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px] text-[#C05621]">replay</span>
+<span>На доработку</span>
+</button>
+<!-- Save Draft -->
+<button class="h-10 px-3 rounded bg-surface-container-low hover:bg-surface-container text-secondary font-label-md text-label-md font-medium transition-colors flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">save</span>
+<span>Сохранить черновик</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Student Context & Academic History Card -->
+<div class="bg-surface-container-lowest shadow-sm rounded-lg p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider font-bold">Успеваемость ученика</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">1-я четверть</span>
+</div>
+<div class="grid grid-cols-3 gap-2 py-1 text-center">
+<div class="p-2 bg-surface-container-low rounded">
+<span class="block font-label-sm text-label-sm text-secondary">Ср. балл</span>
+<span class="font-display text-[20px] font-bold text-on-surface">4.82</span>
+</div>
+<div class="p-2 bg-surface-container-low rounded">
+<span class="block font-label-sm text-label-sm text-secondary">Сдано в срок</span>
+<span class="font-display text-[20px] font-bold text-[#2F855A]">96%</span>
+</div>
+<div class="p-2 bg-surface-container-low rounded">
+<span class="block font-label-sm text-label-sm text-secondary">ДЗ проверено</span>
+<span class="font-display text-[20px] font-bold text-primary">24/25</span>
+</div>
+</div>
+<!-- Academic Trendline SVG Sparkline Visualization -->
+<div class="pt-2">
+<div class="flex items-center justify-between text-secondary font-label-sm text-label-sm mb-1">
+<span>Динамика последних 6 работ по алгебре</span>
+<span class="font-mono text-[11px] text-on-surface">5, 5, 4, 5, 5, [5]</span>
+</div>
+<div class="w-full h-12 bg-surface-container-low rounded p-2 flex items-center justify-center">
+<svg class="w-full h-full text-primary" fill="none" preserveaspectratio="none" viewbox="0 0 280 32">
+<!-- Grid guide lines -->
+<line stroke="currentColor" stroke-dasharray="2 2" stroke-opacity="0.1" x1="0" x2="280" y1="8" y2="8"></line>
+<line stroke="currentColor" stroke-dasharray="2 2" stroke-opacity="0.1" x1="0" x2="280" y1="24" y2="24"></line>
+<!-- Trajectory Polyline -->
+<path d="M 10,6 L 60,6 L 110,22 L 160,6 L 210,6 L 270,6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<!-- Data Nodes -->
+<circle class="fill-surface-container-lowest stroke-primary" cx="10" cy="6" r="3.5" stroke-width="2"></circle>
+<circle class="fill-surface-container-lowest stroke-primary" cx="60" cy="6" r="3.5" stroke-width="2"></circle>
+<circle class="fill-surface-container-lowest stroke-secondary" cx="110" cy="22" r="3.5" stroke-width="2"></circle>
+<circle class="fill-surface-container-lowest stroke-primary" cx="160" cy="6" r="3.5" stroke-width="2"></circle>
+<circle class="fill-surface-container-lowest stroke-primary" cx="210" cy="6" r="3.5" stroke-width="2"></circle>
+<circle class="fill-[#2F855A] stroke-surface-container-lowest" cx="270" cy="6" r="4.5" stroke-width="1.5"></circle>
+</svg>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+<script>
+  // Simple interactive logic for grade selector and micro-interactions
+  document.addEventListener('DOMContentLoaded', () => {
+    const gradeButtons = document.querySelectorAll('.grade-btn');
+    const verbalDesc = document.getElementById('grade-verbal-desc');
+
+    gradeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Reset all buttons
+        gradeButtons.forEach(b => {
+          b.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm', 'ring-2', 'ring-primary');
+          b.classList.add('bg-surface-container', 'text-on-surface');
+          const subtext = b.querySelector('span:last-child');
+          if (subtext) {
+            subtext.classList.add('text-secondary');
+            subtext.classList.remove('text-on-primary');
+          }
+        });
+
+        // Activate clicked button
+        btn.classList.remove('bg-surface-container', 'text-on-surface');
+        btn.classList.add('bg-primary', 'text-on-primary', 'shadow-sm', 'ring-2', 'ring-primary');
+        const activeSubtext = btn.querySelector('span:last-child');
+        if (activeSubtext) {
+          activeSubtext.classList.remove('text-secondary');
+          activeSubtext.classList.add('text-on-primary');
+        }
+
+        // Update indicator
+        if (verbalDesc) {
+          verbalDesc.textContent = btn.getAttribute('data-desc');
+        }
+      });
+    });
+
+    // Highlighter tool mock toggle
+    const highlighterBtn = document.getElementById('tool-highlighter');
+    const cursorBtn = document.getElementById('tool-cursor');
+    if (highlighterBtn && cursorBtn) {
+      highlighterBtn.addEventListener('click', () => {
+        highlighterBtn.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm', 'font-semibold');
+        highlighterBtn.classList.remove('text-on-surface-variant');
+        cursorBtn.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm', 'font-semibold');
+        cursorBtn.classList.add('text-on-surface-variant');
+      });
+
+      cursorBtn.addEventListener('click', () => {
+        cursorBtn.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm', 'font-semibold');
+        cursorBtn.classList.remove('text-on-surface-variant');
+        highlighterBtn.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm', 'font-semibold');
+        highlighterBtn.classList.add('text-on-surface-variant');
+      });
+    }
+  });
+</script></main><footer class="w-full bg-surface-container-low shadow-[0_-1px_6px_rgba(30,33,36,0.03)] mt-space-xl"><div class="max-w-[1360px] mx-auto px-margin lg:px-margin-desktop py-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-secondary"><div class="flex items-center gap-space-sm"><span class="font-headline-sm text-headline-sm text-primary">Онлайн-гимназия</span><span class="text-outline-variant">—</span><span>Единый портал академического сопровождения</span></div><div class="flex items-center gap-space-lg font-label-sm text-label-sm"><a class="text-secondary hover:text-primary transition-colors" href="#">Служба поддержки</a><a class="text-secondary hover:text-primary transition-colors" href="#">Регламент гимназии</a><span>© 2024–2025</span></div></div></footer></body></html>
