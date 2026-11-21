@@ -25,6 +25,9 @@ services:
   gateway-api:
     volumes:
       - $RELEASES/$NAME/services/gateway/src:/app/src:ro
+  schedule-api:
+    volumes:
+      - $RELEASES/$NAME/services/schedule/src:/app/src:ro
   homework-api:
     volumes:
       - $RELEASES/$NAME/services/homework/src:/app/src:ro
