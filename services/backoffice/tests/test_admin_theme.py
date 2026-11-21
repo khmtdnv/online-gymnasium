@@ -29,7 +29,7 @@ def test_staff_pages_include_shared_theme_and_navigation(
     assert "backoffice_admin/theme.css" in content
     assert 'href="/"' in content
     assert reverse("backoffice-create-user") in content
-    assert "Staff-сессия" in content
+    assert "Вход для сотрудников" in content
     assert "test-service-token" not in content
     if url_name != "admin:index":
         assert "csrfmiddlewaretoken" in content

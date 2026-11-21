@@ -26,6 +26,18 @@ const monthLabel = (value: string) =>
     year: 'numeric',
     timeZone: 'UTC',
   });
+const periodLabel = (payment: Payment) => {
+  if (payment.period_type !== 'quarter') return `Месяц: ${monthLabel(payment.study_month)}`;
+  const year = payment.study_month.slice(0, 4);
+  const quarter = payment.study_month.slice(5, 7);
+  const names: Record<string, string> = {
+    '09': `1-я четверть · сентябрь — октябрь ${year}`,
+    '11': `2-я четверть · ноябрь — декабрь ${year}`,
+    '01': `3-я четверть · январь — март ${year}`,
+    '04': `4-я четверть · апрель — май ${year}`,
+  };
+  return names[quarter] ?? `Четверть · ${monthLabel(payment.study_month)}`;
+};
 
 export default function BillingPage() {
   const { state } = useSession();
@@ -51,6 +63,14 @@ function BillingContent({ admin }: { admin: boolean }) {
   });
   const quarterYear = quarter === '01' || quarter === '04' ? year + 1 : year;
   const month = `${quarterYear}-${quarter}`;
+  const dueDate = /^\d{4}-\d{2}$/.test(month)
+    ? new Date(month + '-01T12:00:00Z').toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+      })
+    : 'Укажите учебный год';
   const [offset, setOffset] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -134,7 +154,12 @@ function BillingContent({ admin }: { admin: boolean }) {
         </Alert>
       )}
       {!admin && (
-        <section className="card form-grid">
+        <section className="card form-grid billing-form">
+          <div className="billing-form-heading">
+            <span className="workspace-kicker">Учебный период</span>
+            <h2>Оплата за четверть</h2>
+            <p>Выберите ученика и период, чтобы проверить счёт.</p>
+          </div>
           <label>
             Ученик
             <select
@@ -180,59 +205,97 @@ function BillingContent({ admin }: { admin: boolean }) {
                 setLatest(null);
               }}
             >
-              <option value="09">1 · сентябрь — октябрь {year}</option>
-              <option value="11">2 · ноябрь — декабрь {year}</option>
-              <option value="01">3 · январь — март {year + 1}</option>
-              <option value="04">4 · апрель — май {year + 1}</option>
+              <option value="09">1-я четверть: сентябрь — октябрь {year}</option>
+              <option value="11">2-я четверть: ноябрь — декабрь {year}</option>
+              <option value="01">3-я четверть: январь — март {year + 1}</option>
+              <option value="04">4-я четверть: апрель — май {year + 1}</option>
             </select>
           </label>
-          <p>
-            Стоимость четверти:{' '}
-            {config.data
-              ? money(selectedOrder?.amount_kopecks ?? config.data.quarter_price_kopecks)
-              : 'загружаем…'}
-          </p>
-          <p>
-            Оплатить до начала четверти: {monthLabel(month + '-01')}. Учебный период начинается
-            первого числа по московскому времени.
-          </p>
-          {selectedOrder && (
-            <p role="status">
-              {selectedOrder.status === 'paid'
-                ? 'Счёт оплачен'
-                : selectedOrder.status === 'refunded'
-                  ? 'Оплата возвращена'
-                  : 'Счёт выставлен, ожидает оплаты'}
-            </p>
+          <div className="billing-summary">
+            <div>
+              <span>Стоимость четверти</span>
+              <strong>
+                {config.data
+                  ? money(selectedOrder?.amount_kopecks ?? config.data.quarter_price_kopecks)
+                  : 'Загружаем…'}
+              </strong>
+            </div>
+            <div>
+              <span>Оплатить до начала четверти</span>
+              <strong>{dueDate}</strong>
+              <small>по московскому времени</small>
+            </div>
+            <div>
+              <span>Состояние счёта</span>
+              <strong role="status">
+                {orders.isPending || orders.isFetching
+                  ? 'Проверяем счёт…'
+                  : orders.isError || offset !== 0
+                    ? 'Состояние счёта недоступно'
+                    : !selectedOrder
+                      ? 'Счёт ещё не создан'
+                      : selectedOrder.status === 'paid'
+                        ? 'Счёт оплачен'
+                        : selectedOrder.status === 'refunded'
+                          ? 'Оплата возвращена'
+                          : 'Счёт выставлен, ожидает оплаты'}
+              </strong>
+            </div>
+          </div>
+          {selectedOrder?.payment?.status === 'pending' &&
+            selectedOrder.payment.confirmation_url && (
+              <div className="billing-resume">
+                <p>
+                  Для этой четверти уже создан платёж. Продолжите оплату или проверьте её статус в
+                  истории ниже.
+                </p>
+                <a
+                  className="button button-primary"
+                  href={selectedOrder.payment.confirmation_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Продолжить оплату в ЮKassa
+                </a>
+              </div>
+            )}
+          {!(
+            selectedOrder?.payment?.status === 'pending' && selectedOrder.payment.confirmation_url
+          ) && (
+            <Button
+              disabled={
+                busy ||
+                !student ||
+                !/^\d{4}-\d{2}$/.test(month) ||
+                year < 2020 ||
+                year > 2099 ||
+                !config.data?.configured ||
+                !orders.isSuccess ||
+                offset !== 0 ||
+                (!!selectedOrder?.payment &&
+                  !['canceled', 'refunded'].includes(selectedOrder.payment.status))
+              }
+              onClick={() => {
+                const name = `${student}:${month}`;
+                void run(async () => {
+                  const result = await billing.start(
+                    student,
+                    month + '-01',
+                    keyFor(name),
+                    'quarter',
+                  );
+                  if (['canceled', 'refunded'].includes(result.status)) keys.current.delete(name);
+                  return result;
+                });
+              }}
+            >
+              Перейти к оплате четверти
+            </Button>
           )}
-          <Button
-            disabled={
-              busy ||
-              !student ||
-              !/^\d{4}-\d{2}$/.test(month) ||
-              year < 2020 ||
-              year > 2099 ||
-              !config.data?.configured ||
-              !orders.isSuccess ||
-              offset !== 0 ||
-              (!!selectedOrder?.payment &&
-                !['canceled', 'refunded'].includes(selectedOrder.payment.status))
-            }
-            onClick={() => {
-              const name = `${student}:${month}`;
-              void run(async () => {
-                const result = await billing.start(student, month + '-01', keyFor(name), 'quarter');
-                if (['canceled', 'refunded'].includes(result.status)) keys.current.delete(name);
-                return result;
-              });
-            }}
-          >
-            Перейти к оплате четверти
-          </Button>
         </section>
       )}
       {latest && (
-        <section className="card">
+        <section className="card billing-result">
           <p role="status">
             Платёж №{latest.id}: {labels[latest.status]}
           </p>
@@ -248,50 +311,55 @@ function BillingContent({ admin }: { admin: boolean }) {
           )}
         </section>
       )}
-      <section className="card">
-        <h2>История платежей</h2>
-        <Button
-          variant="secondary"
-          disabled={busy || page.isFetching}
-          onClick={() => {
-            void page.refetch();
-          }}
-        >
-          Обновить список
-        </Button>
+      <section className="card billing-history">
+        <div className="billing-history-header">
+          <h2>История платежей</h2>
+          <Button
+            variant="secondary"
+            disabled={busy || page.isFetching}
+            onClick={() => {
+              void page.refetch();
+            }}
+          >
+            Обновить список
+          </Button>
+        </div>
         {page.isPending && <p role="status">Загружаем историю…</p>}
         {page.error && <Alert tone="error">{explainError(page.error)}</Alert>}
         {page.isSuccess && rows.length === 0 && <p>Платежей пока нет.</p>}
         {rows.map((payment) => (
-          <article className="card" key={payment.id}>
-            <h3>
-              {payment.period_type === 'quarter' ? 'Четверть с ' : 'Месяц: '}
-              {monthLabel(payment.study_month)} · {money(payment.amount_kopecks)}
-            </h3>
-            <p>
-              №{payment.id} · {labels[payment.status]}
-            </p>
+          <article className="billing-payment" key={payment.id}>
+            <div className="billing-payment-details">
+              <h3>{periodLabel(payment)}</h3>
+              <p>Платёж №{payment.id}</p>
+            </div>
+            <strong className="billing-payment-amount">{money(payment.amount_kopecks)}</strong>
+            <span className={`billing-payment-status billing-payment-status--${payment.status}`}>
+              <span aria-hidden="true">●</span> {labels[payment.status]}
+            </span>
             {admin && 'student_name' in payment && <p>Ученик: {String(payment.student_name)}</p>}
             {payment.refund_status && <p>Возврат: {labels[payment.refund_status]}</p>}
-            {payment.confirmation_url && payment.status === 'pending' && (
-              <a
-                className="button button-secondary"
-                href={payment.confirmation_url}
-                target="_blank"
-                rel="noopener noreferrer"
+            <div className="billing-payment-actions">
+              {payment.confirmation_url && payment.status === 'pending' && (
+                <a
+                  className="button button-secondary"
+                  href={payment.confirmation_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Открыть ЮKassa
+                </a>
+              )}
+              <Button
+                variant="secondary"
+                disabled={busy || !config.data?.configured}
+                onClick={() => {
+                  void run(() => billing.refresh(payment.id));
+                }}
               >
-                Открыть ЮKassa
-              </a>
-            )}
-            <Button
-              variant="secondary"
-              disabled={busy || !config.data?.configured}
-              onClick={() => {
-                void run(() => billing.refresh(payment.id));
-              }}
-            >
-              Проверить статус в ЮKassa
-            </Button>
+                Проверить статус в ЮKassa
+              </Button>
+            </div>
             {admin && payment.status === 'succeeded' && !payment.refund_status && (
               <Button variant="danger" disabled={busy} onClick={() => setRefundId(payment.id)}>
                 Полный возврат

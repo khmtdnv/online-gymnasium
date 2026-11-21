@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
+from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 from gateway_service.api.dependencies import get_refresh_handler
@@ -62,6 +63,9 @@ def test_me_reads_bearer_token_and_returns_current_user() -> None:
         "id": str(user.id),
         "email": "student@example.com",
         "role": "student",
+        "first_name": "Тестовый",
+        "last_name": "Пользователь",
+        "middle_name": "",
     }
     token_service.decode_access.assert_called_once_with("valid-jwt")
 
@@ -412,3 +416,55 @@ def test_refresh_replay_returns_401_without_issuing_another_token() -> None:
     users.create_refresh_token.assert_awaited_once_with(
         token_id=issued.jti, user_id=user.id, expires_at=issued.expires_at
     )
+
+
+def _throttled_login_app(failures_before_block: int) -> FastAPI:
+    user = User(
+        id=uuid4(),
+        email="student@example.com",
+        role=Role.STUDENT,
+        password_hash="stored-hash",
+        is_active=True,
+        first_name="Тестовый",
+        last_name="Пользователь",
+    )
+    users = SimpleNamespace(
+        get_by_email=AsyncMock(return_value=user), create_refresh_token=AsyncMock()
+    )
+    uow = AsyncMock()
+    uow.__aenter__.return_value = SimpleNamespace(users=users)
+    password_verifier = Mock()
+    password_verifier.verify.return_value = False
+    settings = GatewaySettings(
+        database_url="postgresql+asyncpg://gateway:password@localhost/gateway",
+        jwt_secret="test-signing-secret-for-hs256-32-bytes",
+        backoffice_service_token="test-backoffice-token",
+        login_throttle_max_failures=failures_before_block,
+        _env_file=None,
+    )
+    return create_app(settings, AsyncMock(), lambda: uow, password_verifier, Mock())
+
+
+def test_login_blocks_after_series_of_failures() -> None:
+    app = _throttled_login_app(failures_before_block=3)
+
+    async def attempt():
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://testserver"
+        ) as client:
+            return await client.post(
+                "/api/v1/auth/login",
+                json={"email": "student@example.com", "password": "wrong"},
+                headers={"Origin": "http://localhost:8080"},
+            )
+
+    async def scenario():
+        statuses = [(await attempt()).status_code for _ in range(4)]
+        last = await attempt()
+        return statuses, last
+
+    statuses, last = asyncio.run(scenario())
+
+    assert statuses == [401, 401, 401, 429]
+    assert "retry-after" in last.headers
+    assert last.json()["error"]["code"] == "rate_limit_exceeded"

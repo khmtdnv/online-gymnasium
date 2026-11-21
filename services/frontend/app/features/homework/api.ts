@@ -95,8 +95,42 @@ export interface ReviewHomeworkAnswerInput {
   teacher_comment: string;
 }
 
+export const teacherReviewPageSchema = z.object({
+  items: z.array(
+    z.object({
+      answer_id: id,
+      homework_id: id,
+      lesson_id: id,
+      class_id: id,
+      subject_id: id,
+      class_name: z.string(),
+      subject_name: z.string(),
+      student_id: uuidSchema,
+      student_name: z.string(),
+      description: z.string(),
+      status: z.enum(['submitted', 'returned', 'graded']),
+      submitted_at: instantSchema,
+    }),
+  ),
+  next_cursor: z.number().int().positive().nullable(),
+});
+
 export function createHomeworkApi(client: ApiClient) {
   return {
+    listTeacherReviews(cursor: number, signal?: AbortSignal) {
+      return client.json(
+        `/api/v1/homework/review-queue?cursor=${cursor}`,
+        { signal },
+        teacherReviewPageSchema,
+      );
+    },
+    getAnswer(homeworkId: number, answerId: number, signal?: AbortSignal) {
+      return client.json(
+        `/api/v1/homework/${id.parse(homeworkId)}/answers/${id.parse(answerId)}`,
+        { signal },
+        homeworkAnswerSchema,
+      );
+    },
     listMyHomework(
       dateFrom: string,
       dateTo: string,

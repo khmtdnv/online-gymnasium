@@ -13,17 +13,17 @@ export default function Login() {
     <div className="login-layout">
       <section className="login-story">
         <Brand />
-        <span className="eyebrow">Ваш школьный день</span>
+        <span className="eyebrow">Онлайн-гимназия</span>
         <h1>
-          Больше ясности.
+          Школа, в которой
           <br />
-          Меньше суеты.
+          всё на своих местах.
         </h1>
-        <p>Школьные дела в одном спокойном пространстве. Заходите — всё нужное будет под рукой.</p>
+        <p>Расписание, задания и школьные дела — в одном пространстве.</p>
         <div className="login-pills">
-          <span>Понятное расписание</span>
-          <span>Справки онлайн</span>
-          <span>Общий рабочий ритм</span>
+          <span>Расписание</span>
+          <span>Домашние задания</span>
+          <span>Документы</span>
         </div>
       </section>
       <section className="login-panel">

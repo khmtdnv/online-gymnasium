@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from types import SimpleNamespace
 from uuid import UUID
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi import FastAPI
 

@@ -39,9 +39,40 @@ export const updateLessonInputSchema = intervalSchema.safeExtend({
 export type CreateLessonInput = z.infer<typeof createLessonInputSchema>;
 export type UpdateLessonInput = z.infer<typeof updateLessonInputSchema>;
 
+export const directoryClassSchema = z.object({
+  id: positiveIdSchema,
+  name: z.string().min(1),
+});
+export const directorySubjectSchema = z.object({
+  id: positiveIdSchema,
+  name: z.string().min(1).nullable(),
+});
+export const directorySchema = z.object({
+  classes: z.array(directoryClassSchema),
+  subjects: z.array(directorySubjectSchema),
+});
+export const teacherOptionSchema = z.object({
+  id: uuidSchema,
+  full_name: z.string().min(1),
+  email: z.string(),
+});
+export type Directory = z.infer<typeof directorySchema>;
+export type TeacherOption = z.infer<typeof teacherOptionSchema>;
+
 export function createScheduleApi(client: ApiClient) {
   return {
     ...createMyScheduleApi(client),
+    directory(signal?: AbortSignal) {
+      return client.json('/api/v1/schedule/directory', { signal }, directorySchema);
+    },
+    searchTeachers(q: string, signal?: AbortSignal) {
+      const query = new URLSearchParams({ q });
+      return client.json(
+        `/api/v1/schedule/teachers?${query}`,
+        { signal },
+        z.array(teacherOptionSchema),
+      );
+    },
     listLessons(classId: number, day: string, signal?: AbortSignal) {
       const query = new URLSearchParams({
         class_id: String(positiveIdSchema.parse(classId)),

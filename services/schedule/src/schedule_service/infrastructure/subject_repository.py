@@ -22,6 +22,11 @@ class SqlAlchemySubjectRepository:
         )
         return [Subject(id=row.id, name=row.name) for row in rows]
 
+    async def list_all(self) -> list[Subject]:
+        """Весь справочник предметов по возрастанию идентификатора."""
+        rows = await self._session.scalars(select(SubjectRow).order_by(SubjectRow.id))
+        return [Subject(id=row.id, name=row.name) for row in rows]
+
     async def set_name(self, subject: Subject) -> None:
         """Заполняет неизвестное имя, отклоняя конфликт с уже известным названием."""
         row = await self._session.scalar(

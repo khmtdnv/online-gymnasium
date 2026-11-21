@@ -81,8 +81,16 @@ async def login(
         password=request_model.password,
         previous_refresh_token=refresh_token,
     )
+    throttle = request.app.state.login_throttle
+    if throttle.is_blocked(command.email):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many failed login attempts",
+            headers={"Retry-After": str(throttle.retry_after_seconds(command.email))},
+        )
     try:
         result = await handler.handle(command)
+        throttle.reset(command.email)
         set_refresh_cookie(
             response=response,
             token=result.refresh_token,
@@ -92,6 +100,7 @@ async def login(
         return LoginResponse(access_token=result.access_token)
 
     except AuthenticationError as exc:
+        throttle.register_failure(command.email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
@@ -160,6 +169,9 @@ class GetCurrentUserResponse(BaseModel):
     id: UUID
     email: str
     role: Role
+    first_name: str = ""
+    last_name: str = ""
+    middle_name: str = ""
 
 
 @router.get("/me", response_model=GetCurrentUserResponse)
@@ -182,6 +194,9 @@ async def get_current_user(
         id=user.id,
         email=user.email,
         role=user.role,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        middle_name=user.middle_name,
     )
 
 

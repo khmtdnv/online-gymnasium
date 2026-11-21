@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-surface": "#191c1f", "outline-variant": "#c2c6d1", "outline": "#727781", "surface-container-highest": "#e1e2e6", "on-secondary": "#ffffff", "on-tertiary-fixed": "#360f00", "secondary-container": "#dbe3ee", "surface-container-lowest": "#ffffff", "surface-container-high": "#e7e8ec", "secondary-fixed": "#dbe3ee", "tertiary-container": "#973800", "on-tertiary": "#ffffff", "on-primary-fixed": "#001c39", "inverse-on-surface": "#eff1f5", "on-surface-variant": "#424750", "surface-dim": "#d8dade", "on-primary-container": "#afceff", "inverse-primary": "#a4c9ff", "on-primary": "#ffffff", "error-container": "#ffdad6", "tertiary-fixed-dim": "#ffb596", "surface-bright": "#f8f9fd", "on-secondary-container": "#5d656e", "primary-fixed-dim": "#a4c9ff", "tertiary-fixed": "#ffdbcd", "surface-tint": "#2e609a", "error": "#ba1a1a", "on-secondary-fixed": "#141c24", "surface-container-low": "#f2f3f7", "tertiary": "#712800", "secondary-fixed-dim": "#bfc7d2", "inverse-surface": "#2e3134", "on-secondary-fixed-variant": "#404850", "on-tertiary-container": "#ffbea3", "background": "#f8f9fd", "on-error": "#ffffff", "surface": "#f8f9fd", "primary-fixed": "#d4e3ff", "surface-variant": "#e1e2e6", "on-background": "#191c1f", "primary": "#004077", "on-tertiary-fixed-variant": "#7d2d00", "secondary": "#575f68", "surface-container": "#eceef2", "on-primary-fixed-variant": "#094881", "on-error-container": "#93000a", "primary-container": "#245892" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "margin": "1rem", "space-sm": "0.5rem", "gutter": "1rem", "space-md": "1rem", "space-xs": "0.25rem", "gutter-desktop": "1.5rem", "space-xl": "2.5rem", "space-lg": "1.5rem", "margin-desktop": "2.5rem" }, "fontFamily": { "headline-sm": ["\"Source Serif 4\""], "headline-lg": ["\"Source Serif 4\""], "label-sm": ["Manrope"], "code-num": ["Manrope"], "body-md": ["Manrope"], "headline-md": ["\"Source Serif 4\""], "body-lg": ["Manrope"], "display": ["\"Source Serif 4\""], "label-md": ["Manrope"], "headline-lg-mobile": ["\"Source Serif 4\""], "body-sm": ["Manrope"] }, "fontSize": { "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "code-num": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }] } } } }</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-fixed"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(30,33,36,0.06)]"><div class="h-16 max-w-[1360px] mx-auto px-margin lg:px-margin-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><a class="flex items-center gap-space-sm group" data-path="today" href="#"><div class="w-9 h-9 rounded-lg bg-primary-container text-on-primary flex items-center justify-center"><span class="material-symbols-outlined text-[20px]">menu_book</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight leading-none">Онлайн-гимназия</span><span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest leading-none mt-1">Академический реестр</span></div></a><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="bg-secondary-container text-on-secondary-fixed font-semibold rounded-lg"><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="today" href="#">Сегодня</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="schedule" href="#">Расписание</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="homework" href="#">Домашние задания</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="billing" href="#">Оплата и биллинг</a><a class="px-space-md py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="administration" href="#">Администрирование</a></nav></div><div class="flex items-center gap-space-md"><button aria-label="Уведомления" class="relative p-space-sm rounded-lg text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-error ring-2 ring-surface-container-lowest"></span></button><div class="h-6 w-px bg-outline-variant/40 hidden sm:block"></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="text-right hidden md:flex flex-col"><span class="font-label-md text-label-md text-on-surface font-semibold leading-tight">Артём Иванов</span><span class="font-label-sm text-label-sm text-secondary leading-tight">10 «А» класс</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-80px)]"><div class="flex flex-col w-full">
+<!-- Top Context Header Bar (Academic Register Breadcrumb & Class Sync) -->
+<div class="w-full bg-surface-container-low">
+<div class="max-w-[1360px] mx-auto px-margin lg:px-margin-desktop py-space-md">
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm min-w-0">
+<a class="inline-flex items-center gap-1 font-label-md text-label-md text-secondary hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>К онлайн-уроку</span>
+</a>
+<span class="text-outline-variant font-label-sm">/</span>
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-[#2B6CB0]"></span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Математика (Алгебра)</span>
+</div>
+<span class="px-space-xs py-0.5 rounded-lg bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">
+            7 «А» класс
+          </span>
+<span class="text-secondary font-body-sm text-body-sm hidden sm:inline">• Понедельник, 23 ноября</span>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs px-space-sm py-1 rounded-lg bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">sensors</span>
+<span>Урок № 101 в эфире (34:12)</span>
+</div>
+<div class="flex items-center gap-space-xs text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">person</span>
+<span class="font-semibold text-on-surface">Соколова М. П.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Canvas Sheet -->
+<div class="w-full max-w-[1360px] mx-auto px-margin lg:px-margin-desktop py-space-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-desktop items-start">
+<!-- Primary Form Column (9 cols) -->
+<div class="lg:col-span-8 xl:col-span-9 flex flex-col gap-space-lg">
+<!-- Document Sheet Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md sm:p-space-lg flex flex-col gap-space-lg">
+<!-- Card Header / Academic Stamp -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-sm">
+<div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest block">Журнал заданий • Формуляр выдачи</span>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mt-1">Выдача домашнего задания</h1>
+</div>
+<div class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded-lg bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm self-start sm:self-auto">
+<span class="material-symbols-outlined text-[16px]">edit_note</span>
+<span>Прямая трансляция в дневники</span>
+</div>
+</div>
+<!-- Section 1: Submission Deadline -->
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface uppercase tracking-wider flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">event_available</span>
+                1. Срок выполнения и сдачи работы
+              </label>
+<span class="font-label-sm text-label-sm text-secondary">Часовой пояс: UTC+5 (Екатеринбург)</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-sm" id="deadline-options">
+<!-- Radio Option A: Next Lesson (Default Active) -->
+<label class="relative flex flex-col p-space-md rounded-xl bg-surface-container-lowest shadow-sm cursor-pointer transition-all hover:bg-surface-bright" id="label-next-lesson">
+<div class="flex items-start gap-space-sm">
+<input checked="" class="mt-1 w-4 h-4 text-primary accent-[#245892] focus:ring-0 focus:outline-none" name="deadline_type" onchange="toggleDeadline(this.value)" type="radio" value="next"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-semibold">К следующему уроку</span>
+<span class="font-body-md text-body-md text-primary font-medium mt-0.5">Среда, 25 ноября, 09:00</span>
+<span class="font-label-sm text-label-sm text-secondary mt-1">Регламент гимназии: 48 часов на решение</span>
+</div>
+</div>
+</label>
+<!-- Radio Option B: Custom Date -->
+<label class="relative flex flex-col p-space-md rounded-xl bg-surface-container text-on-surface-variant cursor-pointer transition-all hover:bg-surface-container-high" id="label-custom-date">
+<div class="flex items-start gap-space-sm">
+<input class="mt-1 w-4 h-4 text-primary accent-[#245892] focus:ring-0 focus:outline-none" name="deadline_type" onchange="toggleDeadline(this.value)" type="radio" value="custom"/>
+<div class="flex flex-col w-full">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Указать дату и время вручную</span>
+<span class="font-body-sm text-body-sm text-secondary mt-0.5">Индивидуальный график или спецкурс</span>
+</div>
+</div>
+<!-- Expanded Manual Inputs -->
+<div class="hidden mt-space-md pt-space-sm grid grid-cols-1 sm:grid-cols-2 gap-space-sm" id="custom-inputs-drawer">
+<div>
+<span class="font-label-sm text-label-sm text-secondary block mb-1">Дата сдачи</span>
+<div class="relative flex items-center">
+<input class="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="date" value="2025-11-26"/>
+</div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-secondary block mb-1">Время (UTC+5)</span>
+<div class="relative flex items-center">
+<input class="w-full h-10 px-3 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary shadow-sm" type="time" value="18:00"/>
+</div>
+</div>
+</div>
+</label>
+</div>
+</div>
+<!-- Section 2: Assignment Description (No mandatory title per prompt) -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface uppercase tracking-wider flex items-center gap-space-xs" for="task-content">
+<span class="material-symbols-outlined text-[18px] text-primary">stylus_note</span>
+                2. Формулировка и методические указания
+              </label>
+<span class="font-label-sm text-label-sm text-secondary">Название формируется автоматически по номеру урока</span>
+</div>
+<div class="relative rounded-xl bg-surface-container-low p-space-xs flex flex-col">
+<!-- Formatting utility bar -->
+<div class="flex items-center justify-between px-space-sm py-1 text-secondary">
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm">
+<button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-surface-container hover:text-on-surface transition-colors" title="Жирный" type="button">
+<span class="font-bold">B</span>
+</button>
+<button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-surface-container hover:text-on-surface transition-colors" title="Курсив" type="button">
+<span class="italic font-serif">I</span>
+</button>
+<button class="px-1.5 h-7 flex items-center justify-center rounded-lg hover:bg-surface-container hover:text-on-surface transition-colors font-code-num text-code-num" title="Формула" type="button">
+                    f(x)
+                  </button>
+<button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-surface-container hover:text-on-surface transition-colors" title="Список" type="button">
+<span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Markdown поддерживается</span>
+</div>
+<!-- Main Textarea -->
+<textarea class="w-full p-space-md rounded-lg bg-surface-container-lowest text-on-surface font-body-lg text-body-lg leading-relaxed focus:outline-none focus:ring-1 focus:ring-primary shadow-sm resize-y" id="task-content" placeholder="Введите формулировку задания..." rows="6">Решите задачу № 218 из учебника (стр. 86). Постройте графики линейных функций в координатной сетке. Обязательно выделите точки пересечения прямых с осями координат. Решение можно выполнить в тетради Умной ручкой либо прикрепить фото/скан.</textarea>
+</div>
+<div class="flex items-center justify-between px-1">
+<span class="font-label-sm text-label-sm text-secondary">Объем: 247 символов</span>
+<span class="font-label-sm text-label-sm text-secondary">Синхронизируется с приложением ученика в реальном времени</span>
+</div>
+</div>
+<!-- Section 3: Attachments with Isolated Network Error State -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface uppercase tracking-wider flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">attach_file</span>
+                3. Методические материалы и шаблоны
+              </label>
+<span class="font-label-sm text-label-sm text-secondary">PDF, PNG, JPG, DOCX до 25 МБ</span>
+</div>
+<!-- List of Files -->
+<div class="flex flex-col gap-space-xs">
+<!-- File Item 1: Success -->
+<div class="flex items-center justify-between p-space-md rounded-xl bg-surface-container-low transition-all">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Дроби_примеры.pdf</span>
+<span class="font-label-sm text-label-sm text-secondary shrink-0">(1.4 МБ)</span>
+</div>
+<div class="flex items-center gap-1 text-primary-container mt-0.5">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span class="font-label-sm text-label-sm font-semibold">Загружено успешно</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" title="Просмотр" type="button">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-error-container/30 transition-colors" title="Удалить файл" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<!-- File Item 2: Isolated Error with Inline Retry (Demonstrating requirement) -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between p-space-md rounded-xl bg-error-container/40 gap-space-sm transition-all" id="failed-file-card">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-lg bg-error text-on-error flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">broken_image</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Графики_шаблон.png</span>
+<span class="font-label-sm text-label-sm text-secondary shrink-0">(3.2 МБ)</span>
+</div>
+<div class="flex items-center gap-1 text-error mt-0.5">
+<span class="material-symbols-outlined text-[14px]">error</span>
+<span class="font-label-sm text-label-sm font-semibold">Ошибка загрузки сети (504 Gateway Timeout)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs shrink-0 self-end sm:self-auto">
+<button class="px-space-md h-9 rounded-lg bg-surface-container-lowest text-error font-label-md text-label-md font-semibold hover:bg-surface-container-highest transition-colors shadow-sm flex items-center gap-1.5" id="retry-btn" onclick="retryFileUpload()" type="button">
+<span class="material-symbols-outlined text-[16px]" id="retry-icon">replay</span>
+<span id="retry-text">Повторить загрузку</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-surface-container transition-colors" onclick="removeFailedFile()" title="Отменить" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Drag and Drop Zone -->
+<div class="rounded-xl p-space-lg bg-surface-container-low hover:bg-surface-container transition-colors flex flex-col items-center justify-center text-center cursor-pointer group">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-secondary group-hover:text-primary group-hover:scale-105 transition-all mb-2 shadow-sm">
+<span class="material-symbols-outlined text-[24px]">cloud_upload</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface font-medium">
+                Перетащите дополнительные файлы сюда или <span class="text-primary underline">выберите с диска</span>
+</p>
+<p class="font-label-sm text-label-sm text-secondary mt-1">
+                Поддерживаются чертежи GeoGebra, таблицы и методические карточки
+              </p>
+</div>
+</div>
+<!-- Section 4: Smart Pen Integration Toggle -->
+<div class="p-space-md rounded-xl bg-surface-container-low flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">draw</span>
+</div>
+<div class="flex flex-col">
+<label class="font-label-md text-label-md text-on-surface font-semibold cursor-pointer" for="smart-pen-check">
+                  Разрешить ввод через «Умную ручку гимназии»
+                </label>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">
+                  Синхронизирует почерк и построение графиков из физической тетради ученика напрямую в проверяемый конспект.
+                </p>
+</div>
+</div>
+<div class="flex items-center shrink-0">
+<input checked="" class="w-5 h-5 rounded text-primary accent-[#245892] cursor-pointer focus:ring-0 focus:outline-none" id="smart-pen-check" type="checkbox"/>
+</div>
+</div>
+<!-- Section 5: Action Controls -->
+<div class="pt-space-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm order-2 sm:order-1">
+<button class="px-space-md h-10 rounded-lg bg-surface-container-low text-secondary font-label-md text-label-md hover:bg-surface-container hover:text-on-surface transition-colors" type="button">
+                Отмена
+              </button>
+<button class="px-space-md h-10 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container-high transition-colors shadow-sm flex items-center gap-1.5" onclick="notifyDraftSaved()" type="button">
+<span class="material-symbols-outlined text-[16px]">save</span>
+<span>Сохранить как черновик</span>
+</button>
+</div>
+<button class="order-1 sm:order-2 px-space-lg h-10 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-semibold hover:bg-primary transition-all shadow-sm flex items-center justify-center gap-space-xs" onclick="publishAssignment()" type="button">
+<span class="material-symbols-outlined text-[18px]">send</span>
+<span>Опубликовать задание для 7 «А» (24 ученика)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Column: Lesson Context & Academic Class Status (3-4 cols) -->
+<div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-space-md">
+<!-- Live Lesson Status Box -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Текущий урок</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+              В процессе
+            </span>
+</div>
+<div class="flex flex-col mt-1">
+<span class="font-headline-sm text-headline-sm text-on-surface">Линейная функция и её график</span>
+<span class="font-body-sm text-body-sm text-secondary mt-0.5">Урок 4 из раздела «Алгебра 7 класс»</span>
+</div>
+<!-- Compact Mini Student Ledger -->
+<div class="mt-space-sm pt-space-sm bg-surface-container-low rounded-lg p-space-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between text-secondary font-label-sm text-label-sm">
+<span>Присутствуют в эфире</span>
+<span class="font-semibold text-on-surface">23 / 24</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 95.8%"></div>
+</div>
+<span class="font-label-sm text-label-sm text-secondary mt-1">Отсутствует по заявлению: Воронов Илья</span>
+</div>
+</div>
+<!-- Smart Pen Hardware Registry Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs text-primary">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">Умные тетради класса</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary">
+            У 22 из 24 учеников 7 «А» калибровка цифрового пера завершена. Рукописные графики проверяются с наложением аналитической сетки.
+          </p>
+<div class="pt-space-xs">
+<a class="font-label-sm text-label-sm text-primary hover:underline inline-flex items-center gap-1" href="#">
+<span>Открыть статус устройств</span>
+<span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Academic Prompt Advice / Guidelines Card -->
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-secondary">
+<span class="material-symbols-outlined text-[18px]">lightbulb</span>
+<span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider">Памятка гимназии</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            При выдаче заданий с чертежами координатной сетки рекомендуется прикреплять готовый миллиметровый шаблон в PDF, чтобы облегчить экспорт в электронную тетрадь.
+          </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive script handling Isolated File Retry & Deadline Toggles -->
+<script>
+    function toggleDeadline(value) {
+      var customDrawer = document.getElementById('custom-inputs-drawer');
+      var labelNext = document.getElementById('label-next-lesson');
+      var labelCustom = document.getElementById('label-custom-date');
+
+      if (value === 'custom') {
+        customDrawer.classList.remove('hidden');
+        labelCustom.classList.remove('bg-surface-container');
+        labelCustom.classList.add('bg-surface-container-lowest', 'shadow-sm');
+        labelNext.classList.remove('bg-surface-container-lowest', 'shadow-sm');
+        labelNext.classList.add('bg-surface-container');
+      } else {
+        customDrawer.classList.add('hidden');
+        labelNext.classList.remove('bg-surface-container');
+        labelNext.classList.add('bg-surface-container-lowest', 'shadow-sm');
+        labelCustom.classList.remove('bg-surface-container-lowest', 'shadow-sm');
+        labelCustom.classList.add('bg-surface-container');
+      }
+    }
+
+    function retryFileUpload() {
+      var icon = document.getElementById('retry-icon');
+      var text = document.getElementById('retry-text');
+      var card = document.getElementById('failed-file-card');
+      
+      icon.classList.add('animate-spin');
+      text.innerText = 'Загрузка...';
+
+      // Simulating isolated file retry without clearing text or other attachments
+      setTimeout(function() {
+        icon.classList.remove('animate-spin');
+        card.className = 'flex flex-col sm:flex-row sm:items-center justify-between p-space-md rounded-xl bg-surface-container-low transition-all';
+        card.innerHTML = `
+          <div class="flex items-center gap-space-md min-w-0">
+            <div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-[20px]">image</span>
+            </div>
+            <div class="flex flex-col min-w-0">
+              <div class="flex items-center gap-space-xs">
+                <span class="font-label-md text-label-md text-on-surface font-semibold truncate">Графики_шаблон.png</span>
+                <span class="font-label-sm text-label-sm text-secondary shrink-0">(3.2 МБ)</span>
+              </div>
+              <div class="flex items-center gap-1 text-primary-container mt-0.5">
+                <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                <span class="font-label-sm text-label-sm font-semibold">Загружено повторно</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-space-xs shrink-0 self-end sm:self-auto">
+            <button type="button" title="Просмотр" class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:bg-surface-container hover:text-on-surface transition-colors">
+              <span class="material-symbols-outlined text-[18px]">visibility</span>
+            </button>
+            <button type="button" title="Удалить" onclick="this.closest('#failed-file-card').remove()" class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-error-container/30 transition-colors">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+            </button>
+          </div>
+        `;
+      }, 1200);
+    }
+
+    function removeFailedFile() {
+      var card = document.getElementById('failed-file-card');
+      if (card) {
+        card.remove();
+      }
+    }
+
+    function notifyDraftSaved() {
+      var btn = event.currentTarget;
+      var original = btn.innerHTML;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[16px] text-primary">done</span><span>Черновик сохранён</span>';
+      setTimeout(function() {
+        btn.innerHTML = original;
+      }, 2000);
+    }
+
+    function publishAssignment() {
+      var btn = event.currentTarget;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span><span>Публикация задания...</span>';
+      setTimeout(function() {
+        btn.className = 'order-1 sm:order-2 px-space-lg h-10 rounded-lg bg-surface-container-highest text-on-surface font-label-md text-label-md font-semibold shadow-sm flex items-center justify-center gap-space-xs';
+        btn.innerHTML = '<span class="material-symbols-outlined text-[18px] text-primary">task_alt</span><span>Задание отправлено 24 ученикам</span>';
+      }, 900);
+    }
+  </script>
+</div></main><footer class="w-full bg-surface-container-low shadow-[0_-1px_6px_rgba(30,33,36,0.03)] mt-space-xl"><div class="max-w-[1360px] mx-auto px-margin lg:px-margin-desktop py-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-secondary"><div class="flex items-center gap-space-sm"><span class="font-headline-sm text-headline-sm text-primary">Онлайн-гимназия</span><span class="text-outline-variant">—</span><span>Единый портал академического сопровождения</span></div><div class="flex items-center gap-space-lg font-label-sm text-label-sm"><a class="text-secondary hover:text-primary transition-colors" href="#">Служба поддержки</a><a class="text-secondary hover:text-primary transition-colors" href="#">Регламент гимназии</a><span>© 2024–2025</span></div></div></footer></body></html>

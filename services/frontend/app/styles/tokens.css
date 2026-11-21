@@ -1,17 +1,37 @@
 :root {
-  --canvas: #f0f2ed;
-  --sidebar: #f9fbf7;
-  --surface: #fffefa;
-  --text: #223b36;
-  --muted: #62706a;
-  --accent: #17645c;
-  --accent-hover: #12564f;
-  --accent-soft: #e2eee8;
-  --peach: #f4d9c6;
-  --border: #dde5df;
-  --danger: #a33630;
-  --danger-soft: #fff0ec;
-  --success: #24634a;
-  --radius: 24px;
+  /* Дизайн-система Stitch «Academic Stationery»: бумага и чернила. */
+  --canvas: #f8f9fd; /* стол */
+  --sidebar: #f4f3ef; /* корешок/панели */
+  --surface: #ffffff; /* лист */
+  --surface-dim: #f2f3f7;
+  --text: #191c1f; /* графитовые чернила */
+  --muted: #59616a; /* вторичные пометки */
+  --accent: #245892; /* чернильное действие */
+  --accent-hover: #1b4573;
+  --accent-soft: #ebf2fa; /* выделение, выбор */
+  --peach: #fffaf0; /* ожидание/возврат фон */
+  --border: #dcdad5; /* обрез листа */
+  --border-inner: #eceae4; /* линовка внутри */
+  --danger: #ba1a1a;
+  --danger-soft: #fff5f5;
+  --success: #276749;
+  --success-soft: #f0fff4;
+  --warn: #975a16; /* ожидание */
+  --warn-border: #feebc8;
+  --return: #c05621; /* вернули */
+  --radius: 4px; /* строгие края, без пилюль */
+  --radius-lg: 6px;
+  --shadow-overlay: 0 2px 8px rgba(30, 33, 36, 0.06), 0 1px 2px rgba(30, 33, 36, 0.04);
   --font-sans: 'Manrope', system-ui, sans-serif;
+  --font-serif: 'Source Serif 4', Georgia, serif;
+
+  /* Предметные закладки: мягкие метки повторяющихся уроков. */
+  --subject-math: #2b6cb0;
+  --subject-russian: #c05621;
+  --subject-literature: #6b46c1;
+  --subject-physics: #2f855a;
+  --subject-history: #975a16;
+  --subject-nature: #2f855a;
+  --subject-language: #0f766e;
+  --subject-default: #59616a;
 }

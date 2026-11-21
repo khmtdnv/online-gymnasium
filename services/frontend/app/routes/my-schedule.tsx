@@ -22,7 +22,7 @@ function MySchedule() {
     queryFn: ({ signal }) => schedule.getMySchedule(week, signal),
   });
   return (
-    <>
+    <div className="workspace-page schedule-page">
       <PageHeader
         title="Моё расписание"
         description="Выберите день и откройте предмет, чтобы посмотреть урок и домашние задания."
@@ -50,6 +50,6 @@ function MySchedule() {
         failed={query.isError}
         onWeekChange={setWeek}
       />
-    </>
+    </div>
   );
 }

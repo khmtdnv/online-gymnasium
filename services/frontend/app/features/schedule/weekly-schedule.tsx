@@ -2,7 +2,17 @@ import { useState } from 'react';
 import { Button } from '../../components/ui/button';
 import type { ScheduleDay } from './my-schedule-api';
 import { LessonCard } from './lesson-card';
-import { addSchoolDays, formatSchoolDay, schoolDay, schoolWeek } from './school-dates';
+import {
+  addSchoolDays,
+  formatSchoolDay,
+  schoolDay,
+  schoolHour,
+  schoolWeek,
+} from './school-dates';
+
+/** Учебные часы школьного дня: колонки недельного листа. */
+const LESSON_HOURS = [9, 10, 11, 12, 13, 14] as const;
+
 export function WeeklySchedule({
   weekStart,
   days,
@@ -50,6 +60,8 @@ export function WeeklySchedule({
         </Button>
       </div>
       <p className="calendar-timezone">Время школы · {timezone} (UTC+5)</p>
+
+      {/* Мобильный вариант: выбор дня и вертикальный список. */}
       <div className="week-day-tabs" role="tablist" aria-label="Дни недели">
         {days.map((day, index) => (
           <button
@@ -82,32 +94,97 @@ export function WeeklySchedule({
           </button>
         ))}
       </div>
+
       {!loading && !failed && (
-        <div className="week-grid">
-          {days.map((day) => (
-            <section
-              id={`calendar-${day.date}`}
-              key={day.date}
-              className={`week-day${day.date === today ? ' is-today' : ''}${day.date === selectedDay ? ' is-selected' : ''}`}
-              aria-labelledby={`heading-${day.date}`}
-            >
-              <header>
-                <h2 id={`heading-${day.date}`}>
-                  {formatSchoolDay(day.date, { weekday: 'long', month: undefined, day: undefined })}
-                </h2>
-                <span>{formatSchoolDay(day.date)}</span>
-                {day.date === today && <span className="badge">Сегодня</span>}
-              </header>
-              <div className="day-lessons">
-                {day.lessons.map((lesson) => (
-                  <LessonCard key={lesson.id} lesson={lesson} />
-                ))}
-                {!day.lessons.length && <p className="empty-school-day">Уроков нет</p>}
+        <>
+          {/* Настольный лист: строка-день, уроки в колонках часов. */}
+          <div className="week-sheet">
+            <div className="week-sheet-head">
+              <span className="week-sheet-corner">День / время</span>
+              {LESSON_HOURS.map((hour) => (
+                <span key={hour} className="week-sheet-hour">
+                  {String(hour).padStart(2, '0')}:00
+                </span>
+              ))}
+            </div>
+            {days.map((day) => (
+              <div
+                key={day.date}
+                className={`week-sheet-row${day.date === today ? ' is-today' : ''}`}
+              >
+                <div className="week-sheet-day">
+                  <strong>
+                    {formatSchoolDay(day.date, {
+                      weekday: 'long',
+                      month: undefined,
+                      day: undefined,
+                    })}
+                  </strong>
+                  <span>{formatSchoolDay(day.date)}</span>
+                  <span className="week-sheet-count">
+                    {day.lessons.length
+                      ? `${day.lessons.length} ${plural(day.lessons.length)}`
+                      : 'Уроков нет'}
+                  </span>
+                  {day.date === today && <span className="week-today-label">Сегодня</span>}
+                </div>
+                {LESSON_HOURS.map((hour) => {
+                  const lessons = day.lessons.filter(
+                    (lesson) => schoolHour(lesson.starts_at) === hour,
+                  );
+                  return (
+                    <div key={hour} className="week-sheet-cell">
+                      {lessons.map((lesson) => (
+                        <LessonCard key={lesson.id} lesson={lesson} compact />
+                      ))}
+                    </div>
+                  );
+                })}
               </div>
-            </section>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {/* Мобильный список выбранного дня. */}
+          <div className="week-mobile-day">
+            {days
+              .filter((day) => day.date === selectedDay)
+              .map((day) => (
+                <section
+                  id={`calendar-${day.date}`}
+                  key={day.date}
+                  className={`week-day${day.date === today ? ' is-today' : ''}`}
+                  aria-labelledby={`heading-${day.date}`}
+                >
+                  <header>
+                    <h2 id={`heading-${day.date}`}>
+                      {formatSchoolDay(day.date, {
+                        weekday: 'long',
+                        month: undefined,
+                        day: undefined,
+                      })}
+                    </h2>
+                    <span>{formatSchoolDay(day.date)}</span>
+                    {day.date === today && <span className="week-today-label">Сегодня</span>}
+                  </header>
+                  <div className="day-lessons">
+                    {day.lessons.map((lesson) => (
+                      <LessonCard key={lesson.id} lesson={lesson} />
+                    ))}
+                    {!day.lessons.length && <p className="empty-school-day">Уроков нет</p>}
+                  </div>
+                </section>
+              ))}
+          </div>
+        </>
       )}
     </section>
   );
+}
+
+function plural(count: number) {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'урок';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'урока';
+  return 'уроков';
 }

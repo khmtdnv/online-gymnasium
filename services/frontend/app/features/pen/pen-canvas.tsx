@@ -30,10 +30,16 @@ export function PenCanvas({
     };
   }
   return (
-    <section className="card">
-      <p role="status" aria-live="polite">
-        {pen.message}
-      </p>
+    <section className="workspace-panel pen-workspace">
+      <div className="pen-workspace-heading">
+        <div>
+          <span className="workspace-kicker">Рабочая область</span>
+          <h2>{readonly ? 'Записи ученика' : 'Мои записи'}</h2>
+        </div>
+        <p className="pen-connection" role="status" aria-live="polite">
+          {pen.message}
+        </p>
+      </div>
       <p>
         {readonly
           ? 'Режим преподавателя: рисунок ученика, только просмотр.'
@@ -44,13 +50,11 @@ export function PenCanvas({
         aria-label="Холст умной ручки"
         viewBox="0 0 1000 600"
         preserveAspectRatio="none"
+        className="pen-writing-surface"
         style={{
           width: '100%',
           height: 'min(55vh, 500px)',
           minHeight: 240,
-          background: '#fff',
-          border: '1px solid #9caea8',
-          borderRadius: 16,
           touchAction: readonly ? 'auto' : 'none',
           cursor: readonly ? 'default' : 'crosshair',
         }}
@@ -74,7 +78,7 @@ export function PenCanvas({
             key={id}
             points={points.join(' ')}
             fill="none"
-            stroke="#203e38"
+            stroke="#267b99"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"

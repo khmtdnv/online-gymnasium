@@ -40,12 +40,12 @@ export default function NotificationsPage() {
     }
   };
   return (
-    <>
+    <div className="workspace-page notification-page">
       <PageHeader
         title="Уведомления"
         description="Проверка домашних заданий, оплата и готовность документов. Только сообщения для вашего аккаунта."
       />
-      <section className="card">
+      <section className="notification-toolbar">
         {count.data && <p role="status">Непрочитанных: {count.data.unread}</p>}
         <Button
           variant="secondary"
@@ -56,9 +56,6 @@ export default function NotificationsPage() {
         >
           Обновить уведомления
         </Button>
-        <p className="field-hint">
-          Проверяем новые сообщения каждые 30 секунд, пока страница открыта.
-        </p>
       </section>
       {error && <Alert tone="error">{error}</Alert>}
       {count.error && <Alert tone="error">Счётчик недоступен: {explainError(count.error)}</Alert>}
@@ -70,15 +67,22 @@ export default function NotificationsPage() {
         </section>
       )}
       {(list.data ?? []).map((row) => (
-        <article className="card" key={row.id}>
-          <span className="badge">{row.read_at ? 'Прочитано' : 'Не прочитано'}</span>
-          <h2>{row.title}</h2>
-          <p>{row.body}</p>
-          <p className="field-hint">
-            <time dateTime={row.created_at}>
-              {new Date(row.created_at).toLocaleString('ru-RU')}
-            </time>
-          </p>
+        <article
+          className={`notification-item${row.read_at ? '' : ' notification-item-unread'}`}
+          key={row.id}
+        >
+          <div className="notification-body">
+            <h2>{row.title}</h2>
+            <p>{row.body}</p>
+            <p className="field-hint">
+              <time dateTime={row.created_at}>
+                {new Date(row.created_at).toLocaleString('ru-RU')}
+              </time>
+            </p>
+            <span className={`badge notification-status${row.read_at ? ' is-read' : ''}`}>
+              {row.read_at ? 'Прочитано' : 'Не прочитано'}
+            </span>
+          </div>
           <div className="form-actions">
             <Link className="button button-secondary" to={row.link}>
               Открыть
@@ -112,6 +116,6 @@ export default function NotificationsPage() {
           Дальше
         </Button>
       </div>
-    </>
+    </div>
   );
 }

@@ -9,6 +9,8 @@ from homework_service.domain.homework_answer import HomeworkAnswer
 class HomeworkAnswerRepository(Protocol):
     """Читает историю и сохраняет ответ/проверку без самостоятельного commit."""
 
+    async def review_candidates(self, after_id: int, limit: int): ...
+
     async def get_by_id(
         self, answer_id: int, *, for_update: bool = False
     ) -> HomeworkAnswer | None:

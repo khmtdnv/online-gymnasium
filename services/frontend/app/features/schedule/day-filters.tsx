@@ -32,10 +32,12 @@ export function useDaySelection() {
 export function DayFilters({
   classIdText,
   day,
+  classes,
   onChange,
 }: {
   classIdText: string;
   day: string;
+  classes?: { id: number; name: string }[];
   onChange: (values: z.infer<typeof filterSchema>) => void;
 }) {
   const {
@@ -49,15 +51,31 @@ export function DayFilters({
   return (
     <form className="filters card" noValidate onSubmit={handleSubmit(onChange)}>
       <div className="field">
-        <label htmlFor="filter-class">ID класса</label>
-        <Input
-          id="filter-class"
-          inputMode="numeric"
-          placeholder="Например, 9021"
-          {...register('class_id')}
-          aria-invalid={!!errors.class_id}
-          aria-describedby={errors.class_id ? 'filter-class-error' : undefined}
-        />
+        <label htmlFor="filter-class">Класс</label>
+        {classes && classes.length > 0 ? (
+          <select
+            id="filter-class"
+            className="input"
+            {...register('class_id')}
+            aria-invalid={!!errors.class_id}
+          >
+            <option value="">Выберите класс</option>
+            {classes.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <Input
+            id="filter-class"
+            inputMode="numeric"
+            placeholder="ID класса, например 7"
+            {...register('class_id')}
+            aria-invalid={!!errors.class_id}
+            aria-describedby={errors.class_id ? 'filter-class-error' : undefined}
+          />
+        )}
         {errors.class_id && (
           <p id="filter-class-error" className="field-error">
             {errors.class_id.message}

@@ -78,7 +78,7 @@ export function HomeworkAnswerReview({
   );
 }
 
-function ReviewForm({ answer, api }: { answer: HomeworkAnswer; api: HomeworkApi }) {
+export function ReviewForm({ answer, api }: { answer: HomeworkAnswer; api: HomeworkApi }) {
   const cache = useQueryClient();
   const [grade, setGrade] = useState('5');
   const [comment, setComment] = useState('');
@@ -109,6 +109,8 @@ function ReviewForm({ answer, api }: { answer: HomeworkAnswer; api: HomeworkApi 
         controller.signal,
       );
       await cache.invalidateQueries({ queryKey: ['homework', 'answers', answer.homework_id] });
+      await cache.invalidateQueries({ queryKey: ['teacher-reviews'] });
+      await cache.invalidateQueries({ queryKey: ['teacher-reviews-preview'] });
     } catch (error) {
       if (!controller.signal.aborted) {
         setError(explainError(error));

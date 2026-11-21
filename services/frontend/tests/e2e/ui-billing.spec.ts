@@ -84,6 +84,8 @@ test('оплата: отключённый магазин и безопасны�
     return route.fulfill({ json: [] });
   });
   await page.goto('/billing');
+  await page.getByLabel('Начало учебного года').fill('');
+  await expect(page.getByText('Укажите учебный год')).toBeVisible();
   await page.getByLabel('Начало учебного года').fill('2026');
   await page.getByLabel('Учебная четверть').selectOption('11');
   await expect(page.getByText('Счёт выставлен, ожидает оплаты')).toBeVisible();

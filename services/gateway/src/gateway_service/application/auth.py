@@ -215,6 +215,9 @@ class GetCurrentUserResult(BaseModel):
     id: UUID
     email: str
     role: Role
+    first_name: str = ""
+    last_name: str = ""
+    middle_name: str = ""
     session_id: UUID | None = Field(default=None, exclude=True)
 
 
@@ -266,6 +269,9 @@ class GetCurrentUserHandler:
                 id=user.id,
                 email=user.email,
                 role=user.role,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                middle_name=user.middle_name,
                 session_id=decoded_access.session_id,
             )
 

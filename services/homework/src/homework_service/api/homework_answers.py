@@ -16,6 +16,7 @@ from homework_service.application.homework_answers import (
     HomeworkAnswersQuery,
     ReviewHomeworkAnswerCommand,
     SubmitHomeworkAnswerCommand,
+    TeacherReviewPage,
 )
 from homework_service.application.ports.errors import (
     HomeworkAccessDeniedError,
@@ -74,6 +75,21 @@ def answer_handler(request: Request, name: str):
     if handler is None:
         raise unavailable()
     return handler
+
+
+@router.get("/review-queue", response_model=TeacherReviewPage)
+async def review_queue(
+    request: Request,
+    user_id: UserID,
+    role: UserRole,
+    cursor: Annotated[int, Query(ge=0, le=2147483647)] = 0,
+):
+    if role != "teacher":
+        raise HomeworkHTTPError(403, "access_denied", "Access denied")
+    with answer_errors():
+        return await answer_handler(
+            request, "read_homework_answers_handler"
+        ).review_queue(user_id, cursor)
 
 
 @router.post(

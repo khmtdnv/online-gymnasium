@@ -36,7 +36,7 @@ describe('оболочка', () => {
     shell({ ...user, role: 'student' });
     expect(screen.queryByRole('link', { name: 'Расписание' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Справки' })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Профиль' })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: 'Профиль' }).length).toBeGreaterThan(0);
   });
 
   it('закрывает мобильное меню по Escape и возвращает фокус', async () => {

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Онлайн-гимназия</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,600;1,8..60,600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-variant":"#e1e2e6","error-container":"#ffdad6","inverse-on-surface":"#eff1f5","on-secondary-container":"#5d656e","on-primary-container":"#afceff","secondary-fixed":"#dbe3ee","primary-container":"#245892","on-secondary":"#ffffff","on-tertiary-fixed-variant":"#7d2d00","outline":"#727781","outline-variant":"#c2c6d1","inverse-primary":"#a4c9ff","secondary-fixed-dim":"#bfc7d2","error":"#ba1a1a","on-tertiary":"#ffffff","surface-container-lowest":"#ffffff","surface":"#f8f9fd","primary-fixed":"#d4e3ff","on-secondary-fixed-variant":"#404850","on-error":"#ffffff","surface-container-low":"#f2f3f7","on-secondary-fixed":"#141c24","background":"#f8f9fd","on-tertiary-fixed":"#360f00","on-primary-fixed":"#001c39","secondary-container":"#dbe3ee","on-surface-variant":"#424750","tertiary":"#712800","tertiary-fixed-dim":"#ffb596","primary":"#004077","surface-container-high":"#e7e8ec","surface-tint":"#2e609a","inverse-surface":"#2e3134","on-primary":"#ffffff","secondary":"#575f68","primary-fixed-dim":"#a4c9ff","surface-dim":"#d8dade","on-error-container":"#93000a","tertiary-container":"#973800","surface-bright":"#f8f9fd","tertiary-fixed":"#ffdbcd","on-background":"#191c1f","surface-container":"#eceef2","on-tertiary-container":"#ffbea3","on-primary-fixed-variant":"#094881","on-surface":"#191c1f","surface-container-highest":"#e1e2e6"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"margin-desktop":"2.5rem","space-lg":"1.5rem","gutter-desktop":"1.5rem","gutter":"1rem","space-sm":"0.5rem","margin":"1rem","space-xs":"0.25rem","space-xl":"2.5rem","space-md":"1rem"},"fontFamily":{"headline-sm":["\"Source Serif 4\""],"headline-md":["\"Source Serif 4\""],"display":["\"Source Serif 4\""],"label-md":["Manrope"],"body-sm":["Manrope"],"code-num":["Manrope"],"headline-lg":["\"Source Serif 4\""],"headline-lg-mobile":["\"Source Serif 4\""],"label-sm":["Manrope"],"body-lg":["Manrope"],"body-md":["Manrope"]},"fontSize":{"headline-sm":["18px",{"lineHeight":"24px","fontWeight":"600"}],"headline-md":["22px",{"lineHeight":"28px","fontWeight":"600"}],"display":["36px",{"lineHeight":"44px","letterSpacing":"-0.015em","fontWeight":"600"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],"code-num":["14px",{"lineHeight":"20px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-lg":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.02em","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"26px","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"22px","fontWeight":"400"}]}}}};</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(30,33,36,0.05)]"><div class="h-16 max-w-[1360px] mx-auto px-gutter-desktop flex items-center justify-between"><div class="flex items-center gap-space-lg"><a class="flex items-center gap-space-sm group" data-path="segodnya" href="#"><div class="w-9 h-9 rounded bg-surface-container flex items-center justify-center text-primary transition-colors group-hover:bg-primary group-hover:text-on-primary"><span class="material-symbols-outlined text-[20px]">menu_book</span></div><span class="font-headline-sm text-headline-sm text-primary tracking-tight">Онлайн-гимназия</span></a><nav class="hidden xl:flex items-center gap-space-xs" data-active-classes="text-primary font-semibold bg-surface-container"><a class="px-space-sm py-1.5 rounded text-on-surface-variant font-label-md text-label-md hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="segodnya" href="#">Сегодня</a><a class="px-space-sm py-1.5 rounded text-on-surface-variant font-label-md text-label-md hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="raspisanie" href="#">Расписание</a><a class="px-space-sm py-1.5 rounded text-on-surface-variant font-label-md text-label-md hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="domashnie-zadaniya" href="#">Домашние задания</a><a class="px-space-sm py-1.5 rounded text-on-surface-variant font-label-md text-label-md hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="oplata-i-billing" href="#">Оплата и биллинг</a><a class="px-space-sm py-1.5 rounded text-on-surface-variant font-label-md text-label-md hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="administrirovanie" href="#">Администрирование</a></nav></div><div class="flex items-center gap-space-md"><div class="relative flex items-center justify-center"><button class="w-9 h-9 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span></button><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-tertiary-container ring-2 ring-surface"></span></div><div class="h-6 w-[1px] bg-outline-variant/40 hidden sm:block"></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="text-right hidden md:block leading-tight"><p class="font-label-md text-label-md text-on-surface">Артём Иванов</p><p class="font-label-sm text-label-sm text-on-surface-variant">7 «А» класс</p></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-16 bg-background"><div class="max-w-[1360px] mx-auto px-gutter-desktop py-space-lg"><div class="flex flex-col w-full">
+<!-- Top Archival Dossier Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between pb-space-lg mb-space-lg">
+<div>
+<div class="flex items-center gap-space-sm mb-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Учебное дело № 07-А-104</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed-dim"></span>
+<span class="font-label-sm text-label-sm text-secondary">Академический реестр</span>
+</div>
+<h1 class="font-display text-display text-on-surface tracking-tight">Личное дело учащегося</h1>
+</div>
+<div class="mt-space-md md:mt-0 flex items-center gap-space-sm">
+<span class="px-space-sm py-1 rounded bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm uppercase tracking-wide">
+        Статус: Зачислен
+      </span>
+<span class="px-space-sm py-1 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+        Учебный год 2025/2026
+      </span>
+</div>
+</div>
+<!-- Main Grid: Asymmetric Stationery Ledger -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-desktop items-start">
+<!-- Left Column: Student Pass & Physical Index (4 Cols) -->
+<div class="lg:col-span-4 flex flex-col gap-space-md">
+<!-- Portrait Card -->
+<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-sm flex flex-col items-center text-center relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1.5 bg-primary"></div>
+<div class="relative w-36 h-36 rounded-lg overflow-hidden mt-space-sm mb-space-md bg-surface-container shadow-inner">
+<img class="w-full h-full object-cover" data-alt="Editorial academic portrait photograph of a 13-year-old Russian schoolboy with dark hair and thoughtful calm eyes, wearing a dark navy school blazer over a crisp white oxford collar shirt. Soft diffused studio lighting with a neutral warm grey archival background. Clean, dignified scholarly aesthetic, muted film tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw2arlUZsKy23xEYf-0C6C4Qevof79dxPQNxhoILAY-tkS_NTJGp7Fi9rntoBfhfZQUzWYsNCw7UZqFJFmbcF74Z9T3gJ96SYf6gQdqUVQT2uluCCC3pMljlhS_pfsshm9PPMDJetUyjB6l-iWUqKnRIK3ZHnoVqBYy87nKPQQpECcYYFS84beHnLJYf_fgrNVvArPJnokMbxaacBIllWcIAzhjDWNHSuESZDm2vod"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent"></div>
+</div>
+<!-- Full Name visible without truncation -->
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary mb-1">Ученик гимназии</span>
+<h2 class="font-headline-md text-headline-md text-on-surface text-balance px-space-xs leading-snug">
+          Иванов Артём Дмитриевич
+        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+          7 «А» академический класс
+        </p>
+<!-- Academic Barcode / Ledger Stamp SVG -->
+<div class="w-full mt-space-lg pt-space-md flex flex-col items-center bg-surface-container-low rounded p-space-sm">
+<svg class="w-48 h-8 text-on-surface" fill="currentColor" viewbox="0 0 192 32">
+<rect height="28" width="2" x="0" y="2"></rect>
+<rect height="28" width="4" x="4" y="2"></rect>
+<rect height="28" width="1" x="10" y="2"></rect>
+<rect height="28" width="3" x="13" y="2"></rect>
+<rect height="28" width="1" x="18" y="2"></rect>
+<rect height="28" width="5" x="22" y="2"></rect>
+<rect height="28" width="2" x="30" y="2"></rect>
+<rect height="28" width="1" x="34" y="2"></rect>
+<rect height="28" width="3" x="38" y="2"></rect>
+<rect height="28" width="4" x="44" y="2"></rect>
+<rect height="28" width="2" x="50" y="2"></rect>
+<rect height="28" width="6" x="54" y="2"></rect>
+<rect height="28" width="1" x="62" y="2"></rect>
+<rect height="28" width="3" x="65" y="2"></rect>
+<rect height="28" width="2" x="70" y="2"></rect>
+<rect height="28" width="4" x="74" y="2"></rect>
+<rect height="28" width="1" x="80" y="2"></rect>
+<rect height="28" width="3" x="83" y="2"></rect>
+<rect height="28" width="5" x="88" y="2"></rect>
+<rect height="28" width="2" x="95" y="2"></rect>
+<rect height="28" width="1" x="100" y="2"></rect>
+<rect height="28" width="4" x="103" y="2"></rect>
+<rect height="28" width="2" x="110" y="2"></rect>
+<rect height="28" width="3" x="114" y="2"></rect>
+<rect height="28" width="1" x="120" y="2"></rect>
+<rect height="28" width="5" x="124" y="2"></rect>
+<rect height="28" width="2" x="131" y="2"></rect>
+<rect height="28" width="2" x="135" y="2"></rect>
+<rect height="28" width="4" x="140" y="2"></rect>
+<rect height="28" width="1" x="146" y="2"></rect>
+<rect height="28" width="3" x="150" y="2"></rect>
+<rect height="28" width="2" x="155" y="2"></rect>
+<rect height="28" width="4" x="160" y="2"></rect>
+<rect height="28" width="1" x="166" y="2"></rect>
+<rect height="28" width="5" x="170" y="2"></rect>
+<rect height="28" width="2" x="178" y="2"></rect>
+<rect height="28" width="3" x="182" y="2"></rect>
+<rect height="28" width="4" x="188" y="2"></rect>
+</svg>
+<span class="font-code-num text-label-sm text-secondary tracking-widest mt-1">ID • 07-A-8412-2026</span>
+</div>
+</div>
+<!-- Institutional Notice / Edit Data Rule -->
+<div class="bg-surface-container-high rounded-lg p-space-md shadow-sm">
+<div class="flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">policy</span>
+<div>
+<h4 class="font-headline-sm text-body-md text-on-surface mb-1">Порядок изменения данных</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Для изменения ФИО, даты рождения или привязки законного представителя обратитесь к куратору учебной части через Backoffice или по адресу 
+              <a class="text-primary font-medium hover:underline inline-block break-all" href="mailto:admin@gymnasium.online">admin@gymnasium.online</a>.
+            </p>
+</div>
+</div>
+</div>
+<!-- Action: Logout Button -->
+<button class="w-full h-10 px-space-md rounded bg-surface-container-lowest text-error hover:bg-error-container hover:text-on-error-container transition-colors font-label-md text-label-md flex items-center justify-center gap-space-xs shadow-sm" id="logoutTriggerBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span>Выйти из учетной записи</span>
+</button>
+</div>
+<!-- Right Column: Archival Sections (8 Cols) -->
+<div class="lg:col-span-8 flex flex-col gap-space-md">
+<!-- Section 1: Academic Identity & Accounts -->
+<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm mb-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="w-1 h-5 rounded-full bg-primary"></span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Учетные сведения учащегося</h3>
+</div>
+<span class="font-label-sm text-label-sm text-secondary uppercase">Лист 1 // Идентификация</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Full Name Display (Unabridged) -->
+<div class="bg-surface-container-low rounded p-space-md md:col-span-2">
+<span class="font-label-sm text-label-sm uppercase tracking-wide text-secondary block mb-1">Фамилия, Имя и Отчество полностью</span>
+<p class="font-headline-md text-headline-sm text-on-surface font-semibold tracking-tight">Иванов Артём Дмитриевич</p>
+</div>
+<!-- Academic Email -->
+<div class="bg-surface-container-low rounded p-space-md">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wide text-secondary">Школьный email</span>
+<span class="material-symbols-outlined text-secondary text-[16px]">alternate_email</span>
+</div>
+<p class="font-code-num text-code-num text-on-surface font-medium break-all">artem.ivanov@gymnasium.online</p>
+<span class="font-label-sm text-label-sm text-secondary mt-1 block">Единый SSO-аккаунт гимназии</span>
+</div>
+<!-- Form & Specialization -->
+<div class="bg-surface-container-low rounded p-space-md">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wide text-secondary">Класс и направление</span>
+<span class="material-symbols-outlined text-secondary text-[16px]">school</span>
+</div>
+<p class="font-code-num text-code-num text-on-surface font-medium">7 «А» академический</p>
+<span class="font-label-sm text-label-sm text-secondary mt-1 block">Углубленный цикл наук</span>
+</div>
+<!-- Role in System -->
+<div class="bg-surface-container-low rounded p-space-md">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wide text-secondary">Роль в системе</span>
+<span class="material-symbols-outlined text-secondary text-[16px]">badge</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface font-medium">Ученик гимназии</p>
+<span class="font-label-sm text-label-sm text-secondary mt-1 block">Дневник, лекторий, аттестации</span>
+</div>
+<!-- Language Track -->
+<div class="bg-surface-container-low rounded p-space-md">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wide text-secondary">Языковой трек</span>
+<span class="material-symbols-outlined text-secondary text-[16px]">translate</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface font-medium">Английский (C1), Немецкий (A2)</p>
+<span class="font-label-sm text-label-sm text-secondary mt-1 block">Академический стандарт</span>
+</div>
+</div>
+</div>
+<!-- Section 2: Legal Representative / Parent -->
+<div class="bg-surface-container-lowest rounded-lg p-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm mb-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="w-1 h-5 rounded-full bg-secondary"></span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Законный представитель (родитель)</h3>
+</div>
+<span class="font-label-sm text-label-sm text-secondary uppercase">Лист 2 // Опека</span>
+</div>
+<div class="bg-surface-container-low rounded p-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md pb-space-md mb-space-md">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-wide text-secondary block mb-1">ФИО представителя</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Иванова Елена Викторовна</h4>
+<p class="font-label-sm text-label-sm text-secondary mt-0.5">Родитель / Законный представитель с правом подписи документов</p>
+</div>
+<div class="self-start sm:self-center px-space-sm py-1 rounded bg-secondary-container text-on-secondary-fixed font-label-sm text-label-sm">
+              Верифицирован МФЦ / Госуслуги
+            </div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="bg-surface-container-lowest rounded p-space-sm flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded bg-surface-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[18px]">phone</span>
+</div>
+<div class="min-w-0">
+<span class="font-label-sm text-label-sm text-secondary block">Контактный телефон</span>
+<a class="font-code-num text-code-num text-on-surface hover:text-primary transition-colors" href="tel:+79001234567">+7 900 123-45-67</a>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded p-space-sm flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded bg-surface-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</div>
+<div class="min-w-0">
+<span class="font-label-sm text-label-sm text-secondary block">Электронная почта</span>
+<a class="font-code-num text-code-num text-on-surface hover:text-primary transition-colors truncate block" href="mailto:elena.ivanova@example.com">elena.ivanova@example.com</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3: Technical Account Dossier (Collapsed by Default) -->
+<div class="bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden">
+<button aria-expanded="false" class="w-full p-space-lg flex items-center justify-between text-left hover:bg-surface-container-low/50 transition-colors focus:outline-none" id="techAccordionToggle" type="button">
+<div class="flex items-center gap-space-sm">
+<span class="w-1 h-5 rounded-full bg-outline"></span>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Технические сведения учетной записи</h3>
+<p class="font-label-sm text-label-sm text-secondary">Служебные системные дескрипторы и реестровые ключи базы данных</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary hidden sm:inline" id="accordionStateLabel">Развернуть</span>
+<span class="material-symbols-outlined text-secondary transition-transform duration-200" id="accordionIcon">expand_more</span>
+</div>
+</button>
+<!-- Accordion Body: Hidden by Default -->
+<div class="hidden px-space-lg pb-space-lg pt-space-xs bg-surface-container-lowest" id="techAccordionBody">
+<div class="bg-surface-container-low rounded p-space-md flex flex-col gap-space-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between py-1 gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-medium">Системный UUID пользователя:</span>
+<span class="font-code-num text-code-num text-on-surface select-all bg-surface-container px-2 py-0.5 rounded break-all">
+                4f8b2a19-8c4e-412e-a590-b1836109312c
+              </span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between py-1 gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-medium">Ревизия базы данных:</span>
+<span class="font-code-num text-code-num text-on-surface select-all bg-surface-container px-2 py-0.5 rounded">
+                v2.84.1
+              </span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between py-1 gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-medium">Лицевой счет гимназиста:</span>
+<span class="font-code-num text-code-num text-primary font-semibold select-all bg-surface-container px-2 py-0.5 rounded">
+                № 8412-2026/7A
+              </span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between py-1 gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-medium">Центр обработки данных:</span>
+<span class="font-code-num text-body-sm text-on-surface-variant">
+                MSK-NOD-04 (Защищенный сегмент ФЗ-152)
+              </span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between py-1 gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-medium">Электронная цифровая метка сессии:</span>
+<span class="font-code-num text-label-sm text-secondary font-mono truncate max-w-xs">
+                SHA256:7b91c89f41de3390fa801b
+              </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Logout Confirmation Modal Backdrop -->
+<div class="fixed inset-0 z-50 hidden bg-inverse-surface/40 backdrop-blur-sm flex items-center justify-center p-space-md" id="logoutModal">
+<div class="bg-surface-container-lowest rounded-lg max-w-md w-full p-space-lg shadow-xl relative animate-in fade-in zoom-in-95 duration-150">
+<div class="flex items-center gap-space-sm mb-space-sm text-error">
+<span class="material-symbols-outlined text-[24px]">warning</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Завершение сеанса</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-space-lg leading-relaxed">
+        Вы уверены, что хотите выйти из учетной записи гимназиста <strong class="text-on-surface font-semibold">Иванов Артём Дмитриевич</strong>? Все сохраненные черновики останутся в безопасности.
+      </p>
+<div class="flex items-center justify-end gap-space-sm">
+<button class="h-10 px-space-md rounded bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-label-md text-label-md" id="cancelLogoutBtn" type="button">
+          Отмена
+        </button>
+<button class="h-10 px-space-md rounded bg-error text-on-error hover:bg-error/90 transition-colors font-label-md text-label-md" id="confirmLogoutBtn" type="button">
+          Подтвердить выход
+        </button>
+</div>
+</div>
+</div>
+<script>
+    (function() {
+      // Technical accordion toggle
+      const accToggle = document.getElementById('techAccordionToggle');
+      const accBody = document.getElementById('techAccordionBody');
+      const accIcon = document.getElementById('accordionIcon');
+      const accStateLabel = document.getElementById('accordionStateLabel');
+
+      if (accToggle && accBody) {
+        accToggle.addEventListener('click', function() {
+          const isExpanded = accToggle.getAttribute('aria-expanded') === 'true';
+          accToggle.setAttribute('aria-expanded', !isExpanded);
+          if (isExpanded) {
+            accBody.classList.add('hidden');
+            accIcon.classList.remove('rotate-180');
+            if (accStateLabel) accStateLabel.textContent = 'Развернуть';
+          } else {
+            accBody.classList.remove('hidden');
+            accIcon.classList.add('rotate-180');
+            if (accStateLabel) accStateLabel.textContent = 'Свернуть';
+          }
+        });
+      }
+
+      // Logout modal handling
+      const triggerBtn = document.getElementById('logoutTriggerBtn');
+      const modal = document.getElementById('logoutModal');
+      const cancelBtn = document.getElementById('cancelLogoutBtn');
+      const confirmBtn = document.getElementById('confirmLogoutBtn');
+
+      function openModal() {
+        if (modal) modal.classList.remove('hidden');
+      }
+
+      function closeModal() {
+        if (modal) modal.classList.add('hidden');
+      }
+
+      if (triggerBtn) triggerBtn.addEventListener('click', openModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+      if (confirmBtn) {
+        confirmBtn.addEventListener('click', function() {
+          // Provide subtle visual confirmation and reload or route
+          confirmBtn.textContent = 'Выход...';
+          confirmBtn.disabled = true;
+          setTimeout(function() {
+            window.location.href = '#';
+            closeModal();
+          }, 400);
+        });
+      }
+
+      // Close modal on escape key
+      window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
+    })();
+  </script>
+</div></div></main><footer class="w-full bg-surface-container-lowest shadow-[0_-1px_6px_rgba(30,33,36,0.03)] mt-space-xl"><div class="max-w-[1360px] mx-auto px-gutter-desktop py-space-lg flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-sm text-on-surface-variant font-body-sm text-body-sm"><span class="material-symbols-outlined text-primary text-[18px]">menu_book</span><span>© 2025 АНОО «Онлайн-гимназия». Все права защищены. Лицензия на образовательную деятельность.</span></div><div class="flex items-center gap-space-lg font-label-md text-label-md"><a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Служба заботы</a><a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Правила гимназии</a><a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Техническая поддержка</a></div></div></footer></body></html>

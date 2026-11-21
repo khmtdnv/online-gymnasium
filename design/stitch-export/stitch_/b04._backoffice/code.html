@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_blank" name="shell-type"/>
+<title>Онлайн-гимназия Backoffice | Назначение ученика в класс</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+    }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-variant": "#e1e2e6",
+            "error-container": "#ffdad6",
+            "inverse-on-surface": "#eff1f5",
+            "on-secondary-container": "#5d656e",
+            "on-primary-container": "#afceff",
+            "secondary-fixed": "#dbe3ee",
+            "primary-container": "#245892",
+            "on-secondary": "#ffffff",
+            "on-tertiary-fixed-variant": "#7d2d00",
+            "outline": "#727781",
+            "outline-variant": "#c2c6d1",
+            "inverse-primary": "#a4c9ff",
+            "secondary-fixed-dim": "#bfc7d2",
+            "error": "#ba1a1a",
+            "on-tertiary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "surface": "#f8f9fd",
+            "primary-fixed": "#d4e3ff",
+            "on-secondary-fixed-variant": "#404850",
+            "on-error": "#ffffff",
+            "surface-container-low": "#f2f3f7",
+            "on-secondary-fixed": "#141c24",
+            "background": "#f8f9fd",
+            "on-tertiary-fixed": "#360f00",
+            "on-primary-fixed": "#001c39",
+            "secondary-container": "#dbe3ee",
+            "on-surface-variant": "#424750",
+            "tertiary": "#712800",
+            "tertiary-fixed-dim": "#ffb596",
+            "primary": "#004077",
+            "surface-container-high": "#e7e8ec",
+            "surface-tint": "#2e609a",
+            "inverse-surface": "#2e3134",
+            "on-primary": "#ffffff",
+            "secondary": "#575f68",
+            "primary-fixed-dim": "#a4c9ff",
+            "surface-dim": "#d8dade",
+            "on-error-container": "#93000a",
+            "tertiary-container": "#973800",
+            "surface-bright": "#f8f9fd",
+            "tertiary-fixed": "#ffdbcd",
+            "on-background": "#191c1f",
+            "surface-container": "#eceef2",
+            "on-tertiary-container": "#ffbea3",
+            "on-primary-fixed-variant": "#094881",
+            "on-surface": "#191c1f",
+            "surface-container-highest": "#e1e2e6"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "margin-desktop": "2.5rem",
+            "space-lg": "1.5rem",
+            "gutter-desktop": "1.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "margin": "1rem",
+            "space-xs": "0.25rem",
+            "space-xl": "2.5rem",
+            "space-md": "1rem"
+          },
+          "fontFamily": {
+            "headline-sm": ["\"Source Serif 4\""],
+            "headline-md": ["\"Source Serif 4\""],
+            "display": ["\"Source Serif 4\""],
+            "label-md": ["Manrope"],
+            "body-sm": ["Manrope"],
+            "code-num": ["Manrope"],
+            "headline-lg": ["\"Source Serif 4\""],
+            "headline-lg-mobile": ["\"Source Serif 4\""],
+            "label-sm": ["Manrope"],
+            "body-lg": ["Manrope"],
+            "body-md": ["Manrope"]
+          },
+          "fontSize": {
+            "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+            "headline-md": ["22px", {"lineHeight": "28px", "fontWeight": "600"}],
+            "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+            "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600"}],
+            "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+            "code-num": ["14px", {"lineHeight": "20px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+            "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+            "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+            "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+            "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+            "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-[#F4F5F8] font-body-md text-on-surface antialiased min-h-screen flex flex-col">
+<!-- Full-Width Administrative Top Header -->
+<header class="bg-primary text-on-primary w-full border-b border-primary-container shadow-sm sticky top-0 z-30">
+<div class="w-full px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
+<div class="flex items-center gap-6">
+<a class="inline-flex items-center gap-1.5 text-on-primary-container hover:text-on-primary font-body-sm text-body-sm transition-colors" href="/portal/">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Вернуться в портал</span>
+</a>
+<div class="h-4 w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-2.5">
+<div class="w-7 h-7 rounded bg-tertiary-fixed/20 flex items-center justify-center text-tertiary-fixed">
+<span class="material-symbols-outlined text-[18px]">school</span>
+</div>
+<span class="font-headline-sm text-[17px] tracking-tight text-on-primary font-semibold">Онлайн-гимназия Backoffice</span>
+<span class="ml-2 hidden sm:inline-block px-2 py-0.5 rounded text-[11px] font-label-sm bg-primary-container/70 text-on-primary-container uppercase tracking-wider">Единый контур</span>
+</div>
+</div>
+<div class="flex items-center gap-5 text-body-sm font-body-sm">
+<div class="hidden md:flex items-center gap-2 px-3 py-1 rounded bg-primary-container/40 border border-outline-variant/20">
+<span class="material-symbols-outlined text-[18px] text-surface-container-highest">manage_accounts</span>
+<span class="text-surface-container-highest text-body-sm">Куратор учебной части:</span>
+<span class="font-code-num text-code-num text-on-primary font-semibold">backoffice_admin</span>
+</div>
+<div class="h-4 w-px bg-outline-variant/30 hidden md:block"></div>
+<a class="inline-flex items-center gap-1.5 text-on-primary-container hover:text-on-primary transition-colors text-body-sm font-medium" href="/logout/">
+<span>Выйти</span>
+<span class="material-symbols-outlined text-[18px]">logout</span>
+</a>
+</div>
+</div>
+</header>
+<!-- Full-Width 1440px+ Desktop Backoffice Layout -->
+<div class="flex-1 w-full flex flex-row">
+<!-- Left Navigation Sidebar (Desktop Permanent Console Style) -->
+<aside class="w-64 xl:w-72 shrink-0 bg-surface-container-low border-r border-outline-variant/30 flex flex-col justify-between min-h-[calc(100vh-3.5rem)]">
+<div class="p-4 flex flex-col gap-6">
+<!-- Section: School Management -->
+<div>
+<div class="px-3 mb-2 text-label-md font-label-md uppercase tracking-wider text-secondary font-semibold">
+            Управление гимназией
+          </div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center justify-between px-3 py-2 rounded text-body-sm text-on-surface hover:bg-surface-container transition-colors" href="/admin/users/">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px] text-secondary">group</span>
+<span>Пользователи и роли</span>
+</div>
+<span class="text-label-sm font-code-num px-1.5 py-0.2 bg-surface-container text-secondary rounded">142</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2 rounded text-body-sm text-on-surface hover:bg-surface-container transition-colors" href="/admin/link-parent-student/">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px] text-secondary">supervisor_account</span>
+<span>Привязка родителей</span>
+</div>
+</a>
+<!-- Active Item -->
+<a class="flex items-center justify-between px-3 py-2 rounded text-body-sm bg-primary text-on-primary font-semibold shadow-sm" href="/admin/add-student-to-class/">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px] text-on-primary">person_add</span>
+<span>Назначение в класс</span>
+</div>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2 rounded text-body-sm text-on-surface hover:bg-surface-container transition-colors" href="/admin/students/class/">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px] text-secondary">swap_horiz</span>
+<span>Перевод между классами</span>
+</div>
+</a>
+<a class="flex items-center justify-between px-3 py-2 rounded text-body-sm text-on-surface hover:bg-surface-container transition-colors" href="/admin/teacher-classes/">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px] text-secondary">badge</span>
+<span>Назначения учителей</span>
+</div>
+</a>
+</nav>
+</div>
+<!-- Section: Finance and Audit -->
+<div>
+<div class="px-3 mb-2 text-label-md font-label-md uppercase tracking-wider text-secondary font-semibold">
+            Финансы и журнал
+          </div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center justify-between px-3 py-2 rounded text-body-sm text-on-surface hover:bg-surface-container transition-colors" href="/admin/payments/">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px] text-secondary">payments</span>
+<span>Платежи и сверка</span>
+</div>
+<span class="px-1.5 py-0.5 rounded text-[11px] font-label-sm bg-error-container text-on-error-container font-semibold">3</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2 rounded text-body-sm text-on-surface hover:bg-surface-container transition-colors" href="/admin/analytics/">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px] text-secondary">history_edu</span>
+<span>Журнал аудита</span>
+</div>
+</a>
+</nav>
+</div>
+</div>
+<!-- Institutional Ledger Meta at sidebar bottom -->
+<div class="p-4 border-t border-outline-variant/30">
+<div class="p-3 bg-surface-container rounded border border-outline-variant/20 flex flex-col gap-1">
+<span class="font-label-sm text-[11px] text-secondary uppercase font-semibold">Период реестра</span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">2026/2027 учебный год</span>
+<span class="font-code-num text-label-sm text-secondary">Ревизия базы: v2.84.1</span>
+</div>
+</div>
+</aside>
+<!-- Main Workspace (Full-Width Desktop Area) -->
+<main class="flex-1 bg-[#FAF9F5] p-6 lg:p-8 xl:p-10 flex flex-col overflow-x-hidden">
+<!-- Breadcrumbs Bar -->
+<nav aria-label="Breadcrumb" class="flex items-center gap-2 text-body-sm font-body-sm text-secondary">
+<a class="hover:text-primary transition-colors" href="/admin/">Главная</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="/admin/classes/">Учебные классы</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface font-semibold">Назначение ученика в класс</span>
+</nav>
+<!-- Section Title & Meta Header -->
+<div class="mt-3 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-outline-variant/30">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Добавление ученика в учебный класс</h1>
+<p class="font-body-sm text-body-sm text-secondary mt-1">Внесение записи в приказ об утверждении учебных списков параллелей гимназии</p>
+</div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container text-secondary text-label-md font-label-md uppercase rounded border border-outline-variant/20 self-start sm:self-auto">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+          Модуль контингента
+        </span>
+</div>
+<!-- Institutional Alert Notification -->
+<div class="mb-6 p-4 bg-secondary-container/80 text-on-secondary-fixed rounded border border-outline-variant/30 flex items-start gap-3 shadow-sm">
+<span class="material-symbols-outlined text-tertiary text-[24px] shrink-0 mt-0.5">warning</span>
+<div class="flex flex-col gap-0.5 text-body-sm font-body-sm">
+<span class="font-semibold text-on-secondary-fixed">Предупреждение по выбранному лицу:</span>
+<p class="text-on-secondary-container">
+            Ученик <strong class="text-on-secondary-fixed">Иванов А. Д.</strong> уже состоит в <strong>7 «А» классе</strong>. При подтверждении будет оформлен автоматический перевод с закрытием предыдущего периода и архивацией журнала успеваемости за I четверть.
+          </p>
+</div>
+</div>
+<!-- Desktop Two-Column Grid: Form (Left) + History / Class Capacity (Right) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left Column: Main Form (lg:col-span-7 xl:col-span-8) -->
+<div class="lg:col-span-7 xl:col-span-8 bg-surface-container-lowest border border-outline-variant/30 rounded p-6 shadow-sm">
+<form action="/admin/add-student-to-class/save/" class="flex flex-col gap-6" method="POST" onsubmit="event.preventDefault();">
+<!-- Field 1: Autocomplete Student Search -->
+<div class="flex flex-col gap-2 relative">
+<label class="font-label-md text-label-md uppercase tracking-wider text-secondary flex items-center justify-between">
+<span>Ученик (Поиск по ФИО, логину или номеру дела) *</span>
+<span class="text-primary font-body-sm font-semibold lowercase cursor-pointer hover:underline">Расширенный поиск</span>
+</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-2.5 text-secondary text-[20px]">search</span>
+<input autocomplete="off" class="w-full h-11 pl-11 pr-10 bg-surface border border-outline-variant/60 text-on-surface font-body-md text-body-md rounded shadow-inner focus:outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary focus:border-primary" type="text" value="Иванов Артём"/>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-secondary text-[20px] cursor-pointer hover:text-on-surface">close</span>
+</div>
+<!-- Active Autocomplete Dropdown Ledger / Cards of Matches -->
+<div class="mt-1 bg-surface-container-lowest rounded border border-outline-variant/50 shadow-md flex flex-col z-20 overflow-hidden">
+<div class="px-4 py-2 bg-surface-container text-label-sm font-label-sm text-secondary uppercase tracking-wider flex items-center justify-between">
+<span>Найдено совпадений: 2</span>
+<span class="text-[11px] font-normal text-secondary">Нажмите для выбора</span>
+</div>
+<!-- Match Option 1 (Selected) -->
+<div class="p-3.5 bg-surface-container-high border-b border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer hover:bg-surface-container-highest transition-colors">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[22px] shrink-0 mt-0.5">check_circle</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Иванов Артём Дмитриевич</span>
+<span class="font-code-num text-label-sm text-secondary">artem.ivanov@gymnasium.online • Личное дело № 2021-0814</span>
+</div>
+</div>
+<div class="flex items-center gap-2 self-start sm:self-center">
+<span class="px-2.5 py-1 rounded text-label-sm font-label-sm bg-surface text-on-surface border border-outline-variant/30">
+                      Текущий класс: <strong>7 «А»</strong>
+</span>
+<span class="text-label-sm font-label-sm text-primary font-semibold">(выбран)</span>
+</div>
+</div>
+<!-- Match Option 2 -->
+<div class="p-3.5 bg-surface-container-lowest flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer hover:bg-surface-container transition-colors">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[22px] shrink-0 mt-0.5">person</span>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface">Иванов Артём Сергеевич</span>
+<span class="font-code-num text-label-sm text-secondary">a.ivanov2012@gymnasium.online • Личное дело № 2023-1102</span>
+</div>
+</div>
+<div class="flex items-center self-start sm:self-center">
+<span class="px-2.5 py-1 rounded text-label-sm font-label-sm bg-surface-container text-secondary border border-outline-variant/30">
+                      Текущий класс: <strong>5 «В»</strong>
+</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Field 2: Class Selection Select -->
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md uppercase tracking-wider text-secondary">
+                Целевой класс назначения *
+              </label>
+<div class="relative">
+<select class="w-full h-11 px-3.5 pr-10 bg-surface border border-outline-variant/60 text-on-surface font-body-md text-body-md rounded shadow-inner focus:outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary appearance-none cursor-pointer">
+<option selected="">7 «Б» академический (2026/2027 учебный год)</option>
+<option>7 «А» с углубленным изучением математики (2026/2027 учебный год)</option>
+<option>7 «В» гуманитарный профиль (2026/2027 учебный год)</option>
+<option>8 «А» академический (2026/2027 учебный год)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3.5 top-3 text-secondary text-[20px] pointer-events-none">expand_more</span>
+</div>
+<div class="flex items-center gap-2 text-body-sm text-secondary bg-surface p-2.5 rounded border border-outline-variant/20">
+<span class="material-symbols-outlined text-[18px] text-primary">info</span>
+<span>Наполняемость класса: <strong>24/28</strong> учащихся. Классный руководитель: <strong>Смирнова Е. В.</strong></span>
+</div>
+</div>
+<!-- Field 3: Status / Role Assignment Radio Group -->
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md uppercase tracking-wider text-secondary">
+                Тип назначения *
+              </label>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<label class="flex items-start gap-3 p-4 rounded bg-surface-container-high border-2 border-primary cursor-pointer shadow-sm transition-all">
+<input checked="" class="mt-1 w-4 h-4 text-primary focus:ring-primary accent-primary" name="assignment_type" type="radio" value="primary"/>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Основной состав</span>
+<span class="font-body-sm text-body-sm text-secondary mt-0.5">Бюджет / договорная основа. Полная академическая нагрузка и аттестация.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-4 rounded bg-surface border border-outline-variant/40 cursor-pointer hover:bg-surface-container transition-colors shadow-sm">
+<input class="mt-1 w-4 h-4 text-primary focus:ring-primary accent-primary" name="assignment_type" type="radio" value="auditor"/>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Вольнослушатель</span>
+<span class="font-body-sm text-body-sm text-secondary mt-0.5">Посещение лекций без внесения в ведомость обязательного зачета.</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Field 4: Effective Date & Order Number -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-start">
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md uppercase tracking-wider text-secondary flex items-center justify-between">
+<span>Дата вступления в силу *</span>
+<span class="font-code-num text-label-sm text-secondary">UTC+5 (Екатеринбург)</span>
+</label>
+<div class="relative">
+<input class="w-full h-11 px-3.5 pr-10 bg-surface border border-outline-variant/60 text-on-surface font-body-md text-body-md rounded shadow-inner focus:outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary" type="text" value="23.11.2026"/>
+<span class="material-symbols-outlined absolute right-3.5 top-3 text-secondary text-[20px]">calendar_today</span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary">Формат: ДД.ММ.ГГГГ. Открывает доступ к расписанию.</span>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md uppercase tracking-wider text-secondary">
+                  Номер распоряжения / протокола
+                </label>
+<input class="w-full h-11 px-3.5 bg-surface border border-outline-variant/60 text-on-surface font-body-md text-body-md rounded shadow-inner focus:outline-none focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary" placeholder="ПР-2026/942-УЧ" type="text" value="ПР-2026/942-УЧ"/>
+<span class="font-body-sm text-body-sm text-secondary">Основание для приказа учебной части гимназии.</span>
+</div>
+</div>
+<!-- Actions Panel (Classic Django Backoffice CTA row) -->
+<div class="pt-6 mt-2 border-t border-outline-variant/30 flex flex-wrap items-center justify-between gap-4">
+<div class="flex flex-wrap items-center gap-3">
+<button class="h-11 px-5 bg-primary hover:bg-primary-container text-on-primary font-body-md text-body-md font-semibold rounded shadow-sm flex items-center gap-2 transition-colors cursor-pointer" type="submit">
+<span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+<span>Сохранить и назначить в класс</span>
+</button>
+<button class="h-11 px-5 bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/30 font-body-md text-body-md font-medium rounded transition-colors cursor-pointer" type="button">
+                  Сохранить и добавить другого
+                </button>
+</div>
+<a class="h-11 px-4 flex items-center justify-center text-error hover:bg-error-container/20 rounded font-body-md text-body-md transition-colors" href="/admin/classes/">
+                Отмена
+              </a>
+</div>
+</form>
+</div>
+<!-- Right Column: Audit Trail & Class Insights (lg:col-span-5 xl:col-span-4) -->
+<div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6">
+<!-- Audit History Card -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded p-5 shadow-sm">
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant/20 mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">manage_history</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">История последних операций</h2>
+</div>
+<a class="text-body-sm font-body-sm text-primary hover:underline" href="/admin/audit-log/">
+                Все →
+              </a>
+</div>
+<!-- Log Entries List -->
+<div class="flex flex-col gap-3">
+<!-- Log Entry 1 -->
+<div class="p-3 bg-surface rounded border border-outline-variant/20 flex flex-col gap-2 hover:bg-surface-container/60 transition-colors">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">schedule</span>
+<span class="font-body-sm text-body-sm font-medium text-on-surface leading-snug">
+                      Перевод ученицы <strong>Васильевой Д.</strong> из 6 «Б» в 7 «А»
+                    </span>
+</div>
+<span class="px-2 py-0.5 rounded text-[11px] font-label-sm bg-surface-container-highest text-secondary uppercase font-semibold shrink-0">
+                    Выполнено
+                  </span>
+</div>
+<div class="font-code-num text-label-sm text-secondary pl-7">
+                  23.11.2026 08:30 • backoffice_admin
+                </div>
+</div>
+<!-- Log Entry 2 -->
+<div class="p-3 bg-surface rounded border border-outline-variant/20 flex flex-col gap-2 hover:bg-surface-container/60 transition-colors">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">schedule</span>
+<span class="font-body-sm text-body-sm font-medium text-on-surface leading-snug">
+                      Привязка законного представителя к лицевому счету № 8412
+                    </span>
+</div>
+<span class="px-2 py-0.5 rounded text-[11px] font-label-sm bg-surface-container-highest text-secondary uppercase font-semibold shrink-0">
+                    Выполнено
+                  </span>
+</div>
+<div class="font-code-num text-label-sm text-secondary pl-7">
+                  22.11.2026 17:40 • finance_sec
+                </div>
+</div>
+<!-- Log Entry 3 -->
+<div class="p-3 bg-surface rounded border border-outline-variant/20 flex flex-col gap-2 hover:bg-surface-container/60 transition-colors">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">schedule</span>
+<span class="font-body-sm text-body-sm font-medium text-on-surface leading-snug">
+                      Формирование академической ведомости по параллели 7-х классов
+                    </span>
+</div>
+<span class="px-2 py-0.5 rounded text-[11px] font-label-sm bg-surface-container-highest text-secondary uppercase font-semibold shrink-0">
+                    Выполнено
+                  </span>
+</div>
+<div class="font-code-num text-label-sm text-secondary pl-7">
+                  22.11.2026 14:15 • principal_gymnasium
+                </div>
+</div>
+</div>
+</div>
+<!-- Academic Context Card -->
+<div class="bg-surface-container-low border border-outline-variant/30 rounded p-5">
+<h3 class="font-label-md text-label-md uppercase tracking-wider text-secondary font-semibold mb-3">
+              Параметры параллели 7 классов
+            </h3>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 bg-surface rounded border border-outline-variant/20">
+<div class="text-label-sm text-secondary">Всего в параллели</div>
+<div class="text-headline-sm font-bold text-on-surface mt-1">74 уч.</div>
+<div class="text-[11px] text-secondary mt-0.5">3 класса</div>
+</div>
+<div class="p-3 bg-surface rounded border border-outline-variant/20">
+<div class="text-label-sm text-secondary">Свободных мест</div>
+<div class="text-headline-sm font-bold text-primary mt-1">10 мест</div>
+<div class="text-[11px] text-secondary mt-0.5">Норма: 28 на класс</div>
+</div>
+</div>
+<p class="text-body-sm text-secondary mt-3 leading-relaxed">
+              При переводе ученика из другого класса той же параллели общее число учащихся не изменяется.
+            </p>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

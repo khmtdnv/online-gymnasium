@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Онлайн-гимназия — Общие состояния и мобильные</title>
+<link rel="stylesheet" href="css.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="gallery">
+  <header class="gallery-header">
+    <span class="kicker">Онлайн-гимназия · макеты</span>
+    <h1>Общие состояния и мобильные экраны</h1>
+    <p>Состояния, одинаковые для всех ролей: страница не найдена, нет прав, загрузка, ошибка сервиса, пустые данные. Плюс мобильные проверки длинных текстов.</p>
+    <nav class="gallery-nav"><a href="index.html">Обзор</a><a href="01-dizain-sistema.html">Дизайн-система</a><a href="02-uchenik.html">Ученик</a><a href="03-prepodavatel.html">Преподаватель</a><a href="04-roditel.html">Родитель</a><a href="05-portal-admin.html">Админ · портал</a><a href="06-backoffice.html">Backoffice</a></nav>
+  </header>
+
+  <!-- О-01 404 И ПРАВА -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">О-01</span><h2>Страница не найдена и нет прав</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="two-col">
+        <div class="card" style="min-height:320px;display:flex;align-items:center"><div class="state-block" style="width:100%">
+          <span class="icon" style="width:52px;height:52px;border-radius:16px;font:700 20px var(--font-ui)">404</span>
+          <h3>Страница не найдена</h3>
+          <p>Возможно, адрес изменился. Вернитесь к доступным разделам.</p>
+          <a class="btn" href="#">На главную</a>
+        </div></div>
+        <div class="card" style="min-height:320px;display:flex;align-items:center"><div class="state-block" style="width:100%">
+          <span class="icon" style="background:var(--red-bg);color:var(--red)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+          <h3>Раздел недоступен для вашей роли</h3>
+          <p>Например, «Оплата обучения» открывается ученикам, родителям и администратору, но не преподавателю.</p>
+          <a class="btn secondary" href="#">На главную</a>
+        </div></div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- О-02 ЗАГРУЗКА И ОШИБКА СЕРВИСА -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">О-02</span><h2>Загрузка и ошибка сервиса</h2><span class="state">скелетон вместо пустого экрана</span></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="two-col">
+        <div class="card pad">
+          <p class="hint" style="margin-bottom:14px">Проверяем сессию при открытии портала</p>
+          <div class="state-block" style="padding:34px 16px">
+            <span class="spinner" style="width:28px;height:28px"></span>
+            <h3 style="margin-top:12px">Открываем ваше пространство</h3>
+            <p class="small muted">Обычно это занимает пару секунд</p>
+          </div>
+        </div>
+        <div class="card pad">
+          <div class="state-block" style="padding:34px 16px">
+            <span class="icon" style="background:var(--red-bg);color:var(--red);width:44px;height:44px;border-radius:13px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h7V5a7 7 0 1 0 7 7h-7v7a7 7 0 1 1-7-7Z"/></svg></span>
+            <h3>Проверка сессии недоступна</h3>
+            <p>Сервис авторизации не отвечает (запрос 8f3c-21ab). Проверьте соединение.</p>
+            <button class="btn">Повторить</button>
+          </div>
+        </div>
+      </div>
+      <p class="hint mt">Скелетоны показывают форму будущих данных — интерфейс не «мигает» пустотой, и пустой список не путается с загрузкой.</p>
+    </div></div>
+  </section>
+
+  <!-- О-03 ПУСТЫЕ ДАННЫЕ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">О-03</span><h2>Пустые данные по разделам</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="shots-row" style="gap:16px">
+        <div class="card"><div class="state-block"><span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h13l3 3v11H4z"/><path d="M8 5v14M4 10h4"/></svg></span><h3>Заданий нет</h3><p>За выбранный период ничего не найдено.</p></div></div>
+        <div class="card"><div class="state-block"><span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><h3>Уроков нет</h3><p>На этот день плановых уроков не найдено.</p></div></div>
+        <div class="card"><div class="state-block"><span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg></span><h3>Уведомлений нет</h3><p>Новых сообщений для вашего аккаунта.</p></div></div>
+        <div class="card"><div class="state-block"><span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M4 10h16M8 14h5"/></svg></span><h3>Платежей нет</h3><p>История платежей пуста.</p></div></div>
+      </div>
+      <p class="hint mt">Каждое пустое состояние называет раздел и подсказывает, что делать дальше, — без общих фраз вроде «Здесь пока пусто».</p>
+    </div></div>
+  </section>
+
+  <!-- О-04 МОБИЛЬНЫЕ ДЛИННЫЕ ТЕКСТЫ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">О-04</span><h2>Мобильные экраны: длинные тексты</h2><span class="state">карточка задания и уведомление</span></div>
+    <div class="canvas"><div class="app" style="padding:26px;display:flex;gap:22px;flex-wrap:wrap;background:var(--sunken)">
+      <div class="phone-frame">
+        <div class="ph-status"><span>9:41</span><span>Онлайн-гимназия</span></div>
+        <div class="topbar" style="height:54px;padding:0 14px;position:static"><a class="brand" href="#"><span class="brand-mark" style="width:30px;height:30px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong style="font-size:13.5px">Онлайн-гимназия</strong></a><div class="topbar-right"><button class="btn ghost small" aria-label="Меню" style="min-height:36px;padding:6px 9px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></div></div>
+        <div class="ph-page">
+          <a href="#" class="faint" style="font-size:12.5px;text-decoration:none">← Все задания</a>
+          <b style="font-size:16px;display:block;margin:8px 0 2px">№ 132–135: привести дроби к общему знаменателю и выполнить вычитание</b>
+          <p class="small muted" style="margin-bottom:10px">Алгебра · сдать до пятницы, 20 ноября, 19:50</p>
+          <span class="badge blue" style="margin-bottom:14px"><i class="dot"></i>Нужно выполнить</span>
+          <p class="small" style="margin-bottom:12px">Привести дроби к общему знаменателю и выполнить вычитание: № 132, 133, 134 (а, б), 135. Образец оформления — в прикреплённом файле. Решение можно написать здесь или прикрепить фотографию тетради. Обратите внимание на оформление: каждый шаг выписывайте полностью, промежуточные результаты подчёркивайте.</p>
+          <div class="field"><textarea class="textarea" style="min-height:80px" placeholder="Ваш ответ…"></textarea></div>
+          <button class="btn secondary small" style="width:100%;margin-bottom:8px">+ Прикрепить файлы</button>
+          <button class="btn" style="width:100%">Сдать работу</button>
+        </div>
+        <nav class="ph-nav"><a class="active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="9" rx="1.5"/><rect x="13" y="4" width="7" height="5" rx="1.5"/><rect x="13" y="11" width="7" height="9" rx="1.5"/><rect x="4" y="15" width="7" height="5" rx="1.5"/></svg>Главная</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Расписание</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h13l3 3v11H4z"/><path d="M8 5v14M4 10h4"/></svg>Задания</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg>Ещё</a></nav>
+      </div>
+      <div class="phone-frame">
+        <div class="ph-status"><span>9:41</span><span>Онлайн-гимназия</span></div>
+        <div class="topbar" style="height:54px;padding:0 14px;position:static"><a class="brand" href="#"><span class="brand-mark" style="width:30px;height:30px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong style="font-size:13.5px">Онлайн-гимназия</strong></a><div class="topbar-right"><button class="btn ghost small" aria-label="Меню" style="min-height:36px;padding:6px 9px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></div></div>
+        <div class="ph-page">
+          <b style="font-size:16px;display:block;margin-bottom:12px">Уведомления</b>
+          <div class="ph-row" style="flex-wrap:wrap;border-color:var(--accent)"><div style="flex:1;min-width:100%"><b>Работа проверена: Алгебра, № 118–121 — системы уравнений методом подстановки</b><span>Елена Соколова поставила оценку 5 и оставила длинный комментарий по оформлению решения.</span><div class="row" style="margin-top:6px;gap:8px"><span class="badge blue" style="font-size:11px"><i class="dot"></i>Не прочитано</span><small class="faint">сегодня, 18:44</small></div></div></div>
+          <div class="ph-row" style="flex-wrap:wrap"><div style="flex:1;min-width:100%"><b>Счёт на оплату четверти создан</b><span>2-я четверть (ноябрь — декабрь 2026). Оплатите до начала периода.</span><div class="row" style="margin-top:6px;gap:8px"><span class="badge gray" style="font-size:11px"><i class="dot"></i>Прочитано</span><small class="faint">16 ноября</small></div></div></div>
+          <div class="ph-row" style="flex-wrap:wrap"><div style="flex:1;min-width:100%"><b>Урок отменён</b><span>География, четверг 13:00.</span><div class="row" style="margin-top:6px;gap:8px"><span class="badge gray" style="font-size:11px"><i class="dot"></i>Прочитано</span><small class="faint">18 ноября</small></div></div></div>
+        </div>
+        <nav class="ph-nav"><a class="active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="9" rx="1.5"/><rect x="13" y="4" width="7" height="5" rx="1.5"/><rect x="13" y="11" width="7" height="9" rx="1.5"/><rect x="4" y="15" width="7" height="5" rx="1.5"/></svg>Главная</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Расписание</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h13l3 3v11H4z"/><path d="M8 5v14M4 10h4"/></svg>Задания</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg>Ещё</a></nav>
+      </div>
+      <div style="max-width:420px"><div class="card pad"><div class="panel-head"><div><span class="kicker">Проверки</span><h2>Что проверено</h2></div></div>
+        <ul style="font-size:13.5px;color:var(--muted);padding-left:18px;line-height:1.8">
+          <li>Длинные заголовки и тексты уведомлений переносятся, ничего не обрезается</li>
+          <li>Статус всегда читается текстом, а не только цветом</li>
+          <li>Основная кнопка прижимается к низу карточки, не спорит с вторичными</li>
+          <li>Все нажимаемые элементы ≥ 44 px по высоте</li>
+          <li>Временная зона подписана: «время школы UTC+5»</li>
+        </ul>
+      </div></div>
+    </div></div>
+  </section>
+</div>
+</body>
+</html>

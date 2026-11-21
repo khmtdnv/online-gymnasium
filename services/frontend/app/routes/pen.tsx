@@ -28,14 +28,24 @@ export default function PenPage() {
       ? state.user.id
       : (students.data?.find((row) => row.id === selected)?.id ?? students.data?.[0]?.id);
   return (
-    <>
-      <PageHeader title="Умная ручка" description="Учебный симулятор передачи рукописных штрихов" />
-      <Link to={`/lessons/${lessonId}`}>← К уроку</Link>
+    <div className="workspace-page pen-page">
+      <Link className="workspace-back" to={`/lessons/${lessonId}`}>
+        ← К уроку
+      </Link>
+      <PageHeader
+        title="Умная ручка"
+        description={
+          teacher
+            ? 'Смотрите записи ученика во время урока.'
+            : 'Пишите мышью, пальцем или стилусом — преподаватель увидит ваши записи.'
+        }
+      />
       {teacher && (
-        <section className="card">
+        <section className="workspace-panel pen-student-picker">
           <label>
             Ученик{' '}
             <select
+              className="input"
               value={studentId ?? ''}
               onChange={(event) => setSelected(event.target.value)}
               disabled={!students.data?.length}
@@ -60,6 +70,6 @@ export default function PenPage() {
           readonly={teacher}
         />
       )}
-    </>
+    </div>
   );
 }

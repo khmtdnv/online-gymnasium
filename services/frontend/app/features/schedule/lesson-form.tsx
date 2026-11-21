@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Alert } from '../../components/ui/alert';
@@ -13,7 +13,12 @@ import {
   errorRequestId,
   explainError,
 } from '../../lib/api/errors';
-import { type CreateLessonInput, type UpdateLessonInput, createLessonInputSchema } from './api';
+import {
+  type CreateLessonInput,
+  type TeacherOption,
+  type UpdateLessonInput,
+  createLessonInputSchema,
+} from './api';
 import { textIdSchema } from './day-filters';
 import { isoToUtcInput, utcInputToIso } from './utc';
 
@@ -49,12 +54,18 @@ export function LessonForm({
   lesson,
   classId,
   day,
+  subjects,
+  classes,
+  searchTeachers,
   savingBlocked = false,
   onSubmit,
 }: {
   lesson?: Lesson;
   classId: number | null;
   day: string;
+  subjects?: { id: number; name: string | null }[];
+  classes?: { id: number; name: string }[];
+  searchTeachers?: (q: string, signal?: AbortSignal) => Promise<TeacherOption[]>;
   savingBlocked?: boolean;
   onSubmit: (
     input: CreateLessonInput | UpdateLessonInput,
@@ -64,10 +75,17 @@ export function LessonForm({
   const [failure, setFailure] = useState<unknown>(null);
   const [unknownResult, setUnknownResult] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [teacherQuery, setTeacherQuery] = useState('');
+  const [teacherOptions, setTeacherOptions] = useState<TeacherOption[]>([]);
+  const [teacherSearchError, setTeacherSearchError] = useState(false);
   const attempt = useRef<{ input: CreateLessonInput; key: string } | null>(null);
+
+
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<Fields>({
     resolver: zodResolver(schema),
@@ -79,6 +97,35 @@ export function LessonForm({
       ends_at: lesson ? isoToUtcInput(lesson.ends_at) : `${day}T09:45`,
     },
   });
+
+  // Поиск преподавателя по ФИО с задержкой; молча падает — ручной UUID остаётся запасным путём.
+  const teacherValue = watch('teacher_id');
+  const watchSubject = watch('subject_id');
+  useEffect(() => {
+    if (!searchTeachers || teacherQuery.trim().length < 2) {
+      setTeacherOptions([]);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      searchTeachers(teacherQuery.trim(), controller.signal)
+        .then((rows) => {
+          setTeacherOptions(rows);
+          setTeacherSearchError(false);
+        })
+        .catch(() => {
+          if (!controller.signal.aborted) setTeacherSearchError(true);
+        });
+    }, 300);
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [teacherQuery, searchTeachers]);
+  const selectedTeacher = teacherOptions.find((row) => row.id === teacherValue);
+  const selectedSubjectName = subjects?.find(
+    (row) => String(row.id) === watchSubject,
+  )?.name;
   async function run(input: CreateLessonInput | UpdateLessonInput, key?: string) {
     setBusy(true);
     setFailure(null);
@@ -126,30 +173,117 @@ export function LessonForm({
         className="form-grid"
         style={{ border: 0, padding: 0, margin: 0 }}
       >
-        {!lesson &&
-          (['class_id', 'teacher_id', 'subject_id'] as const).map((name) => (
-            <div className="field" key={name}>
-              <label htmlFor={`lesson-${name}`}>
-                {name === 'class_id'
-                  ? 'ID класса'
-                  : name === 'teacher_id'
-                    ? 'ID учителя'
-                    : 'ID предмета'}
-              </label>
-              <Input
-                id={`lesson-${name}`}
-                inputMode={name === 'teacher_id' ? 'text' : 'numeric'}
-                {...register(name)}
-                aria-invalid={!!errors[name]}
-                aria-describedby={errors[name] ? `lesson-${name}-error` : undefined}
-              />
-              {errors[name] && (
-                <p className="field-error" id={`lesson-${name}-error`}>
-                  {errors[name]?.message}
+        {!lesson && (
+          <>
+            <div className="field">
+              <label htmlFor="lesson-class_id">Класс</label>
+              {classes && classes.length > 0 ? (
+                <select id="lesson-class_id" className="input" {...register('class_id')}>
+                  <option value="">Выберите класс</option>
+                  {classes.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <Input id="lesson-class_id" inputMode="numeric" {...register('class_id')} />
+              )}
+              {errors.class_id && (
+                <p className="field-error" id="lesson-class_id-error">
+                  {errors.class_id.message}
                 </p>
               )}
             </div>
-          ))}
+            <div className="field">
+              <label htmlFor="lesson-subject_id">Предмет</label>
+              {subjects && subjects.length > 0 ? (
+                <select id="lesson-subject_id" className="input" {...register('subject_id')}>
+                  <option value="">Выберите предмет</option>
+                  {subjects.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name ?? `Предмет ${item.id}`}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <Input id="lesson-subject_id" inputMode="numeric" {...register('subject_id')} />
+              )}
+              {selectedSubjectName && (
+                <p className="field-hint">Выбрано: {selectedSubjectName}</p>
+              )}
+              {errors.subject_id && (
+                <p className="field-error" id="lesson-subject_id-error">
+                  {errors.subject_id.message}
+                </p>
+              )}
+            </div>
+            <div className="field full-width">
+              <label htmlFor={searchTeachers ? 'lesson-teacher-search' : 'lesson-teacher_id'}>
+                Преподаватель
+              </label>
+              {searchTeachers ? (
+                <>
+                  <Input
+                    id="lesson-teacher-search"
+                    placeholder="Введите фамилию или имя (минимум 2 буквы)"
+                    value={teacherQuery}
+                    onChange={(event) => setTeacherQuery(event.target.value)}
+                  />
+                  {selectedTeacher ? (
+                    <p className="field-hint">
+                      Выбран: {selectedTeacher.full_name} ({selectedTeacher.email})
+                    </p>
+                  ) : (
+                    <p className="field-hint">ID преподавателя: {teacherValue || 'не выбран'}</p>
+                  )}
+                  {teacherOptions.length > 0 && !selectedTeacher && (
+                    <ul className="teacher-options" role="listbox" aria-label="Найденные преподаватели">
+                      {teacherOptions.map((row) => (
+                        <li key={row.id}>
+                          <button
+                            type="button"
+                            role="option"
+                            aria-selected={false}
+                            onClick={() => {
+                              setValue('teacher_id', row.id, { shouldValidate: true });
+                            }}
+                          >
+                            <strong>{row.full_name}</strong>
+                            <span>{row.email}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {teacherSearchError && (
+                    <p className="field-hint">Поиск недоступен — введите UUID вручную ниже.</p>
+                  )}
+                  <details className="teacher-uuid-fallback">
+                    <summary>Указать UUID вручную</summary>
+                    <Input
+                      id="lesson-teacher_id"
+                      {...register('teacher_id')}
+                      aria-invalid={!!errors.teacher_id}
+                    />
+                  </details>
+                </>
+              ) : (
+                <Input
+                  id="lesson-teacher_id"
+                  placeholder="UUID преподавателя"
+                  {...register('teacher_id')}
+                  aria-invalid={!!errors.teacher_id}
+                />
+              )}
+              {errors.teacher_id && (
+                <p className="field-error" id="lesson-teacher_id-error">
+                  {errors.teacher_id.message}
+                </p>
+              )}
+            </div>
+          </>
+        )}
         <div className="field full-width">
           <label htmlFor="lesson-start">Начало · UTC</label>
           <Input

@@ -218,14 +218,21 @@ def ensure_user(api: Api, account: dict, existing: dict) -> dict:
 
 def load_apis() -> tuple[Api, Api, Api, Api]:
     """Читает только локальную конфигурацию Compose, оставляя секреты в памяти."""
+    # На сервере поверх dev-настроек действует публичный override (домен и
+    # https-Origin); без него вход через портал получает отказ 403.
+    # Маркер сервера — каталог релизов: локально override в репозитории
+    # есть, но локальный стек работает на dev-настройках.
+    compose_files = ["compose.yaml", "compose.dev.yaml"]
+    if (
+        Path("/opt/online-gymnasium-releases").is_dir()
+        and (ROOT / "deploy" / "public" / "compose.public.yaml").exists()
+    ):
+        compose_files.append("deploy/public/compose.public.yaml")
     result = subprocess.run(
         [
             "docker",
             "compose",
-            "-f",
-            "compose.yaml",
-            "-f",
-            "compose.dev.yaml",
+            *[arg for name in compose_files for arg in ("-f", name)],
             "config",
             "--format",
             "json",
@@ -261,7 +268,10 @@ def load_apis() -> tuple[Api, Api, Api, Api]:
                 "X-Actor-ID": "1",
             },
         ),
-        Api(base("schedule-api", 8000)),
+        Api(
+            base("schedule-api", 8000),
+            {"Authorization": "Bearer " + gateway["SCHEDULE_SERVICE_TOKEN"]},
+        ),
         Api(base("web", 80), {"Origin": gateway["PUBLIC_ORIGIN"]}),
     )
 
@@ -353,7 +363,13 @@ def upload_file(api: Api, path: str, file: dict) -> None:
 def ensure_lessons(
     schedule: Api, teacher: Api, teacher_id: str, class_id: int, days: list[date]
 ) -> list[dict]:
-    """Добавляет по уроку в день, повторно используя свои существующие занятия."""
+    """Добавляет по уроку в день, повторно используя свои существующие занятия.
+
+    Свои уроки ищутся по классу и дню независимо от предмета: смена набора
+    предметов сценария не должна плодить вторые уроки одного дня. Новые
+    уроки циклически проходят несколько предметов, чтобы демо-сценарии
+    не накапливали к неделе пять часов русского или математики.
+    """
     own = []
     for first in (days[0], days[5]):
         query = urlencode(
@@ -363,14 +379,14 @@ def ensure_lessons(
             }
         )
         own.extend(teacher.request("GET", "/api/v1/lessons?" + query))
+    scenario_subjects = (1, 1001, 2, 1003)
     result = []
     for index, day in enumerate(days):
-        subject = 1 + index % 2
+        subject = scenario_subjects[index % len(scenario_subjects)]
         found = [
             row
             for row in own
             if row["class_id"] == class_id
-            and row["subject_id"] == subject
             and datetime.fromisoformat(row["starts_at"]).astimezone(TIMEZONE).date()
             == day
         ]
@@ -379,7 +395,15 @@ def ensure_lessons(
             continue
         query = urlencode({"class_id": class_id, "date": day.isoformat()})
         existing = schedule.request("GET", "/lessons?" + query)
-        start = choose_lesson_start(day, existing)
+        # Слот должен быть свободен и у класса, и у самого учителя:
+        # в большой школе предметники загружены до вечера (иначе API даст 409).
+        own_day = [
+            row
+            for row in own
+            if datetime.fromisoformat(row["starts_at"]).astimezone(TIMEZONE).date()
+            == day
+        ]
+        start = choose_lesson_start(day, existing + own_day)
         body = {
             "class_id": class_id,
             "teacher_id": teacher_id,
@@ -526,6 +550,9 @@ def main() -> None:
         action="store_true",
         help="Добавить недостающие демонстрационные записи",
     )
+    parser.add_argument(
+        "--large", action="store_true", help="Большая школа: классы 1–11 А–Д"
+    )
     args = parser.parse_args()
     gateway, journal, schedule, public = load_apis()
     for api in (gateway, journal, schedule):
@@ -533,6 +560,22 @@ def main() -> None:
     accounts = build_accounts()
     days = school_days(datetime.now(TIMEZONE).date())
     study_year = days[0].year if days[0].month >= 9 else days[0].year - 1
+    if args.large:
+        from expand_demo_school import apply_expansion, expansion_accounts
+
+        print(
+            f"План: 55 классов, {len(expansion_accounts())} демо-учёток, "
+            f"по 5–6 уроков в день; {days[0]} — {days[-1]}.",
+            flush=True,
+        )
+        if not args.apply:
+            print("API доступны. Для записи добавьте --apply. Ничего не изменено.")
+            return
+        summary = apply_expansion(gateway, journal, schedule, days, study_year)
+        print(
+            f"Готово: {len(summary)} классов. Список: .demo-data/expanded-school.json"
+        )
+        return
     print(
         f"План: классы 1А–11А, {len(accounts)} учёток, 110 уроков, 77 ДЗ; {days[0]} — {days[-1]}.",
         flush=True,
@@ -548,13 +591,20 @@ def main() -> None:
     print(
         "Демо-пользователи готовы; существующие пароли и профили сохранены.", flush=True
     )
+    from expand_demo_school import expansion_accounts
+
+    demo_teachers = {
+        account["email"]
+        for account in [*accounts, *expansion_accounts()]
+        if account["role"] == "teacher"
+    }
     subject_names = {
         "subjects": [
             {"id": 1, "name": "Математика"},
             {"id": 2, "name": "Русский язык"},
         ],
         "allowed_teacher_ids": [
-            users[f"teacher{grade:02}@demo.og.test"]["id"] for grade in range(1, 12)
+            user["id"] for email, user in users.items() if email in demo_teachers
         ],
     }
     result = subprocess.run(

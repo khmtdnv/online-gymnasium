@@ -6,6 +6,18 @@ from test_migration_compose import ROOT, configuration
 
 
 class HomeworkStorageComposeTests(unittest.TestCase):
+    def test_storage_images_are_content_pinned(self):
+        """Контейнеры хранилища не получают произвольное содержимое по тегу."""
+        services = configuration()
+        for service in (
+            "homework-minio",
+            "homework-minio-init",
+            "document-minio",
+            "document-minio-init",
+        ):
+            with self.subTest(service=service):
+                self.assertRegex(services[service]["image"], r"@sha256:[0-9a-f]{64}$")
+
     def test_storage_is_private_and_not_required_for_api_start(self):
         for overlay in (None, "compose.dev.yaml", "compose.production.yaml"):
             with self.subTest(overlay=overlay):

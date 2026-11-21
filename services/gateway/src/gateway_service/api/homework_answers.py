@@ -29,9 +29,11 @@ from gateway_service.application.homework_answers import (
     HomeworkAnswerReviewInput,
     NamedHomeworkAnswerResult,
 )
+from gateway_service.application.teacher_lessons import ScheduleUnavailableError
 from gateway_service.domain.user import Role
 from gateway_service.infrastructure.homework_client import HomeworkClient
 from gateway_service.infrastructure.homework_file_client import HomeworkFileClient
+from gateway_service.infrastructure.journal_client import JournalUnavailableError
 
 
 def private_answer_response(response: Response) -> None:
@@ -52,6 +54,71 @@ Student = Annotated[
 Teacher = Annotated[GetCurrentUserResult, Depends(teacher_only)]
 Client = Annotated[HomeworkClient, Depends(get_homework_client)]
 Files = Annotated[HomeworkFileClient, Depends(get_homework_file_client)]
+
+
+@router.get("/review-queue")
+async def review_queue(
+    request: Request,
+    teacher: Teacher,
+    client: Client,
+    cursor: Annotated[int, Query(ge=0, le=2147483647)] = 0,
+):
+    try:
+        page = await client.answers.review_queue(teacher.id, cursor)
+        journal = request.app.state.journal_client
+        schedule = request.app.state.schedule_client
+        if page.items and (journal is None or schedule is None):
+            raise HomeworkUnavailableError
+        class_names = (
+            await journal.get_class_names(list({item.class_id for item in page.items}))
+            if page.items
+            else {}
+        )
+        subject_names = (
+            await schedule.get_subject_names(
+                list({item.subject_id for item in page.items})
+            )
+            if page.items
+            else {}
+        )
+        async with request.app.state.uow_factory() as uow:
+            users = (
+                await uow.users.get_by_ids(
+                    list({item.student_id for item in page.items})
+                )
+                if page.items
+                else []
+            )
+        names = {
+            user.id: " ".join(
+                part
+                for part in (user.last_name, user.first_name, user.middle_name)
+                if part
+            )
+            for user in users
+        }
+        return {
+            "items": [
+                {
+                    **item.model_dump(mode="json"),
+                    "student_name": names.get(
+                        item.student_id, "Ученик (запись недоступна)"
+                    ),
+                    "class_name": class_names.get(item.class_id, "Класс недоступен"),
+                    "subject_name": subject_names.get(item.subject_id)
+                    or "Предмет не указан",
+                }
+                for item in page.items
+            ],
+            "next_cursor": page.next_cursor,
+        }
+    except (
+        HomeworkUnavailableError,
+        JournalUnavailableError,
+        ScheduleUnavailableError,
+        SQLAlchemyError,
+    ) as exc:
+        raise HTTPException(503, "Service unavailable") from exc
 
 
 async def named_answers(

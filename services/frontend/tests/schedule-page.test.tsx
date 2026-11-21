@@ -94,7 +94,7 @@ describe('расписание', () => {
   });
   it('читает фильтры из URL и показывает пустой день отдельно', async () => {
     const { schedule } = setup();
-    expect(screen.getByLabelText('ID класса')).toHaveValue('9021');
+    expect(screen.getByLabelText('Класс')).toHaveValue('9021');
     expect(await screen.findByText('На этот день уроков нет')).toBeInTheDocument();
     expect(schedule.listLessons).toHaveBeenCalledWith(9021, '2026-10-05', expect.any(AbortSignal));
   });
@@ -137,8 +137,8 @@ describe('расписание', () => {
       .mockRejectedValueOnce(new ApiNetworkError())
       .mockResolvedValueOnce(undefined);
     render(<LessonForm classId={9021} day="2026-10-05" onSubmit={submit} />);
-    await userEvent.type(screen.getByLabelText('ID учителя'), lesson.teacher_id);
-    await userEvent.type(screen.getByLabelText('ID предмета'), '1000');
+    await userEvent.type(screen.getByLabelText('Преподаватель'), lesson.teacher_id);
+    await userEvent.type(screen.getByLabelText('Предмет'), '1000');
     await userEvent.click(screen.getByRole('button', { name: 'Создать урок' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Результат отправки неизвестен');
     await userEvent.click(screen.getByRole('button', { name: 'Повторить ту же попытку' }));

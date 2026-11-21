@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Онлайн-гимназия — Родитель</title>
+<link rel="stylesheet" href="css.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="gallery">
+  <header class="gallery-header">
+    <span class="kicker">Онлайн-гимназия · макеты</span>
+    <h1>Родитель</h1>
+    <p>Реально доступные разделы роли «родитель»: главная с профилем, оплата обучения с выбором ребёнка, уведомления. Всё остальное помечено как предложение. Данные вымышленные.</p>
+    <nav class="gallery-nav"><a href="index.html">Обзор</a><a href="01-dizain-sistema.html">Дизайн-система</a><a href="02-uchenik.html">Ученик</a><a href="03-prepodavatel.html">Преподаватель</a><a href="05-portal-admin.html">Админ · портал</a><a href="06-backoffice.html">Backoffice</a><a href="07-sostoyaniya.html">Состояния и мобильные</a></nav>
+  </header>
+
+  <!-- Р-01 ГЛАВНАЯ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Р-01</span><h2>Главная родителя</h2><span class="state">реальные возможности: профиль, оплата, уведомления</span></div>
+    <p class="shot-note">Сейчас родителю в проекте доступны профиль, уведомления и оплата обучения. Главная честно показывает доступное, без макетов чужих разделов. Выбор ребёнка — в разделе оплаты (там, где он реально есть).</p>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav"><a class="active" href="#">Главная</a><a href="#">Уведомления</a><a href="#">Оплата обучения</a><a href="#">Профиль</a></nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg><span class="dot">1</span></a><div class="account"><div><b>Наталья Иванова</b><span>Родитель</span></div><span class="avatar">Н</span></div></div>
+      </header>
+      <main class="page">
+        <div class="page-head"><div><span class="kicker">Личный кабинет</span><h1>Здравствуйте, Наталья</h1><p class="sub">Четверг, 19 ноября 2026 года.</p></div></div>
+        <div class="alert neutral"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><div>Ваш профиль, уведомления и оплата обучения. Расписание и задания детей в кабинете родителя пока не показываем — личный доступ настраивается школой отдельно.</div></div>
+        <div class="grid3" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr))">
+          <a class="card pad" href="#" style="display:block"><div class="panel-head"><div><span class="kicker">Раздел</span><h2>Оплата обучения</h2></div></div><p class="small muted">Счёт на 2-ю четверть ожидает оплаты до 1 декабря. Один ребёнок связан с вашим аккаунтом.</p><span class="link small" style="color:var(--accent);font-weight:500">Перейти к оплате →</span></a>
+          <a class="card pad" href="#" style="display:block"><div class="panel-head"><div><span class="kicker">Раздел</span><h2>Уведомления</h2></div></div><p class="small muted">1 непрочитанное: счёт на оплату четверти создан.</p><span class="link small" style="color:var(--accent);font-weight:500">Открыть →</span></a>
+          <a class="card pad" href="#" style="display:block"><div class="panel-head"><div><span class="kicker">Раздел</span><h2>Профиль</h2></div></div><p class="small muted">ФИО, почта и роль учётной записи.</p><span class="link small" style="color:var(--accent);font-weight:500">Открыть →</span></a>
+        </div>
+      </main>
+    </div></div>
+  </section>
+
+  <!-- Р-02 ОПЛАТА С ВЫБОРОМ РЕБЁНКА -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Р-02</span><h2>Оплата обучения — выбор ребёнка</h2><span class="state">несколько детей · реальная возможность</span></div>
+    <p class="shot-note">Выбор ученика в оплате — реальная функция: список берётся из привязок «родитель — ученик». Если детей несколько, счёт и история переключаются по выбору.</p>
+    <div class="canvas"><div class="app">
+      <header class="topbar">
+        <a class="brand" href="#"><span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong>Онлайн-гимназия</strong></a>
+        <nav class="nav"><a href="#">Главная</a><a href="#">Уведомления</a><a class="active" href="#">Оплата обучения</a><a href="#">Профиль</a></nav>
+        <div class="topbar-right"><a class="bell" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg><span class="dot">1</span></a><div class="account"><div><b>Наталья Иванова</b><span>Родитель</span></div><span class="avatar">Н</span></div></div>
+      </header>
+      <main class="page">
+        <div class="page-head"><div><span class="kicker">Платежи</span><h1>Оплата обучения</h1><p class="sub">Счёт за четверть и история платежей выбранного ребёнка.</p></div></div>
+        <div class="alert warn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><b>Тестовый режим.</b> Подключён только тестовый магазин ЮKassa — настоящих списаний нет.</div></div>
+        <section class="card pad">
+          <div class="panel-head"><div><span class="kicker">Учебный период</span><h2>Оплата за четверть</h2></div></div>
+          <div class="form-row">
+            <div class="field"><label>Ребёнок</label>
+              <select class="select"><option selected>Иванов Михаил Андреевич · 7А</option><option>Иванова Дарья Андреевна · 5Б</option></select>
+              <span class="hint">Список детей, связанных с вашей учётной записью</span>
+            </div>
+            <div class="field"><label>Учебная четверть</label><select class="select"><option selected>2 · ноябрь — декабрь 2026</option></select></div>
+          </div>
+          <div class="pay-summary">
+            <div><b>18 500,00 ₽</b><span>стоимость четверти</span></div>
+            <div><b>1 ноября 2026</b><span>оплатить до начала периода</span></div>
+            <div><b>Ожидает оплаты</b><span>состояние счёта</span></div>
+          </div>
+          <div class="form-actions mt"><button class="btn">Перейти к оплате четверти</button></div>
+        </section>
+        <section class="card pad mt">
+          <div class="panel-head"><div><h2>История платежей · Михаил</h2></div><button class="btn secondary small">Обновить список</button></div>
+          <div class="pay-row"><div class="what"><b>Четверть с ноября 2026</b><small>№128 · 18 500,00 ₽ · создан 16 ноября</small></div><span class="badge amber"><i class="dot"></i>Ожидает оплаты</span><button class="btn small secondary">Продолжить оплату ↗</button></div>
+          <div class="pay-row"><div class="what"><b>Четверть с сентября 2026</b><small>№96 · 18 500,00 ₽ · оплачен 28 августа</small></div><span class="badge green"><i class="dot"></i>Оплачено</span></div>
+        </section>
+      </main>
+    </div></div>
+  </section>
+
+  <!-- Р-03 ПРОФИЛЬ И УВЕДОМЛЕНИЯ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Р-03</span><h2>Профиль и уведомления</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="two-col">
+        <section class="card pad">
+          <div class="panel-head"><div><span class="kicker">Личные данные</span><h2>Ваш профиль</h2></div></div>
+          <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c.8-3.4 3.6-5 7-5s6.2 1.6 7 5"/></svg></span><div><span>Фамилия</span><b>Иванова</b></div></div>
+          <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c.8-3.4 3.6-5 7-5s6.2 1.6 7 5"/></svg></span><div><span>Имя</span><b>Наталья</b></div></div>
+          <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c.8-3.4 3.6-5 7-5s6.2 1.6 7 5"/></svg></span><div><span>Отчество</span><b>Сергеевна</b></div></div>
+          <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span><div><span>Электронная почта</span><b>n.ivanova@example.com</b></div></div>
+          <div class="pfield"><span class="icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c.8-3.4 3.6-5 7-5s6.2 1.6 7 5M16.5 8.5h4M18.5 6.5v4"/></svg></span><div><span>Роль</span><b>Родитель</b></div></div>
+          <details class="tech"><summary>Техническая информация</summary><span>ID пользователя скрыт</span></details>
+        </section>
+        <section class="card pad">
+          <div class="panel-head"><div><span class="kicker">Лента</span><h2>Уведомления</h2></div><a class="link" href="#">Все →</a></div>
+          <div class="notif"><span class="gutter"></span><div class="body"><h3>Счёт на оплату четверти создан</h3><p>Михаил · 2-я четверть (ноябрь — декабрь 2026).</p><div class="meta"><time>16 ноября, 09:00</time><span class="badge blue"><i class="dot"></i>Не прочитано</span></div></div><div class="stack" style="gap:8px;justify-content:center"><a class="btn small secondary" href="#">Открыть</a></div></div>
+          <div class="notif read"><span class="gutter"></span><div class="body"><h3>Справка об обучении готова</h3><p>Михаил · документ можно скачать.</p><div class="meta"><time>12 ноября, 14:21</time><span class="badge gray"><i class="dot"></i>Прочитано</span></div></div><div class="stack" style="gap:8px;justify-content:center"><a class="btn small secondary" href="#">Открыть</a></div></div>
+        </section>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- Р-04 ПРЕДЛОЖЕНИЯ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Р-04</span><h2>Предложения на будущее</h2><span class="state">не реализовано в проекте — только идея</span><span class="proposal-tag">Всё на этой секции — предложение</span></div>
+    <p class="shot-note">В проекте сейчас НЕТ просмотра расписания, заданий и оценок ребёнка из кабинета родителя — эти экраны нельзя выдавать за существующие. Ниже — как они могли бы выглядеть, если функционал добавят. Пунктирная рамка и метка «Предложение» отличают их от реальных экранов.</p>
+    <div class="canvas"><div class="app" style="padding:26px">
+      <div class="shots-row" style="gap:16px">
+        <div class="card pad" style="border-style:dashed">
+          <div class="panel-head"><div><span class="kicker">Предложение</span><h2>Расписание ребёнка</h2></div><span class="tag proposal">Предложение</span></div>
+          <div class="field"><label>Ребёнок</label><select class="select"><option selected>Иванов Михаил · 7А</option></select></div>
+          <div class="week-grid" style="grid-template-columns:repeat(3,1fr)">
+            <div class="week-day today"><header><h3>Четверг</h3><span class="d">19.11</span></header><div class="mini-lesson"><b>Алгебра</b><span>09:00</span></div><div class="mini-lesson"><b>Русский</b><span>10:00</span></div></div>
+            <div class="week-day"><header><h3>Пятница</h3><span class="d">20.11</span></header><div class="mini-lesson"><b>География</b><span>10:00</span></div></div>
+            <div class="week-day"><header><h3>Суббота</h3><span class="d">21.11</span></header><p class="none">Уроков нет</p></div>
+          </div>
+          <p class="hint mt">Только просмотр — как у ученика, без кнопки «умная ручка».</p>
+        </div>
+        <div class="card pad" style="border-style:dashed">
+          <div class="panel-head"><div><span class="kicker">Предложение</span><h2>Задания ребёнка</h2></div><span class="tag proposal">Предложение</span></div>
+          <article class="hw-row"><div class="main"><b>Алгебра</b><p class="desc">№ 132–135: привести дроби к общему знаменателю…</p><small>Сдать до пятницы, 19:50</small></div><span class="badge blue"><i class="dot"></i>Нужно выполнить</span></article>
+          <article class="hw-row"><div class="main"><b>Литература</b><p class="desc">Прочитать 3-ю главу.</p><small>Сдать до вторника, 19:50</small></div><span class="badge amber"><i class="dot"></i>На проверке</span></article>
+        </div>
+        <div class="card pad" style="border-style:dashed">
+          <div class="panel-head"><div><span class="kicker">Предложение</span><h2>Оценки ребёнка</h2></div><span class="tag proposal">Предложение</span></div>
+          <div class="row" style="gap:8px;margin-bottom:10px"><span class="grade g5">5</span><span class="grade g4">4</span><span class="grade g5">5</span><span class="grade g3">3</span></div>
+          <p class="small muted">Средний балл 4,3 · за последние 30 дней. Данных об оценках в API родителя пока нет.</p>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- Р-05 МОБИЛЬНАЯ -->
+  <section class="shot">
+    <div class="shot-label"><span class="num">Р-05</span><h2>Родитель на телефоне</h2></div>
+    <div class="canvas"><div class="app" style="padding:26px;display:flex;gap:22px;flex-wrap:wrap;background:var(--sunken)">
+      <div class="phone-frame">
+        <div class="ph-status"><span>9:41</span><span>Онлайн-гимназия</span></div>
+        <div class="topbar" style="height:54px;padding:0 14px;position:static"><a class="brand" href="#"><span class="brand-mark" style="width:30px;height:30px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 6.2C10.4 4.9 8.2 4.3 5.4 4.3c-.8 0-1.4.6-1.4 1.4v10.5c0 .8.6 1.3 1.4 1.3 2.8 0 5 .6 6.6 1.9 1.6-1.3 3.8-1.9 6.6-1.9.8 0 1.4-.5 1.4-1.3V5.7c0-.8-.6-1.4-1.4-1.4-2.8 0-5 .6-6.6 1.9Z" fill="#fff"/><path d="M12 6.2v13.2" stroke="#2F5D7E" stroke-width="1.6"/></svg></span><strong style="font-size:13.5px">Онлайн-гимназия</strong></a><div class="topbar-right"><button class="btn ghost small" aria-label="Меню" style="min-height:36px;padding:6px 9px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></div></div>
+        <div class="ph-page">
+          <b style="font-size:16px;display:block;margin-bottom:4px">Здравствуйте, Наталья</b>
+          <p class="small muted" style="margin-bottom:12px">Четверг, 19 ноября</p>
+          <div class="alert warn" style="padding:9px 12px"><div>Счёт за 2-ю четверть <b>ожидает оплаты</b>.</div></div>
+          <div class="ph-row"><div style="flex:1"><b>Оплата обучения</b><span>Михаил · 18 500 ₽</span></div><span style="color:var(--accent)">→</span></div>
+          <div class="ph-row"><div style="flex:1"><b>Уведомления</b><span>1 непрочитанное</span></div><span style="color:var(--accent)">→</span></div>
+          <div class="ph-row"><div style="flex:1"><b>Профиль</b><span>Иванова Наталья Сергеевна</span></div><span style="color:var(--accent)">→</span></div>
+        </div>
+        <nav class="ph-nav"><a class="active" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="9" rx="1.5"/><rect x="13" y="4" width="7" height="5" rx="1.5"/><rect x="13" y="11" width="7" height="9" rx="1.5"/><rect x="4" y="15" width="7" height="5" rx="1.5"/></svg>Главная</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9Z"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg>Уведомления</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M4 10h16M8 14h5"/></svg>Оплата</a><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c.8-3.4 3.6-5 7-5s6.2 1.6 7 5"/></svg>Профиль</a></nav>
+      </div>
+      <div style="max-width:420px"><div class="card pad"><div class="panel-head"><div><span class="kicker">Мобильный сценарий</span><h2>Суть</h2></div></div><p class="small muted">Для родителя главное — счёт и его статус. Он показан сразу: важная сумма, срок и кнопка оплаты крупно, остальное — вторым планом. Нижние ярлыки: Главная, Уведомления, Оплата, Профиль — только реальные разделы.</p></div></div>
+    </div></div>
+  </section>
+</div>
+</body>
+</html>

@@ -6,7 +6,7 @@ from datetime import datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi import FastAPI
 from pydantic import ValidationError
@@ -77,5 +77,39 @@ def test_route_has_private_access_and_never_silently_truncates():
             )
             assert response.status_code == 422
             assert "period" in response.text.lower()
+
+    asyncio.run(run())
+
+
+def test_internal_subjects_requires_service_token_and_lists_all():
+    from schedule_service.api.calendar_lessons import router
+    from schedule_service.domain.subject import Subject
+
+    repository = SimpleNamespace(
+        list_all=AsyncMock(return_value=[Subject(id=1, name="Математика")])
+    )
+
+    @asynccontextmanager
+    async def uow():
+        yield SimpleNamespace(subjects=repository)
+
+    app = FastAPI()
+    app.state.settings = SimpleNamespace(
+        gateway_service_token="gateway-only", homework_service_token="homework-only"
+    )
+    app.state.uow_factory = uow
+    app.include_router(router)
+
+    async def run():
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            assert (await client.get("/internal/subjects")).status_code == 401
+            response = await client.get(
+                "/internal/subjects",
+                headers={"Authorization": "Bearer gateway-only"},
+            )
+            assert response.status_code == 200
+            assert response.json() == [{"id": 1, "name": "Математика"}]
 
     asyncio.run(run())

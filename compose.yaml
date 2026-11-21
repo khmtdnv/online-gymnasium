@@ -231,7 +231,7 @@ services:
       start_period: 10s
 
   document-minio:
-    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    image: ghcr.io/l33tlamer/minio-backup@sha256:a1ea29fa28355559ef137d71fc570e508a214ec84ff8083e39bc5428980b015e
     command: server /data --console-address ":9001"
     env_file:
       - ./services/documents/.minio.env
@@ -245,7 +245,7 @@ services:
       start_period: 10s
 
   document-minio-init:
-    image: quay.io/minio/mc:RELEASE.2025-03-12T17-29-24Z
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/minio/mc@sha256:b6bfd6dc86587bacd1d630a4de936adeba05f2f6e1e3c7aa6dbc1e16302a69cf
     env_file:
       - ./services/documents/.env
     entrypoint: []
@@ -488,7 +488,7 @@ services:
       start_period: 5s
 
   homework-minio:
-    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    image: ghcr.io/l33tlamer/minio-backup@sha256:a1ea29fa28355559ef137d71fc570e508a214ec84ff8083e39bc5428980b015e
     command: server /data --console-address ":9001"
     env_file:
       - ./services/homework/.minio.env
@@ -502,7 +502,7 @@ services:
       start_period: 10s
 
   homework-minio-init:
-    image: quay.io/minio/mc:RELEASE.2025-03-12T17-29-24Z
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/minio/mc@sha256:b6bfd6dc86587bacd1d630a4de936adeba05f2f6e1e3c7aa6dbc1e16302a69cf
     env_file:
       - ./services/homework/.minio.env
     entrypoint: ["/bin/sh", "/init/init.sh"]

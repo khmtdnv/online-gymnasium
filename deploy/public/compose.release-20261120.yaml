@@ -1,0 +1,16 @@
+services:
+  frontend:
+    volumes:
+      - /opt/online-gymnasium-releases/release-20261120/client:/usr/share/nginx/html:ro
+  gateway-api:
+    volumes:
+      - /opt/online-gymnasium-releases/release-20261120/services/gateway/src:/app/src:ro
+  homework-api:
+    volumes:
+      - /opt/online-gymnasium-releases/release-20261120/services/homework/src:/app/src:ro
+  backoffice-api:
+    volumes:
+      - /opt/online-gymnasium-releases/release-20261120/services/backoffice/src:/app/src:ro
+  backoffice-static:
+    volumes:
+      - /opt/online-gymnasium-releases/release-20261120/services/backoffice/src:/app/src:ro

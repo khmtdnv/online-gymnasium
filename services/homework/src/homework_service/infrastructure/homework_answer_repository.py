@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from homework_service.application.ports.errors import HomeworkAnswerConflictError
 from homework_service.domain.homework_answer import HomeworkAnswer
+from homework_service.infrastructure.models.homework import HomeworkRow
 from homework_service.infrastructure.models.homework_answer import HomeworkAnswerRow
 
 
@@ -18,6 +19,40 @@ class SqlAlchemyHomeworkAnswerRepository:
     def __init__(self, session: AsyncSession) -> None:
         """Сохраняет сессию текущего Unit of Work."""
         self._session = session
+
+    async def review_candidates(self, after_id: int, limit: int):
+        """Читает последнюю попытку каждого ученика, не определяя права доступа."""
+        ranked = select(
+            HomeworkAnswerRow.id,
+            func.row_number()
+            .over(
+                partition_by=(
+                    HomeworkAnswerRow.homework_id,
+                    HomeworkAnswerRow.student_id,
+                ),
+                order_by=HomeworkAnswerRow.attempt_number.desc(),
+            )
+            .label("position"),
+        ).subquery()
+        result = await self._session.execute(
+            select(HomeworkAnswerRow, HomeworkRow)
+            .join(HomeworkRow, HomeworkRow.id == HomeworkAnswerRow.homework_id)
+            .join(ranked, ranked.c.id == HomeworkAnswerRow.id)
+            .where(ranked.c.position == 1, HomeworkAnswerRow.id > after_id)
+            .order_by(HomeworkAnswerRow.id)
+            .limit(limit)
+        )
+        return [
+            (
+                self._to_domain(answer),
+                homework.id,
+                homework.issued_lesson_id,
+                homework.class_id,
+                homework.subject_id,
+                homework.description,
+            )
+            for answer, homework in result
+        ]
 
     async def get_by_id(
         self, answer_id: int, *, for_update: bool = False

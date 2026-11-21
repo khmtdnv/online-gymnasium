@@ -14,19 +14,33 @@
   src: url('fonts/manrope-latin-wght-normal.woff2') format('woff2');
 }
 :root, html[data-theme='light'], html[data-theme='dark'] {
-  --canvas: #f0f2ed;
-  --sidebar: #f9fbf7;
-  --surface: #fffefa;
-  --text: #223b36;
-  --muted: #62706a;
-  --accent: #17645c;
-  --accent-hover: #12564f;
-  --accent-soft: #e2eee8;
-  --peach: #f4d9c6;
-  --border: #dde5df;
-  --danger: #a33630;
-  --danger-soft: #fff0ec;
-  --success: #24634a;
+  --canvas: #f8f9fd;
+  --sidebar: #f4f3ef;
+  --surface: #ffffff;
+  --text: #191c1f;
+  --muted: #59616a;
+  --accent: #245892;
+  --accent-hover: #1b4573;
+  --accent-soft: #ebf2fa;
+  --peach: #fffaf0;
+  --border: #dcdad5;
+  --danger: #ba1a1a;
+  --danger-soft: #fff5f5;
+  --success: #276749;
+  --surface-dim: #f2f3f7;
+  --border-inner: #eceae4;
+  --success-soft: #f0fff4;
+  --warn: #975a16;
+  --warn-border: #feebc8;
+  --return: #c05621;
+  --subject-math: #2b6cb0;
+  --subject-russian: #c05621;
+  --subject-literature: #6b46c1;
+  --subject-physics: #2f855a;
+  --subject-history: #975a16;
+  --subject-nature: #2f855a;
+  --subject-language: #0f766e;
+  --subject-default: #59616a;
   --primary: var(--accent);
   --secondary: var(--accent);
   --accent-color: var(--peach);
@@ -122,3 +136,27 @@ div.breadcrumbs { padding: 12px 32px; font-size: 12px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Общая структура списков, форм и таблиц для сотрудников. */
+#header { gap: 12px 24px; padding: 18px 28px; background: #fff; }
+#site-name { font-size: 19px; letter-spacing: -.03em; }
+.og-brand-mark { border-radius: 10px; }
+.og-staff-badge { background: var(--accent-soft); color: var(--accent-hover); }
+.og-admin-nav a { border-radius: 9px; background: transparent; font-size: 13px; padding: 8px 10px; }
+.og-admin-nav a:hover, .og-admin-nav a:focus { background: var(--accent-soft); }
+div.breadcrumbs { padding: 12px 28px; background: #eaf1f5; font-size: 13px; }
+#content { max-width: 1440px; margin: 0 auto; }
+#content h1 { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(26px, 3vw, 34px); }
+.module, .inline-group, #changelist, .og-form-card { border-radius: 15px; box-shadow: 0 1px 2px rgba(35,42,49,.05); }
+.module h2, .module caption, .inline-group h2 { background: #f4f7f9; }
+.og-form-card label { font-size: 14px; }
+.og-form-card input, .og-form-card select { border-radius: 9px; }
+.og-form-card button, .button, input[type=submit], .submit-row input { border-radius: 9px; font-size: 14px; }
+#result_list { width: 100%; border-collapse: collapse; }
+#result_list thead th { background: #f4f7f9; color: var(--muted); padding: 12px; }
+#result_list tbody th, #result_list tbody td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+#result_list tbody tr:hover { background: #f7fafc; }
+.messagelist li.info, .messagelist li.success { background-color: var(--accent-soft); color: var(--text); }
+.messagelist li.warning { background-color: #f9f0dc; color: #785008; }
+.messagelist li.error { background-color: #f9e9e7; color: var(--danger); }
+@media (max-width: 767px) { #header, div.breadcrumbs { padding: 16px; } #content { padding: 18px 14px; } .og-admin-nav { overflow-x: auto; flex-wrap: nowrap; } .og-admin-nav a { white-space: nowrap; font-size: 12px; } }

@@ -32,6 +32,12 @@ export default function Schedule() {
     enabled: selection.classId !== null,
     queryFn: ({ signal }) => schedule.listLessons(selection.classId!, selection.day, signal),
   });
+  const directory = useQuery({
+    queryKey: ['schedule', 'directory'],
+    queryFn: ({ signal }) => schedule.directory(signal),
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
 
   function refreshDays(updated: Lesson, previous?: Lesson) {
     const affected = [updated, ...(previous ? [previous] : [])];
@@ -64,7 +70,7 @@ export default function Schedule() {
     }
   }
   return (
-    <>
+    <div className="workspace-page schedule-management-page">
       <PageHeader
         title="Расписание"
         eyebrow="Школьный ритм"
@@ -84,6 +90,7 @@ export default function Schedule() {
       <DayFilters
         classIdText={selection.classIdText}
         day={selection.day}
+        classes={directory.data?.classes}
         onChange={selection.change}
       />
       {notice && <Alert tone="success">{notice}</Alert>}
@@ -186,6 +193,9 @@ export default function Schedule() {
             lesson={editor === 'create' ? undefined : editor}
             classId={selection.classId}
             day={selection.day}
+            subjects={directory.data?.subjects}
+            classes={directory.data?.classes}
+            searchTeachers={(q, signal) => schedule.searchTeachers(q, signal)}
             savingBlocked={editorConflict !== null}
             onSubmit={async (input, key) => {
               try {
@@ -262,6 +272,6 @@ export default function Schedule() {
           </Button>
         </div>
       </Dialog>
-    </>
+    </div>
   );
 }

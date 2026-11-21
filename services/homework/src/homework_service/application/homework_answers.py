@@ -86,6 +86,23 @@ class HomeworkAnswerResult(BaseModel):
         )
 
 
+class TeacherReviewItem(BaseModel):
+    answer_id: PositiveId
+    homework_id: PositiveId
+    lesson_id: PositiveId
+    class_id: PositiveId
+    subject_id: PositiveId
+    student_id: UUID
+    description: str
+    status: Literal["submitted", "returned", "graded"]
+    submitted_at: AwareDatetime
+
+
+class TeacherReviewPage(BaseModel):
+    items: list[TeacherReviewItem]
+    next_cursor: int | None
+
+
 class HomeworkAnswerInput(BaseModel):
     """Только пользовательское содержимое, без подмены автора и серверных полей."""
 
@@ -373,6 +390,42 @@ class ReviewHomeworkAnswerHandler(HomeworkAnswerAccess):
 
 class ReadHomeworkAnswersHandler(HomeworkAnswerAccess):
     """Читает собственную историю ученика или разрешённые работы преподавателя."""
+
+    async def review_queue(self, teacher_id: UUID, cursor: int) -> TeacherReviewPage:
+        async with self._uow_factory() as uow:
+            candidates = await uow.answers.review_candidates(cursor, 101)
+        results = []
+        allowed: dict[int, bool] = {}
+        for (
+            answer,
+            homework_id,
+            lesson_id,
+            class_id,
+            subject_id,
+            description,
+        ) in candidates[:100]:
+            if homework_id not in allowed:
+                try:
+                    await self.authorize(teacher_id, "teacher", homework_id)
+                    allowed[homework_id] = True
+                except HomeworkAccessDeniedError, HomeworkNotFoundError:
+                    allowed[homework_id] = False
+            if allowed[homework_id]:
+                results.append(
+                    TeacherReviewItem(
+                        answer_id=answer.id,
+                        homework_id=homework_id,
+                        lesson_id=lesson_id,
+                        class_id=class_id,
+                        subject_id=subject_id,
+                        student_id=answer.student_id,
+                        description=description,
+                        status=answer.status,
+                        submitted_at=answer.submitted_at,
+                    )
+                )
+        next_cursor = candidates[99][0].id if len(candidates) > 100 else None
+        return TeacherReviewPage(items=results, next_cursor=next_cursor)
 
     async def handle(self, query: HomeworkAnswersQuery) -> list[HomeworkAnswerResult]:
         """Возвращает страницу либо одну конкретную разрешённую попытку.

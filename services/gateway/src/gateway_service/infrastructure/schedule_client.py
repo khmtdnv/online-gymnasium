@@ -179,3 +179,89 @@ class ScheduleClient:
         ):
             raise ScheduleUnavailableError
         return lessons
+
+    async def list_subjects(self) -> list[dict]:
+        """Возвращает справочник предметов для администратора портала."""
+        try:
+            response = await self._http_client.get(
+                "/internal/subjects",
+                headers={"Authorization": f"Bearer {self._service_token}"},
+                timeout=5.0,
+                follow_redirects=False,
+            )
+            if response.status_code != 200:
+                raise ScheduleUnavailableError
+            data = response.json()
+            if not isinstance(data, list) or not all(
+                isinstance(row, dict)
+                and isinstance(row.get("id"), int)
+                and (row.get("name") is None or isinstance(row.get("name"), str))
+                for row in data
+            ):
+                raise ScheduleUnavailableError
+            return data
+        except httpx.HTTPError as exc:
+            raise ScheduleUnavailableError from exc
+
+    async def admin_list_lessons(self, class_id: int, day: str) -> list[dict]:
+        """Уроки класса за день для рабочего места администратора."""
+        try:
+            response = await self._http_client.get(
+                "/lessons",
+                params={"class_id": class_id, "date": day},
+                headers={"Authorization": f"Bearer {self._service_token}"},
+                timeout=5.0,
+                follow_redirects=False,
+            )
+            if response.status_code != 200:
+                raise ScheduleUnavailableError
+            return response.json()
+        except httpx.HTTPError as exc:
+            raise ScheduleUnavailableError from exc
+
+    async def admin_create_lesson(
+        self, body: dict, idempotency_key: str
+    ) -> tuple[int, dict]:
+        """Создаёт урок от имени администратора; возвращает статус и тело."""
+        try:
+            response = await self._http_client.post(
+                "/lessons",
+                json=body,
+                headers={
+                    "Authorization": f"Bearer {self._service_token}",
+                    "Idempotency-Key": idempotency_key,
+                },
+                timeout=5.0,
+                follow_redirects=False,
+            )
+            return response.status_code, response.json()
+        except httpx.HTTPError as exc:
+            raise ScheduleUnavailableError from exc
+
+    async def admin_update_lesson(self, lesson_id: int, body: dict) -> tuple[int, dict]:
+        """Переносит урок; возвращает статус и тело ответа Schedule."""
+        try:
+            response = await self._http_client.patch(
+                f"/lessons/{lesson_id}",
+                json=body,
+                headers={"Authorization": f"Bearer {self._service_token}"},
+                timeout=5.0,
+                follow_redirects=False,
+            )
+            return response.status_code, response.json()
+        except httpx.HTTPError as exc:
+            raise ScheduleUnavailableError from exc
+
+    async def admin_cancel_lesson(self, lesson_id: int, body: dict) -> tuple[int, dict]:
+        """Отменяет урок; возвращает статус и тело ответа Schedule."""
+        try:
+            response = await self._http_client.post(
+                f"/lessons/{lesson_id}/cancel",
+                json=body,
+                headers={"Authorization": f"Bearer {self._service_token}"},
+                timeout=5.0,
+                follow_redirects=False,
+            )
+            return response.status_code, response.json()
+        except httpx.HTTPError as exc:
+            raise ScheduleUnavailableError from exc

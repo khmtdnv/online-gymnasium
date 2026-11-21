@@ -113,7 +113,7 @@ test('UI mock: logout в одной вкладке очищает вторую',
   await page.getByRole('button', { name: 'Выйти', exact: true }).first().click();
   await expect(second.getByRole('heading', { name: 'Вход в гимназию' })).toBeVisible();
 });
-test('UI mock: ограниченная роль не запрашивает расписание через direct URL', async ({
+test('UI mock: ученик видит личное расписание, а не управление расписанием класса', async ({
   page,
   context,
 }) => {
@@ -122,9 +122,9 @@ test('UI mock: ограниченная роль не запрашивает р�
     if (request.url().includes('/schedule/lessons')) operationalRequests++;
   });
   await mockBackend(context, 'student');
-  await login(page, 'Моё расписание');
+  await login(page, 'Сегодня');
   await page.goto('/schedule?class_id=21&day=2026-10-03');
-  await expect(page.getByRole('heading', { name: 'Нет доступа' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Моё расписание' })).toBeVisible();
   expect(operationalRequests).toBe(0);
 });
 test('UI mock: мобильное меню закрывается Escape и возвращает фокус', async ({ page, context }) => {

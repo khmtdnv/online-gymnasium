@@ -47,7 +47,7 @@ function JobPage({ jobId }: { jobId: string }) {
     return () => document.removeEventListener('visibilitychange', changed);
   }, [valid, query.refetch]);
   return (
-    <>
+    <div className="workspace-page document-job-page">
       <PageHeader
         title="Ваш документ"
         eyebrow="Задание генерации"
@@ -94,7 +94,7 @@ function JobPage({ jobId }: { jobId: string }) {
           {query.data.status === 'completed' && <PdfPreview jobId={jobId} />}
         </>
       )}
-    </>
+    </div>
   );
 }
 export default function DocumentJobPage() {

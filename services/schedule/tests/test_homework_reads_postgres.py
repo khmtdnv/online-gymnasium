@@ -5,7 +5,7 @@ import os
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-import httpx
+import httpx2 as httpx
 import pytest
 from sqlalchemy import text
 from sqlalchemy.engine import make_url
