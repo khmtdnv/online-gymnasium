@@ -6,7 +6,7 @@ from datetime import datetime
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi import FastAPI
 from pydantic import ValidationError

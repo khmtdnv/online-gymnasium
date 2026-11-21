@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
-import httpx
+import httpx2 as httpx
 from fastapi import FastAPI
 from test_homework_reads import lesson
 

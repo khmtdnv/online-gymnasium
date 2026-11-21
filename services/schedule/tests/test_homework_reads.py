@@ -6,7 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from uuid import UUID
 
-import httpx
+import httpx2 as httpx
 import pytest
 from fastapi import FastAPI
 from sqlalchemy.exc import OperationalError
