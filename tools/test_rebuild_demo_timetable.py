@@ -5,6 +5,7 @@ import sys
 import unittest
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
+from typing import ClassVar
 
 
 def load_module(name: str):
@@ -226,3 +227,149 @@ class RebuildTimetableTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SubjectPerDayRules(unittest.TestCase):
+    """Правила «сколько одного предмета в день допустимо»."""
+
+    WEEK: ClassVar[list[date]] = [
+        date(2026, 11, 16) + timedelta(days=i) for i in range(5)
+    ]
+
+    def make_lessons(self, per_subject: dict[int, list[int]]):
+        """Собирает неделю одного класса: предмет → список дней уроков.
+
+        Часы внутри дня не пересекаются, предметы класса ведёт один
+        виртуальный учитель каждый — проверяются только правила дней.
+        """
+        lessons = []
+        lesson_id = 500
+        hour_used: dict[date, int] = {}
+        teacher_by_subject = {}
+        for subject, day_indexes in per_subject.items():
+            teacher_by_subject[subject] = f"t{subject}"
+            for index in day_indexes:
+                day = self.WEEK[index]
+                hour = hour_used.get(day, 9)
+                hour_used[day] = hour + 1
+                start = datetime.combine(day, time(hour), rebuild.TIMEZONE)
+                lesson_id += 1
+                lessons.append(
+                    {
+                        "id": lesson_id,
+                        "class_id": 1,
+                        "teacher_id": teacher_by_subject[subject],
+                        "subject_id": subject,
+                        "starts_at": start.isoformat(),
+                        "ends_at": (start + timedelta(minutes=45)).isoformat(),
+                        "version": 1,
+                        "managed": True,
+                    }
+                )
+        return lessons
+
+    def test_five_lessons_spread_one_per_day(self):
+        lessons = self.make_lessons({2: [0, 1, 2, 3, 4], 1: [0, 1, 2, 3, 4]})
+        plan = rebuild.plan_day_subjects(lessons, protected=set(), days=self.WEEK)
+        per_day = {
+            day: [row["subject_id"] for row in rows] for day, rows in plan[1].items()
+        }
+        for day, subjects in per_day.items():
+            self.assertEqual(sorted(subjects), [1, 2], f"день {day}: {subjects}")
+
+    def test_sixth_lesson_allows_single_necessary_double(self):
+        # 15 уроков на 5 дней по 3: русский 6 (нужен один дубль),
+        # математика 5 и литература 4 — по одному в день.
+        lessons = self.make_lessons(
+            {2: [0, 1, 2, 3, 4, 4], 1: [0, 1, 2, 3, 4], 1001: [0, 1, 2, 3]}
+        )
+        plan = rebuild.plan_day_subjects(lessons, protected=set(), days=self.WEEK)
+        counts = {}
+        for day, rows in plan[1].items():
+            counts[day] = sum(1 for row in rows if row["subject_id"] == 2)
+        self.assertEqual(sum(counts.values()), 6)
+        self.assertEqual(max(counts.values()), 2, "три урока в день недопустимы")
+        self.assertEqual(
+            sum(1 for count in counts.values() if count == 2),
+            1,
+            "двойной нужен ровно один",
+        )
+
+    def test_verify_state_rejects_five_same_subject_in_one_day(self):
+        lessons = []
+        for hour in range(9, 14):
+            start = datetime.combine(self.WEEK[0], time(hour), rebuild.TIMEZONE)
+            lessons.append(
+                {
+                    "id": 900 + hour,
+                    "class_id": 1,
+                    "teacher_id": "t2",
+                    "subject_id": 2,
+                    "starts_at": start.isoformat(),
+                    "ends_at": (start + timedelta(minutes=45)).isoformat(),
+                    "version": 1,
+                    "managed": True,
+                }
+            )
+        users = {"t@example.test": {"id": "t2", "role": "teacher"}}
+        healthy, info = rebuild.verify_state(lessons, users)
+        self.assertFalse(healthy)
+        self.assertIn("три и больше уроков", info["reason"])
+
+    def test_verify_state_rejects_unnecessary_double(self):
+        lessons = self.make_lessons({2: [0, 0, 1], 1: [0, 1, 2]})
+        users = {"t@example.test": {"id": "t1", "role": "teacher"}}
+        healthy, info = rebuild.verify_state(lessons, users)
+        self.assertFalse(healthy)
+        self.assertIn("не был необходим", info["reason"])
+
+    def test_verify_state_rejects_student_window(self):
+        lessons = self.make_lessons({2: [0], 1: [0]})
+        hours = (9, 11)
+        for row, hour in zip(lessons, hours, strict=True):
+            start = datetime.combine(self.WEEK[0], time(hour), rebuild.TIMEZONE)
+            row["starts_at"] = start.isoformat()
+            row["ends_at"] = (start + timedelta(minutes=45)).isoformat()
+            row["teacher_id"] = "t1"
+        users = {"t@example.test": {"id": "t1", "role": "teacher"}}
+        healthy, info = rebuild.verify_state(lessons, users)
+        self.assertFalse(healthy)
+        self.assertIn("окно", info["reason"])
+
+
+class TeacherBackToBackTests(unittest.TestCase):
+    """Учитель может вести свой предмет подряд в разных классах."""
+
+    def test_teacher_teaches_consecutive_periods_in_two_classes(self):
+        users = make_users()
+        math_teacher = users["teacher01@demo.og.test"]["id"]
+        day = date(2026, 11, 16)
+        by_class_day = {
+            1: {
+                day: [
+                    {"id": 1, "subject_id": 1, "_protected": False},
+                    {"id": 2, "subject_id": 1001, "_protected": False},
+                ]
+            },
+            2: {
+                day: [
+                    {"id": 3, "subject_id": 1, "_protected": False},
+                    {"id": 4, "subject_id": 1001, "_protected": False},
+                ]
+            },
+        }
+        teacher_of = {
+            (1, 1): math_teacher,
+            (1, 1001): users[expand.subject_teacher_email(1, "a", 1001)]["id"],
+            (2, 1): math_teacher,
+            (2, 1001): users[expand.subject_teacher_email(1, "b", 1001)]["id"],
+        }
+        placement = rebuild.assign_periods(by_class_day, teacher_of)
+        math_periods = sorted(
+            entry["period"]
+            for rows in placement.values()
+            for entry in rows.values()
+            if entry["subject_id"] == 1
+        )
+        self.assertEqual(math_periods, [1, 2], "математик ведёт два класса подряд")
+        self.assertEqual(len(set(math_periods)), 2, "часы не пересекаются")

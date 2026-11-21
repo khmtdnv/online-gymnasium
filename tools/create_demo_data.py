@@ -220,8 +220,13 @@ def load_apis() -> tuple[Api, Api, Api, Api]:
     """Читает только локальную конфигурацию Compose, оставляя секреты в памяти."""
     # На сервере поверх dev-настроек действует публичный override (домен и
     # https-Origin); без него вход через портал получает отказ 403.
+    # Маркер сервера — каталог релизов: локально override в репозитории
+    # есть, но локальный стек работает на dev-настройках.
     compose_files = ["compose.yaml", "compose.dev.yaml"]
-    if (ROOT / "deploy" / "public" / "compose.public.yaml").exists():
+    if (
+        Path("/opt/online-gymnasium-releases").is_dir()
+        and (ROOT / "deploy" / "public" / "compose.public.yaml").exists()
+    ):
         compose_files.append("deploy/public/compose.public.yaml")
     result = subprocess.run(
         [
@@ -358,7 +363,13 @@ def upload_file(api: Api, path: str, file: dict) -> None:
 def ensure_lessons(
     schedule: Api, teacher: Api, teacher_id: str, class_id: int, days: list[date]
 ) -> list[dict]:
-    """Добавляет по уроку в день, повторно используя свои существующие занятия."""
+    """Добавляет по уроку в день, повторно используя свои существующие занятия.
+
+    Свои уроки ищутся по классу и дню независимо от предмета: смена набора
+    предметов сценария не должна плодить вторые уроки одного дня. Новые
+    уроки циклически проходят несколько предметов, чтобы демо-сценарии
+    не накапливали к неделе пять часов русского или математики.
+    """
     own = []
     for first in (days[0], days[5]):
         query = urlencode(
@@ -368,14 +379,14 @@ def ensure_lessons(
             }
         )
         own.extend(teacher.request("GET", "/api/v1/lessons?" + query))
+    scenario_subjects = (1, 1001, 2, 1003)
     result = []
     for index, day in enumerate(days):
-        subject = 1 + index % 2
+        subject = scenario_subjects[index % len(scenario_subjects)]
         found = [
             row
             for row in own
             if row["class_id"] == class_id
-            and row["subject_id"] == subject
             and datetime.fromisoformat(row["starts_at"]).astimezone(TIMEZONE).date()
             == day
         ]

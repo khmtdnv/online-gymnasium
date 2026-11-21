@@ -33,13 +33,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service:
-          [gateway, homework, backoffice, journal, schedule, billing, documents, notifications, pen, analytics]
+        include:
+          - { service: gateway, python: "3.14" }
+          - { service: homework, python: "3.14" }
+          - { service: backoffice, python: "3.14" }
+          - { service: journal, python: "3.14" }
+          - { service: schedule, python: "3.14" }
+          - { service: billing, python: "3.14" }
+          - { service: documents, python: "3.13" }
+          - { service: notifications, python: "3.14" }
+          - { service: pen, python: "3.14" }
+          - { service: analytics, python: "3.14" }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: ${{ matrix.python }}
           cache: pip
       - run: pipx install poetry
       - name: Install deps

@@ -126,15 +126,107 @@ def expansion_accounts() -> list[dict]:
 
 
 def subject_for(grade: int, day: date, slot: int) -> int:
-    """Меняет предметы в течение недели, учитывая возраст ученика."""
-    subjects = (
-        [1, 2, 1001, 1002, 1004, 1009]
-        if grade <= 4
-        else [1, 2, 1001, 1003, 1004, 1005, 1007, 1008, 1009]
-    )
-    if grade >= 7:
-        subjects.append(1006)
-    return subjects[(day.weekday() * 4 + slot + grade) % len(subjects)]
+    """Отдаёт предмет слота из недельной сетки ступени обучения.
+
+    Сетка задаётся явно (WEEKLY_CURRICULUM): количество часов каждого
+    предмета правдоподобно для параллели и в сумме ровно заполняет
+    учебные дни. Раньше предметы шли по кругу остатков, и при наложении
+    нескольких источников у класса собиралось по 5–6 часов одного
+    предмета в неделю.
+    """
+    plan = _grade_day_plan(grade)
+    day_row = plan[day.weekday() % len(plan)]
+    return day_row[slot % len(day_row)]
+
+
+# Недельные часы предметов по ступеням. Сумма каждой сетки кратна пяти
+# учебным дням: начальная школа — 5 уроков в день, средняя и старшая — 6.
+WEEKLY_CURRICULUM: dict[str, dict[int, int]] = {
+    "primary": {
+        1: 5,  # математика
+        2: 5,  # русский язык
+        1001: 4,  # литература
+        1002: 3,  # окружающий мир
+        1004: 3,  # английский язык
+        1009: 3,  # физическая культура
+        1003: 2,  # история
+    },
+    "middle": {
+        1: 5,
+        2: 5,
+        1001: 3,
+        1003: 3,
+        1004: 3,
+        1005: 3,
+        1007: 3,
+        1008: 2,
+        1009: 3,
+    },
+    "senior": {
+        1: 5,
+        2: 4,
+        1001: 3,
+        1003: 3,
+        1004: 3,
+        1005: 2,
+        1006: 3,
+        1007: 2,
+        1008: 2,
+        1009: 3,
+    },
+}
+
+_DAY_PLAN_CACHE: dict[int, list[list[int]]] = {}
+
+
+def _grade_day_plan(grade: int) -> list[list[int]]:
+    """Строит детерминированную сетку «день недели → предметы слотов».
+
+    Часы предмета распределяются по разным дням (сначала по одному
+    в день, вторые часы — в наименее заполненные дни), поэтому набор
+    предметов каждого учебного дня разнообразен.
+    """
+    cached = _DAY_PLAN_CACHE.get(grade)
+    if cached is not None:
+        return cached
+    stage = "primary" if grade <= 4 else "middle" if grade <= 6 else "senior"
+    weekly = WEEKLY_CURRICULUM[stage]
+    days_count = 5
+    target = 5 if grade <= 4 else 6
+    if sum(weekly.values()) != days_count * target:
+        raise ValueError(
+            f"Недельная сетка ступени {stage} не заполняет "
+            f"{days_count} дней по {target} уроков"
+        )
+    day_rows: list[list[int]] = [[] for _ in range(days_count)]
+    for subject_id, hours in sorted(
+        weekly.items(), key=lambda item: (-item[1], item[0])
+    ):
+        # Часы предмета расходятся по разным дням: сначала в наименее
+        # заполненные, поэтому итоговая длина каждого дня одинакова.
+        for _ in range(hours):
+            options = [
+                index for index, row in enumerate(day_rows) if subject_id not in row
+            ]
+            if not options:
+                raise ValueError(
+                    f"Сетка ступени {stage}: предмет {subject_id} не помещается "
+                    f"по одному уроку в {days_count} дней"
+                )
+            chosen_day = min(options, key=lambda index: (len(day_rows[index]), index))
+            day_rows[chosen_day].append(subject_id)
+    for day_index, row in enumerate(day_rows):
+        if len(row) != target:
+            raise ValueError(
+                f"Сетка ступени {stage}: день {day_index} получил {len(row)} "
+                f"предметов вместо {target}"
+            )
+        # Сдвиг чередует порядок предметов между днями и параллелями,
+        # чтобы один предмет не открывал каждый день.
+        shift = (grade + day_index) % target
+        day_rows[day_index] = row[-shift:] + row[:-shift]
+    _DAY_PLAN_CACHE[grade] = day_rows
+    return day_rows
 
 
 def apply_expansion(gateway, journal, schedule, days, study_year):

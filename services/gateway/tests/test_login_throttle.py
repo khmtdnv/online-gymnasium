@@ -1,5 +1,7 @@
 """Тесты ограничения частоты неудачных входов."""
 
+from unittest.mock import patch
+
 from gateway_service.infrastructure.login_throttle import LoginThrottle
 
 
@@ -27,9 +29,15 @@ def test_success_resets_failures() -> None:
 
 def test_old_failures_expire_inside_window() -> None:
     throttle = LoginThrottle(max_failures=2, window_seconds=100)
-    now = 1000.0
 
-    throttle._failures["student@example.com"] = [now - 200, now - 150]
+    with patch(
+        "gateway_service.infrastructure.login_throttle.time.monotonic",
+        return_value=1000.0,
+    ):
+        throttle.register_failure("student@example.com")
+        throttle.register_failure("student@example.com")
+        # имитируем прошедшее время: обе попытки старше окна
+        throttle._failures["student@example.com"] = [800.0, 850.0]
 
-    assert not throttle.is_blocked("student@example.com")
-    assert throttle._failures.get("student@example.com") is None
+        assert not throttle.is_blocked("student@example.com")
+        assert throttle._failures.get("student@example.com") is None
