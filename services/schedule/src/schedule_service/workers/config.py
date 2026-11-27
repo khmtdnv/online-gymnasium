@@ -11,6 +11,9 @@ class RelaySettings(BaseSettings):
     database_url: str
     kafka_bootstrap_servers: str
     schedule_snapshot_topic: str = "schedule.lessons.v2"
+    batch_size: int = 500
+    published_retention_days: int = 7
+    retention_interval_seconds: float = 3600.0
 
 
 class InvalidatorSettings(BaseSettings):

@@ -15,10 +15,12 @@ logger = logging.getLogger(__name__)
 
 
 async def run() -> None:
-    """Читает события Kafka и удаляет кеш изменённых дней.
+    """Читает события Kafka пачками и удаляет кеш изменённых дней.
 
-    Подтверждает offset после обработки. При ошибке прекращает работу и закрывает
-    клиентов.
+    Забирает до 100 сообщений одним getmany, инвалидирует кеш всех событий
+    пачки и подтверждает смещения после обработки пачки. При ошибке
+    прекращает работу и закрывает клиентов; пачка может быть доставлена
+    повторно.
     """
     settings = InvalidatorSettings()
     consumer = AIOKafkaConsumer(
@@ -35,23 +37,42 @@ async def run() -> None:
     try:
         await consumer.start()
 
-        async for message in consumer:
+        while True:
             try:
-                envelope = json.loads(message.value)
-                if envelope["event_type"] == "schedule.changed":
-                    payload = envelope["payload"]
-                    event = ScheduleChanged(
-                        lesson_id=payload["lesson_id"],
-                        class_id=payload["class_id"],
-                        affected_dates=tuple(
-                            date.fromisoformat(day) for day in payload["affected_dates"]
-                        ),
-                    )
+                fetched = await consumer.getmany(timeout_ms=1000, max_records=100)
+
+                events: list[ScheduleChanged] = []
+                offsets_to_commit = {}
+
+                for topic_partition, messages in fetched.items():
+                    if not messages:
+                        continue
+
+                    offsets_to_commit[topic_partition] = messages[-1].offset + 1
+
+                    for message in messages:
+                        envelope = json.loads(message.value)
+                        if envelope["event_type"] == "schedule.changed":
+                            payload = envelope["payload"]
+                            events.append(
+                                ScheduleChanged(
+                                    lesson_id=payload["lesson_id"],
+                                    class_id=payload["class_id"],
+                                    affected_dates=tuple(
+                                        date.fromisoformat(day)
+                                        for day in payload["affected_dates"]
+                                    ),
+                                )
+                            )
+
+                for event in events:
                     await invalidator.handle(event)
 
-                await consumer.commit()
+                for topic_partition, next_offset in offsets_to_commit.items():
+                    await consumer.commit({topic_partition: next_offset})
+
             except Exception:
-                logger.exception("Cache invalidator failed to process Kafka event")
+                logger.exception("Cache invalidator failed to process Kafka batch")
                 raise
     finally:
         try:

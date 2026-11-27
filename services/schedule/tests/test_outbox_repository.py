@@ -7,6 +7,21 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+def test_outbox_model_declares_partial_index_for_pending_events() -> None:
+    from sqlalchemy.schema import CreateIndex
+
+    from schedule_service.infrastructure.models.outbox_event import OutboxEventRow
+
+    indexes = {index.name: index for index in OutboxEventRow.__table__.indexes}
+    index = indexes["outbox_events_published_at_idx"]
+
+    ddl = str(CreateIndex(index).compile(dialect=postgresql.dialect()))
+
+    assert "CREATE INDEX outbox_events_published_at_idx" in ddl
+    assert "ON outbox_events (published_at)" in ddl
+    assert "WHERE published_at IS NULL" in ddl
+
+
 @pytest.mark.anyio
 async def test_repository_adds_schedule_changed_event_to_session() -> None:
     from schedule_service.domain.events import ScheduleChanged
@@ -115,7 +130,9 @@ async def test_repository_returns_pending_events_in_id_order() -> None:
 
 
 @pytest.mark.anyio
-async def test_repository_marks_only_pending_event_as_published() -> None:
+async def test_repository_marks_only_pending_events_as_published_in_one_update() -> (
+    None
+):
     from schedule_service.infrastructure.outbox_repository import (
         SqlAlchemyOutboxRepository,
     )
@@ -123,8 +140,9 @@ async def test_repository_marks_only_pending_event_as_published() -> None:
     session = AsyncMock(spec=AsyncSession)
     repository = SqlAlchemyOutboxRepository(session)
 
-    await repository.mark_published(event_id=7)
+    await repository.mark_published(event_ids=[7, 8])
 
+    session.execute.assert_awaited_once()
     statement = session.execute.await_args.args[0]
     sql = str(
         statement.compile(
@@ -132,6 +150,67 @@ async def test_repository_marks_only_pending_event_as_published() -> None:
             compile_kwargs={"literal_binds": True},
         )
     )
-    assert "UPDATE outbox_events SET published_at=now()" in sql
-    assert "outbox_events.id = 7" in sql
+    assert sql.startswith("UPDATE outbox_events SET published_at=now()")
+    assert "outbox_events.id IN (7, 8)" in sql
     assert "outbox_events.published_at IS NULL" in sql
+
+
+@pytest.mark.anyio
+async def test_repository_marks_empty_id_list_without_sql() -> None:
+    from schedule_service.infrastructure.outbox_repository import (
+        SqlAlchemyOutboxRepository,
+    )
+
+    session = AsyncMock(spec=AsyncSession)
+    repository = SqlAlchemyOutboxRepository(session)
+
+    await repository.mark_published(event_ids=[])
+
+    session.execute.assert_not_awaited()
+
+
+@pytest.mark.anyio
+async def test_repository_counts_only_pending_events() -> None:
+    from schedule_service.infrastructure.outbox_repository import (
+        SqlAlchemyOutboxRepository,
+    )
+
+    session = AsyncMock(spec=AsyncSession)
+    session.scalar.return_value = 3
+    repository = SqlAlchemyOutboxRepository(session)
+
+    pending = await repository.count_pending()
+
+    assert pending == 3
+    statement = session.scalar.await_args.args[0]
+    sql = str(statement.compile(dialect=postgresql.dialect()))
+    assert "count(*)" in sql
+    assert "outbox_events.published_at IS NULL" in sql
+
+
+@pytest.mark.anyio
+async def test_repository_deletes_only_published_events_older_than_cutoff() -> None:
+    from schedule_service.infrastructure.outbox_repository import (
+        SqlAlchemyOutboxRepository,
+    )
+
+    session = AsyncMock(spec=AsyncSession)
+    session.execute.return_value.rowcount = 4
+    repository = SqlAlchemyOutboxRepository(session)
+
+    deleted = await repository.delete_published_before(
+        cutoff=datetime(2026, 11, 15, 12, tzinfo=UTC)
+    )
+
+    assert deleted == 4
+    statement = session.execute.await_args.args[0]
+    sql = str(
+        statement.compile(
+            dialect=postgresql.dialect(),
+            compile_kwargs={"literal_binds": True},
+        )
+    )
+    assert sql.startswith("DELETE FROM outbox_events")
+    assert "outbox_events.published_at IS NOT NULL" in sql
+    assert "outbox_events.published_at < '2026-11-15 12:00:00+00:00'" in sql
+    assert "idempotency" not in sql

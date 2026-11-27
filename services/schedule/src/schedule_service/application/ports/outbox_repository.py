@@ -45,10 +45,33 @@ class OutboxRepository(Protocol):
         """
         ...
 
-    async def mark_published(self, *, event_id: int) -> None:
-        """Ставит время публикации записи outbox в текущей транзакции.
+    async def mark_published(self, *, event_ids: list[int]) -> None:
+        """Marks the given outbox events published with a single statement.
 
         Args:
-            event_id: ID события outbox.
+            event_ids: IDs of outbox events confirmed by the broker; an empty
+                list is a no-op.
+        """
+        ...
+
+    async def count_pending(self) -> int:
+        """Counts outbox events that are not published yet.
+
+        Returns:
+            Number of rows with published_at IS NULL.
+        """
+        ...
+
+    async def delete_published_before(self, *, cutoff: datetime) -> int:
+        """Deletes published outbox events older than the cutoff.
+
+        Idempotency keys are never deleted: only rows with published_at set
+        are removed.
+
+        Args:
+            cutoff: Exclusive upper bound for published_at.
+
+        Returns:
+            Number of deleted rows.
         """
         ...

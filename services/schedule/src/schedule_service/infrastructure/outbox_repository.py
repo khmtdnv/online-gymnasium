@@ -1,4 +1,6 @@
-from sqlalchemy import func, select, update
+from datetime import datetime
+
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from schedule_service.application.ports.outbox_repository import PendingOutboxEvent
@@ -92,18 +94,51 @@ class SqlAlchemyOutboxRepository:
 
         return result_list
 
-    async def mark_published(self, *, event_id: int) -> None:
-        """Ставит время публикации записи outbox в текущей транзакции.
+    async def mark_published(self, *, event_ids: list[int]) -> None:
+        """Marks the given outbox events published with a single UPDATE.
 
         Args:
-            event_id: ID события outbox.
+            event_ids: IDs of confirmed outbox events; an empty list is a
+                no-op.
         """
+        if not event_ids:
+            return
+
         statement = (
             update(OutboxEventRow)
             .where(
-                OutboxEventRow.id == event_id,
+                OutboxEventRow.id.in_(event_ids),
                 OutboxEventRow.published_at.is_(None),
             )
             .values(published_at=func.now())
         )
         await self._session.execute(statement)
+
+    async def count_pending(self) -> int:
+        """Counts unpublished outbox events served by the partial index.
+
+        Returns:
+            Number of rows with published_at IS NULL.
+        """
+        statement = (
+            select(func.count())
+            .select_from(OutboxEventRow)
+            .where(OutboxEventRow.published_at.is_(None))
+        )
+        return int(await self._session.scalar(statement) or 0)
+
+    async def delete_published_before(self, *, cutoff: datetime) -> int:
+        """Deletes published events older than cutoff; idempotency keys stay.
+
+        Args:
+            cutoff: Exclusive upper bound for published_at.
+
+        Returns:
+            Number of deleted rows.
+        """
+        statement = delete(OutboxEventRow).where(
+            OutboxEventRow.published_at.is_not(None),
+            OutboxEventRow.published_at < cutoff,
+        )
+        result = await self._session.execute(statement)
+        return result.rowcount or 0
