@@ -99,8 +99,14 @@ jobs:
         run: |
           for svc in gateway homework backoffice journal schedule billing documents notifications pen analytics; do
             echo "::group::pip-audit $svc"
+            name=$(python -c "import tomllib; print(tomllib.load(open('services/$svc/pyproject.toml', 'rb'))['project']['name'])")
+            nr=$(printf '%s' "$name" | sed 's/[-_.]/[-_.]/g')
             if poetry -C "services/$svc" install >/dev/null; then
+              # Сам сервис (editable/прямой URL) не аудитуется: pip-audit
+              # пытается установить его в свой venv и падает на несовпадении
+              # Python (documents требует 3.13, venv аудита — 3.14).
               poetry -C "services/$svc" run pip freeze \
+                | grep -vE "^# |^-e |^${nr}(@|==| )" \
                 | pip-audit --requirement /dev/stdin --skip-editable || echo "$svc: найдены уязвимости (см. выше)"
             else
               echo "$svc: poetry install не удался — аудит пропущен"
