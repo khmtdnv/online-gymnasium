@@ -32,8 +32,8 @@ def test_domain_refuses_non_uuid_teacher(teacher_id):
             class_id=7,
             teacher_id=teacher_id,
             subject_id=1,
-            starts_at=datetime(2026, 10, 19, 10, tzinfo=UTC),
-            ends_at=datetime(2026, 10, 19, 11, tzinfo=UTC),
+            starts_at=datetime(2026, 10, 19, 4, tzinfo=UTC),
+            ends_at=datetime(2026, 10, 19, 4, 45, tzinfo=UTC),
         )
 
 
@@ -45,8 +45,8 @@ def test_cache_uuid_roundtrip_uses_separate_namespace():
         class_id=7,
         teacher_id=TEACHER,
         subject_id=1,
-        starts_at=datetime(2026, 10, 19, 10, tzinfo=UTC),
-        ends_at=datetime(2026, 10, 19, 11, tzinfo=UTC),
+        starts_at=datetime(2026, 10, 19, 4, tzinfo=UTC),
+        ends_at=datetime(2026, 10, 19, 4, 45, tzinfo=UTC),
     )
     payload = RedisScheduleCache._serialize([lesson])
     assert str(TEACHER) in payload

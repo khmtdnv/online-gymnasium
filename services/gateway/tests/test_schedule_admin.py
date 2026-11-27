@@ -11,7 +11,22 @@ from fastapi.testclient import TestClient
 from gateway_service.app import create_app
 from gateway_service.config import GatewaySettings
 from gateway_service.domain.user import Role, User
+from gateway_service.infrastructure.schedule_client import SchoolPeriods
 from gateway_service.infrastructure.token_service import PyJwtTokenService
+
+SCHOOL_PERIODS_RESPONSE = {
+    "timezone": "Asia/Yekaterinburg",
+    "effective_from": "2026-11-30",
+    "periods": [
+        {"number": 1, "start_at": "09:00", "end_at": "09:45"},
+        {"number": 2, "start_at": "09:55", "end_at": "10:40"},
+        {"number": 3, "start_at": "11:00", "end_at": "11:45"},
+        {"number": 4, "start_at": "11:55", "end_at": "12:40"},
+        {"number": 5, "start_at": "13:00", "end_at": "13:45"},
+        {"number": 6, "start_at": "13:55", "end_at": "14:40"},
+        {"number": 7, "start_at": "15:00", "end_at": "15:45"},
+    ],
+}
 
 LESSON = {
     "id": 11,
@@ -74,6 +89,9 @@ def make_admin_app(role=Role.ADMIN):
     schedule.admin_update_lesson.return_value = (200, dict(LESSON))
     schedule.admin_cancel_lesson.return_value = (200, dict(LESSON))
     schedule.list_subjects.return_value = [{"id": 2, "name": "Русский язык"}]
+    schedule.get_school_periods.return_value = SchoolPeriods.model_validate(
+        SCHOOL_PERIODS_RESPONSE
+    )
     app.state.schedule_client = schedule
 
     journal = AsyncMock()
@@ -235,14 +253,28 @@ def test_cancel_lesson_forwards_body():
 
 
 def test_directory_merges_classes_and_subjects():
-    app, token, _, journal = make_admin_app()
+    app, token, schedule, journal = make_admin_app()
     with TestClient(app) as client:
         response = client.get("/api/v1/schedule/directory", headers=auth(token))
     assert response.status_code == 200
     data = response.json()
     assert data["classes"] == [{"id": 7, "name": "7А"}]
     assert data["subjects"] == [{"id": 2, "name": "Русский язык"}]
+    assert data["periods"] == SCHOOL_PERIODS_RESPONSE["periods"]
     journal.list_classes.assert_awaited()
+    schedule.get_school_periods.assert_awaited_once()
+
+
+def test_directory_with_corrupt_schedule_periods_is_503():
+    from gateway_service.application.teacher_lessons import (
+        ScheduleUnavailableError,
+    )
+
+    app, token, schedule, _ = make_admin_app()
+    schedule.get_school_periods.side_effect = ScheduleUnavailableError
+    with TestClient(app) as client:
+        response = client.get("/api/v1/schedule/directory", headers=auth(token))
+    assert response.status_code == 503
 
 
 def test_directory_without_journal_is_503():

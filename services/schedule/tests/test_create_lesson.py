@@ -99,8 +99,8 @@ async def test_handler_creates_lesson_through_uow() -> None:
         class_id=1,
         teacher_id=UUID(int=2),
         subject_id=3,
-        starts_at=datetime(2026, 9, 10, 11, 30, tzinfo=UTC),
-        ends_at=datetime(2026, 9, 10, 12, 15, tzinfo=UTC),
+        starts_at=datetime(2026, 9, 10, 4, 0, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 10, 4, 45, tzinfo=UTC),
     )
 
     result = await handler.handle(command)
@@ -131,8 +131,8 @@ async def test_handler_queues_lesson_snapshot_after_creating_lesson() -> None:
         class_id=10,
         teacher_id=UUID(int=100),
         subject_id=1000,
-        starts_at=datetime(2026, 9, 13, 10, tzinfo=UTC),
-        ends_at=datetime(2026, 9, 13, 11, tzinfo=UTC),
+        starts_at=datetime(2026, 9, 13, 4, 0, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 13, 4, 45, tzinfo=UTC),
     )
 
     await handler.handle(command)
@@ -170,8 +170,8 @@ async def test_same_requests_are_idempotent() -> None:
         class_id=1,
         teacher_id=UUID(int=2),
         subject_id=3,
-        starts_at=datetime(2026, 9, 10, 11, 30, tzinfo=UTC),
-        ends_at=datetime(2026, 9, 10, 12, 15, tzinfo=UTC),
+        starts_at=datetime(2026, 9, 10, 4, 0, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 10, 4, 45, tzinfo=UTC),
         idempotency_key="k1",
         request_hash="h1",
     )
@@ -180,8 +180,8 @@ async def test_same_requests_are_idempotent() -> None:
         class_id=1,
         teacher_id=UUID(int=2),
         subject_id=3,
-        starts_at=datetime(2026, 9, 10, 11, 30, tzinfo=UTC),
-        ends_at=datetime(2026, 9, 10, 12, 15, tzinfo=UTC),
+        starts_at=datetime(2026, 9, 10, 4, 0, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 10, 4, 45, tzinfo=UTC),
         idempotency_key="k1",
         request_hash="h1",
     )
@@ -210,8 +210,8 @@ async def test_same_requests_with_different_hash_raises_error() -> None:
         class_id=1,
         teacher_id=UUID(int=2),
         subject_id=3,
-        starts_at=datetime(2026, 9, 10, 11, 30, tzinfo=UTC),
-        ends_at=datetime(2026, 9, 10, 12, 15, tzinfo=UTC),
+        starts_at=datetime(2026, 9, 10, 4, 0, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 10, 4, 45, tzinfo=UTC),
         idempotency_key="k1",
         request_hash="h1",
     )
@@ -220,8 +220,8 @@ async def test_same_requests_with_different_hash_raises_error() -> None:
         class_id=1,
         teacher_id=UUID(int=2),
         subject_id=3,
-        starts_at=datetime(2026, 9, 10, 11, 30, tzinfo=UTC),
-        ends_at=datetime(2026, 9, 10, 12, 15, tzinfo=UTC),
+        starts_at=datetime(2026, 9, 10, 4, 0, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 10, 4, 45, tzinfo=UTC),
         idempotency_key="k1",
         request_hash="h2",
     )

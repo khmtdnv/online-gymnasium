@@ -37,7 +37,11 @@ from schedule_service.application.update_lesson import (
     UpdateLessonCommand,
     UpdateLessonHandler,
 )
-from schedule_service.domain.lesson import InvalidLessonInterval, LessonAlreadyCanceled
+from schedule_service.domain.lesson import (
+    InvalidLessonInterval,
+    InvalidSchoolPeriod,
+    LessonAlreadyCanceled,
+)
 
 router = APIRouter(prefix="/lessons", tags=["lessons"])
 
@@ -96,7 +100,8 @@ async def create_lesson(
         Данные созданного либо повторно найденного урока.
 
     Raises:
-        HTTPException: Недопустимый интервал (422), конфликт расписания или ключа (409).
+        HTTPException: Недопустимый интервал или время вне сетки периодов
+            (422), конфликт расписания или ключа (409).
     """
     payload = request_model.model_dump(mode="json")
     serialized = json.dumps(payload, sort_keys=True, separators=(",", ":"))
@@ -121,6 +126,11 @@ async def create_lesson(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="starts_at must be before ends_at",
+        ) from exc
+    except InvalidSchoolPeriod as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Lesson times must match a school period",
         ) from exc
     except ScheduleConflict as exc:
         raise HTTPException(
@@ -153,8 +163,8 @@ async def update_lesson(
         Обновлённый урок.
 
     Raises:
-        HTTPException: Урок не найден (404), интервал неверен (422) или возник конфликт
-            (409).
+        HTTPException: Урок не найден (404), интервал неверен или время вне
+            сетки периодов (422) или возник конфликт (409).
     """
     try:
         command = UpdateLessonCommand(
@@ -173,6 +183,11 @@ async def update_lesson(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="starts_at must be before ends_at",
+        ) from exc
+    except InvalidSchoolPeriod as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Lesson times must match a school period",
         ) from exc
     except LessonNotFound as exc:
         raise HTTPException(

@@ -25,7 +25,11 @@ from schedule_service.application.update_lesson import (
     UpdateLessonCommand,
     UpdateLessonHandler,
 )
-from schedule_service.domain.lesson import InvalidLessonInterval, Lesson
+from schedule_service.domain.lesson import (
+    InvalidLessonInterval,
+    InvalidSchoolPeriod,
+    Lesson,
+)
 
 
 class UnknownOffset(tzinfo):
@@ -42,8 +46,8 @@ def test_lesson_rejects_unknown_time_offset(zone, field):
         "class_id": 1,
         "teacher_id": UUID(int=2),
         "subject_id": 3,
-        "starts_at": datetime(2026, 10, 12, 10, tzinfo=UTC),
-        "ends_at": datetime(2026, 10, 12, 11, tzinfo=UTC),
+        "starts_at": datetime(2026, 10, 12, 4, tzinfo=UTC),
+        "ends_at": datetime(2026, 10, 12, 4, 45, tzinfo=UTC),
     }
     values[field] = values[field].replace(tzinfo=zone)
     with pytest.raises(InvalidLessonInterval):
@@ -51,8 +55,8 @@ def test_lesson_rejects_unknown_time_offset(zone, field):
 
 
 def test_reschedule_rejects_naive_time_without_changing_lesson():
-    start = datetime(2026, 10, 12, 10, tzinfo=UTC)
-    end = datetime(2026, 10, 12, 11, tzinfo=UTC)
+    start = datetime(2026, 10, 12, 4, tzinfo=UTC)
+    end = datetime(2026, 10, 12, 4, 45, tzinfo=UTC)
     lesson = Lesson.create(1, UUID(int=2), 3, start, end)
     with pytest.raises(InvalidLessonInterval):
         lesson.reschedule(start.replace(tzinfo=None), end.replace(tzinfo=None))
@@ -64,10 +68,10 @@ def test_lesson_accepts_different_known_offsets():
         1,
         UUID(int=2),
         3,
-        datetime(2026, 10, 12, 10, tzinfo=UTC),
-        datetime(2026, 10, 12, 14, tzinfo=timezone(timedelta(hours=3))),
+        datetime(2026, 10, 12, 4, tzinfo=UTC),
+        datetime(2026, 10, 12, 9, 45, tzinfo=timezone(timedelta(hours=5))),
     )
-    assert lesson.ends_at - lesson.starts_at == timedelta(hours=1)
+    assert lesson.ends_at - lesson.starts_at == timedelta(minutes=45)
 
 
 @pytest.mark.parametrize("scenario", ["create", "update"])
@@ -106,8 +110,8 @@ def test_http_rejects_naive_time_without_uow(method, path, field):
     app.include_router(router)
     app.state.uow_factory = factory = Mock()
     body = {
-        "starts_at": "2026-10-12T10:00:00Z",
-        "ends_at": "2026-10-12T11:00:00Z",
+        "starts_at": "2026-10-12T04:00:00Z",
+        "ends_at": "2026-10-12T04:45:00Z",
     }
     body[field] = body[field].removesuffix("Z")
     if method == "POST":
@@ -117,6 +121,56 @@ def test_http_rejects_naive_time_without_uow(method, path, field):
     with TestClient(app, raise_server_exceptions=False) as client:
         response = client.request(method, path, json=body)
     assert response.status_code == 422
+    factory.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "starts_at,ends_at",
+    [
+        ("2026-11-30T04:01:00Z", "2026-11-30T04:46:00Z"),
+        ("2026-11-30T04:00:00Z", "2026-11-30T04:50:00Z"),
+        ("2026-11-30T05:45:00Z", "2026-11-30T06:30:00Z"),
+        ("2026-11-30T10:10:00Z", "2026-11-30T10:55:00Z"),
+    ],
+)
+def test_handler_rejects_off_grid_period_before_uow(starts_at, ends_at):
+    """Вне-сеточное время отклоняется доменом до открытия UnitOfWork."""
+    factory = Mock()
+    command = CreateLessonCommand(
+        class_id=1,
+        teacher_id=UUID(int=2),
+        subject_id=3,
+        starts_at=datetime.fromisoformat(starts_at),
+        ends_at=datetime.fromisoformat(ends_at),
+    )
+    with pytest.raises(InvalidSchoolPeriod):
+        asyncio.run(CreateLessonHandler(factory).handle(command))
+    factory.assert_not_called()
+
+
+def test_http_rejects_off_grid_period_without_uow():
+    """Создание вне сетки возвращает 422 со строкой detail, не открывая БД."""
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from schedule_service.api.lessons import router
+
+    app = FastAPI()
+    app.include_router(router)
+    app.state.uow_factory = factory = Mock()
+    with TestClient(app, raise_server_exceptions=False) as client:
+        response = client.post(
+            "/lessons",
+            json={
+                "class_id": 1,
+                "teacher_id": str(UUID(int=2)),
+                "subject_id": 3,
+                "starts_at": "2026-11-30T04:01:00Z",
+                "ends_at": "2026-11-30T04:46:00Z",
+            },
+        )
+    assert response.status_code == 422
+    assert response.json() == {"detail": "Lesson times must match a school period"}
     factory.assert_not_called()
 
 

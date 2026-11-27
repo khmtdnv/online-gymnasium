@@ -4,6 +4,7 @@ from typing import Self
 from unittest.mock import Mock
 from uuid import UUID
 
+import pytest
 from conftest import NoopScheduleCache
 from fastapi.testclient import TestClient
 
@@ -196,8 +197,8 @@ def test_create_lesson_endpoint() -> None:
             "class_id": 10,
             "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
-            "starts_at": "2026-09-08T10:00:00Z",
-            "ends_at": "2026-09-08T11:00:00Z",
+            "starts_at": "2026-09-08T04:00:00Z",
+            "ends_at": "2026-09-08T04:45:00Z",
         }
         response = test_client.post("/lessons", json=request_body)
 
@@ -210,6 +211,111 @@ def test_create_lesson_endpoint() -> None:
 
     assert fake_uow.lessons.saved is not None
     assert fake_uow.lessons.saved.class_id == 10
+
+
+@pytest.mark.parametrize(
+    "starts_at,ends_at",
+    [
+        ("2026-09-08T04:00:00Z", "2026-09-08T04:45:00Z"),
+        ("2026-09-08T04:55:00Z", "2026-09-08T05:40:00Z"),
+        ("2026-09-08T06:00:00Z", "2026-09-08T06:45:00Z"),
+        ("2026-09-08T06:55:00Z", "2026-09-08T07:40:00Z"),
+        ("2026-09-08T08:00:00Z", "2026-09-08T08:45:00Z"),
+        ("2026-09-08T08:55:00Z", "2026-09-08T09:40:00Z"),
+        ("2026-09-08T10:00:00Z", "2026-09-08T10:45:00Z"),
+    ],
+)
+def test_create_lesson_accepts_all_seven_school_periods(starts_at, ends_at) -> None:
+    test_settings = Settings(
+        app_name="Test Schedule Service",
+        database_url="postgresql+asyncpg://schedule:password@localhost:5432/schedule",
+        redis_url="test_url",
+        rabbitmq_url="test_url",
+    )
+    test_engine = create_engine(url=test_settings.database_url)
+    fake_uow = FakeUnitOfWork()
+    test_app = create_app(test_settings, test_engine, lambda: fake_uow)
+
+    with TestClient(test_app) as test_client:
+        request_body = {
+            "class_id": 10,
+            "teacher_id": str(UUID(int=100)),
+            "subject_id": 1000,
+            "starts_at": starts_at,
+            "ends_at": ends_at,
+        }
+        response = test_client.post("/lessons", json=request_body)
+
+        assert response.status_code == 201
+
+    assert fake_uow.lessons.saved is not None
+    assert fake_uow.lessons.saved.starts_at.isoformat() == starts_at.replace(
+        "Z", "+00:00"
+    )
+
+
+@pytest.mark.parametrize(
+    "starts_at,ends_at",
+    [
+        ("2026-09-08T09:01:00+05:00", "2026-09-08T09:46:00+05:00"),
+        ("2026-09-08T09:00:00+05:00", "2026-09-08T09:50:00+05:00"),
+        ("2026-09-08T10:45:00+05:00", "2026-09-08T11:30:00+05:00"),
+        ("2026-09-08T15:10:00+05:00", "2026-09-08T15:55:00+05:00"),
+    ],
+)
+def test_create_lesson_rejects_off_grid_school_times(starts_at, ends_at) -> None:
+    """Вне-сеточное локальное время — 422 со строкой detail по конвенции."""
+    test_settings = Settings(
+        app_name="Test Schedule Service",
+        database_url="postgresql+asyncpg://schedule:password@localhost:5432/schedule",
+        redis_url="test_url",
+        rabbitmq_url="test_url",
+    )
+    test_engine = create_engine(url=test_settings.database_url)
+    fake_uow = FakeUnitOfWork()
+    test_app = create_app(test_settings, test_engine, lambda: fake_uow)
+
+    with TestClient(test_app, raise_server_exceptions=False) as test_client:
+        request_body = {
+            "class_id": 10,
+            "teacher_id": str(UUID(int=100)),
+            "subject_id": 1000,
+            "starts_at": starts_at,
+            "ends_at": ends_at,
+        }
+        response = test_client.post("/lessons", json=request_body)
+
+        assert response.status_code == 422
+        assert response.json() == {"detail": "Lesson times must match a school period"}
+
+    assert fake_uow.lessons.saved is None
+
+
+def test_create_lesson_rejects_interval_in_different_days() -> None:
+    test_settings = Settings(
+        app_name="Test Schedule Service",
+        database_url="postgresql+asyncpg://schedule:password@localhost:5432/schedule",
+        redis_url="test_url",
+        rabbitmq_url="test_url",
+    )
+    test_engine = create_engine(url=test_settings.database_url)
+    fake_uow = FakeUnitOfWork()
+    test_app = create_app(test_settings, test_engine, lambda: fake_uow)
+
+    with TestClient(test_app, raise_server_exceptions=False) as test_client:
+        request_body = {
+            "class_id": 10,
+            "teacher_id": str(UUID(int=100)),
+            "subject_id": 1000,
+            "starts_at": "2026-09-08T23:00:00Z",
+            "ends_at": "2026-09-09T01:00:00Z",
+        }
+        response = test_client.post("/lessons", json=request_body)
+
+        assert response.status_code == 422
+        assert response.json() == {"detail": "starts_at must be before ends_at"}
+
+    assert fake_uow.lessons.saved is None
 
 
 def test_create_lesson_rejects_non_positive_interval() -> None:
@@ -229,8 +335,8 @@ def test_create_lesson_rejects_non_positive_interval() -> None:
             "class_id": 10,
             "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
-            "starts_at": "2026-09-08T10:00:00Z",
-            "ends_at": "2026-09-08T10:00:00Z",
+            "starts_at": "2026-09-08T04:00:00Z",
+            "ends_at": "2026-09-08T04:00:00Z",
         }
         response = test_client.post("/lessons", json=request_body)
 
@@ -263,8 +369,8 @@ def test_create_lesson_returns_conflict_for_schedule_conflict() -> None:
             "class_id": 10,
             "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
-            "starts_at": "2026-09-08T10:00:00Z",
-            "ends_at": "2026-09-08T11:00:00Z",
+            "starts_at": "2026-09-08T04:00:00Z",
+            "ends_at": "2026-09-08T04:45:00Z",
         }
         response = test_client.post("/lessons", json=request_body)
 
@@ -290,8 +396,8 @@ def test_update_lesson_endpoint() -> None:
         response = client.patch(
             "/lessons/501",
             json={
-                "starts_at": "2026-09-10T12:00:00Z",
-                "ends_at": "2026-09-10T13:00:00Z",
+                "starts_at": "2026-09-10T06:00:00Z",
+                "ends_at": "2026-09-10T06:45:00Z",
                 "expected_version": 3,
             },
         )
@@ -302,8 +408,8 @@ def test_update_lesson_endpoint() -> None:
         "class_id": 10,
         "teacher_id": str(UUID(int=100)),
         "subject_id": 1000,
-        "starts_at": "2026-09-10T12:00:00Z",
-        "ends_at": "2026-09-10T13:00:00Z",
+        "starts_at": "2026-09-10T06:00:00Z",
+        "ends_at": "2026-09-10T06:45:00Z",
         "status": "planned",
         "version": 4,
     }
@@ -325,8 +431,8 @@ def test_update_lesson_rejects_non_positive_interval() -> None:
         response = client.patch(
             "/lessons/501",
             json={
-                "starts_at": "2026-09-10T12:00:00Z",
-                "ends_at": "2026-09-10T12:00:00Z",
+                "starts_at": "2026-09-10T06:00:00Z",
+                "ends_at": "2026-09-10T06:00:00Z",
                 "expected_version": 3,
             },
         )
@@ -382,8 +488,8 @@ def test_update_lesson_returns_not_found_for_missing_lesson() -> None:
         response = client.patch(
             "/lessons/999",
             json={
-                "starts_at": "2026-09-10T12:00:00Z",
-                "ends_at": "2026-09-10T13:00:00Z",
+                "starts_at": "2026-09-10T06:00:00Z",
+                "ends_at": "2026-09-10T06:45:00Z",
                 "expected_version": 3,
             },
         )
@@ -408,8 +514,8 @@ def test_update_lesson_returns_conflict_for_stale_version() -> None:
         response = client.patch(
             "/lessons/501",
             json={
-                "starts_at": "2026-09-10T12:00:00Z",
-                "ends_at": "2026-09-10T13:00:00Z",
+                "starts_at": "2026-09-10T06:00:00Z",
+                "ends_at": "2026-09-10T06:45:00Z",
                 "expected_version": 2,
             },
         )
@@ -434,14 +540,55 @@ def test_update_lesson_returns_conflict_for_schedule_conflict() -> None:
         response = client.patch(
             "/lessons/501",
             json={
-                "starts_at": "2026-09-10T12:00:00Z",
-                "ends_at": "2026-09-10T13:00:00Z",
+                "starts_at": "2026-09-10T06:00:00Z",
+                "ends_at": "2026-09-10T06:45:00Z",
                 "expected_version": 3,
             },
         )
 
     assert response.status_code == 409
     assert response.json() == {"detail": "Lesson conflicts with existing schedule"}
+
+
+class RecordingUpdateLessonRepository(UpdatingLessonRepository):
+    """Считает вызовы update, чтобы убедиться, что отказ ничего не меняет."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.update_calls = 0
+
+    async def update(self, lesson: Lesson, expected_version: int) -> Lesson | None:
+        self.update_calls += 1
+        return await super().update(lesson, expected_version)
+
+
+def test_off_grid_update_is_rejected_and_lesson_stays_unchanged() -> None:
+    """Неудачный перенос вне сетки не изменяет сохранённый урок."""
+    settings = Settings(
+        app_name="Test Schedule Service",
+        database_url="postgresql+asyncpg://schedule:password@localhost:5432/schedule",
+        redis_url="test_url",
+        rabbitmq_url="test_url",
+    )
+    engine = create_engine(url=settings.database_url)
+    fake_uow = FakeUnitOfWork()
+    repository = RecordingUpdateLessonRepository()
+    fake_uow.lessons = repository
+    app = create_app(settings, engine, lambda: fake_uow)
+
+    with TestClient(app, raise_server_exceptions=False) as client:
+        response = client.patch(
+            "/lessons/501",
+            json={
+                "starts_at": "2026-09-10T05:45:00Z",
+                "ends_at": "2026-09-10T06:30:00Z",
+                "expected_version": 3,
+            },
+        )
+
+    assert response.status_code == 422
+    assert response.json() == {"detail": "Lesson times must match a school period"}
+    assert repository.update_calls == 0
 
 
 def test_cancel_lesson_endpoint() -> None:
@@ -545,8 +692,8 @@ def test_create_lesson_rejects_reused_idempotency_key_for_different_request() ->
             "class_id": 10,
             "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
-            "starts_at": "2026-09-08T10:00:00Z",
-            "ends_at": "2026-09-08T11:00:00Z",
+            "starts_at": "2026-09-08T04:00:00Z",
+            "ends_at": "2026-09-08T04:45:00Z",
         }
         first_response = client.post(
             "/lessons", headers={"Idempotency-Key": "k1"}, json=original_request_body
@@ -556,8 +703,8 @@ def test_create_lesson_rejects_reused_idempotency_key_for_different_request() ->
             "class_id": 10,
             "teacher_id": str(UUID(int=100)),
             "subject_id": 1000,
-            "starts_at": "2026-09-08T12:00:00Z",
-            "ends_at": "2026-09-08T13:00:00Z",
+            "starts_at": "2026-09-08T04:55:00Z",
+            "ends_at": "2026-09-08T05:40:00Z",
         }
         second_response = client.post(
             "/lessons", headers={"Idempotency-Key": "k1"}, json=different_request_body

@@ -1,10 +1,11 @@
 """Чтение собственного расписания с проверкой служебного ответа."""
 
 from datetime import UTC, date, datetime, time, timedelta
+from typing import Literal
 from uuid import UUID
 
 import httpx
-from pydantic import TypeAdapter, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
 
 from gateway_service.application.teacher_lessons import (
     LessonInfo,
@@ -12,6 +13,28 @@ from gateway_service.application.teacher_lessons import (
 )
 
 lesson_list_adapter = TypeAdapter(list[LessonInfo])
+
+HHMM_PATTERN = r"^([01]\d|2[0-3]):[0-5]\d$"
+
+
+class SchoolPeriod(BaseModel):
+    """Один период учебного дня в местном школьном времени HH:MM."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    number: int = Field(strict=True, ge=1, le=7)
+    start_at: str = Field(pattern=HHMM_PATTERN)
+    end_at: str = Field(pattern=HHMM_PATTERN)
+
+
+class SchoolPeriods(BaseModel):
+    """Контракт сетки периодов; единственный владелец — сервис Schedule."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    timezone: Literal["Asia/Yekaterinburg"]
+    effective_from: date
+    periods: list[SchoolPeriod]
 
 
 class ScheduleClient:
@@ -128,6 +151,29 @@ class ScheduleClient:
         } <= set(ids):
             raise ScheduleUnavailableError
         return {row.id: row.name for row in rows}
+
+    async def get_school_periods(self) -> SchoolPeriods:
+        """Читает неизменяемую сетку периодов, проверяя контракт ответа."""
+        try:
+            response = await self._http_client.get(
+                "/internal/school-periods",
+                headers={"Authorization": f"Bearer {self._service_token}"},
+                timeout=5.0,
+                follow_redirects=False,
+            )
+            if response.status_code != 200:
+                raise ScheduleUnavailableError
+            grid = SchoolPeriods.model_validate_json(response.content)
+        except (httpx.HTTPError, ValidationError) as exc:
+            raise ScheduleUnavailableError from exc
+        numbers = [row.number for row in grid.periods]
+        if (
+            len(set(numbers)) != len(numbers)
+            or numbers != sorted(numbers)
+            or any(row.start_at >= row.end_at for row in grid.periods)
+        ):
+            raise ScheduleUnavailableError
+        return grid
 
     async def list_teacher_lessons(
         self, *, teacher_id: UUID, date_from: date, date_to: date

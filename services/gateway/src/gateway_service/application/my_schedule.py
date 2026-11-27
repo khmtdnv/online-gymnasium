@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, model_validator
 from gateway_service.application.ports.unit_of_work import UnitOfWork
 from gateway_service.application.teacher_lessons import LessonInfo, TeacherLessonResult
 from gateway_service.infrastructure.journal_client import JournalClient
-from gateway_service.infrastructure.schedule_client import ScheduleClient
+from gateway_service.infrastructure.schedule_client import ScheduleClient, SchoolPeriod
 
 SCHOOL_TIMEZONE = ZoneInfo("Asia/Yekaterinburg")
 
@@ -54,6 +54,7 @@ class MyScheduleResult(BaseModel):
     timezone: Literal["Asia/Yekaterinburg"] = "Asia/Yekaterinburg"
     has_class: bool = True
     days: list[ScheduleDay]
+    periods: list[SchoolPeriod]
 
 
 class LessonViewResult(TeacherLessonResult):
@@ -111,12 +112,14 @@ class GetMyScheduleHandler:
 
     async def handle(self, query: GetMyScheduleQuery) -> MyScheduleResult:
         """Определяет класс из Journal и группирует уроки по школьной дате."""
+        grid = await self._schedule.get_school_periods()
         result = MyScheduleResult(
             week_start=query.week_start,
             days=[
                 ScheduleDay(date=query.week_start + timedelta(days=i), lessons=[])
                 for i in range(6)
             ],
+            periods=grid.periods,
         )
         class_id = (
             await self._journal.get_current_class_id(query.user_id)

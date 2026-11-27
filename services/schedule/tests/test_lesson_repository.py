@@ -29,8 +29,8 @@ async def test_repository_adds_flushes_refreshes_and_maps_lesson() -> None:
         class_id=10,
         teacher_id=UUID(int=100),
         subject_id=1000,
-        starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
-        ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
+        starts_at=datetime(2026, 9, 10, 4, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 10, 4, 45, tzinfo=UTC),
     )
 
     result = await repository.add(lesson)
@@ -73,8 +73,8 @@ async def test_repository_translates_integrity_error_to_schedule_conflict() -> N
         class_id=10,
         teacher_id=UUID(int=100),
         subject_id=1000,
-        starts_at=datetime(2026, 9, 10, 10, tzinfo=UTC),
-        ends_at=datetime(2026, 9, 10, 11, tzinfo=UTC),
+        starts_at=datetime(2026, 9, 10, 4, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 10, 4, 45, tzinfo=UTC),
     )
     with pytest.raises(ScheduleConflict) as error:
         await repository.add(lesson)

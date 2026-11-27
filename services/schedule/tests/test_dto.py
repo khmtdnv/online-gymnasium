@@ -14,8 +14,8 @@ from schedule_service.application.ports.idempotency_repository import Idempotenc
 from schedule_service.application.update_lesson import UpdateLessonCommand
 from schedule_service.domain.lesson import Lesson
 
-START = datetime(2026, 10, 14, 9, tzinfo=UTC)
-END = START + timedelta(hours=1)
+START = datetime(2026, 10, 14, 4, tzinfo=UTC)
+END = START + timedelta(minutes=45)
 
 
 @pytest.mark.parametrize("operation", ["create", "update"])

@@ -85,8 +85,8 @@ async def test_handler_reschedules_lesson_through_uow() -> None:
 
     command = UpdateLessonCommand(
         lesson_id=501,
-        starts_at=datetime(2026, 9, 10, 12, tzinfo=UTC),
-        ends_at=datetime(2026, 9, 10, 13, tzinfo=UTC),
+        starts_at=datetime(2026, 9, 10, 6, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 10, 6, 45, tzinfo=UTC),
         expected_version=3,
     )
     fake_uow = FakeUnitOfWork()
@@ -134,8 +134,8 @@ async def test_handler_invalidates_old_and_new_days_when_lesson_moves_day() -> N
     await handler.handle(
         UpdateLessonCommand(
             lesson_id=501,
-            starts_at=datetime(2026, 9, 11, 12, tzinfo=UTC),
-            ends_at=datetime(2026, 9, 11, 13, tzinfo=UTC),
+            starts_at=datetime(2026, 9, 11, 6, tzinfo=UTC),
+            ends_at=datetime(2026, 9, 11, 6, 45, tzinfo=UTC),
             expected_version=3,
         )
     )
@@ -151,8 +151,8 @@ async def test_handler_invalidates_old_and_new_days_when_lesson_moves_day() -> N
             class_id=10,
             teacher_id=UUID(int=100),
             subject_id=1000,
-            starts_at=datetime(2026, 9, 11, 12, tzinfo=UTC),
-            ends_at=datetime(2026, 9, 11, 13, tzinfo=UTC),
+            starts_at=datetime(2026, 9, 11, 6, tzinfo=UTC),
+            ends_at=datetime(2026, 9, 11, 6, 45, tzinfo=UTC),
             status="planned",
             version=4,
         ),
@@ -167,8 +167,8 @@ async def test_handler_raises_not_found_when_lesson_does_not_exist() -> None:
     handler = UpdateLessonHandler(uow_factory=lambda: fake_uow)
     command = UpdateLessonCommand(
         lesson_id=404,
-        starts_at=datetime(2026, 9, 10, 12, tzinfo=UTC),
-        ends_at=datetime(2026, 9, 10, 13, tzinfo=UTC),
+        starts_at=datetime(2026, 9, 10, 6, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 10, 6, 45, tzinfo=UTC),
         expected_version=3,
     )
 
@@ -186,8 +186,8 @@ async def test_handler_raises_version_conflict_for_stale_version() -> None:
     handler = UpdateLessonHandler(uow_factory=lambda: fake_uow)
     command = UpdateLessonCommand(
         lesson_id=501,
-        starts_at=datetime(2026, 9, 10, 12, tzinfo=UTC),
-        ends_at=datetime(2026, 9, 10, 13, tzinfo=UTC),
+        starts_at=datetime(2026, 9, 10, 6, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 10, 6, 45, tzinfo=UTC),
         expected_version=2,
     )
 
@@ -201,3 +201,27 @@ async def test_handler_raises_version_conflict_for_stale_version() -> None:
     assert fake_uow.lessons.saved.starts_at == datetime(2026, 9, 10, 10, tzinfo=UTC)
     assert fake_uow.lessons.saved.ends_at == datetime(2026, 9, 10, 11, tzinfo=UTC)
     assert fake_uow.lessons.saved.version == 3
+
+
+@pytest.mark.anyio
+async def test_handler_rejects_off_grid_reschedule_without_changing_lesson() -> None:
+    """Неудачный перенос вне сетки не трогает сохранённый урок и события."""
+    from schedule_service.domain.lesson import InvalidSchoolPeriod
+
+    fake_uow = FakeUnitOfWork()
+    handler = UpdateLessonHandler(uow_factory=lambda: fake_uow)
+    command = UpdateLessonCommand(
+        lesson_id=501,
+        starts_at=datetime(2026, 9, 10, 5, 45, tzinfo=UTC),
+        ends_at=datetime(2026, 9, 10, 6, 30, tzinfo=UTC),
+        expected_version=3,
+    )
+
+    with pytest.raises(InvalidSchoolPeriod):
+        await handler.handle(command)
+
+    assert fake_uow.lessons.updated is None
+    assert fake_uow.lessons.saved.starts_at == datetime(2026, 9, 10, 10, tzinfo=UTC)
+    assert fake_uow.lessons.saved.ends_at == datetime(2026, 9, 10, 11, tzinfo=UTC)
+    assert fake_uow.lessons.saved.version == 3
+    assert fake_uow.outbox.events == []

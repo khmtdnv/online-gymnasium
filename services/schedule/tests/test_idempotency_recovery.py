@@ -28,8 +28,8 @@ async def test_duplicate_is_read_only_after_failed_uow_has_exited(stored_hash):
         class_id=1,
         teacher_id=UUID(int=2),
         subject_id=3,
-        starts_at=datetime(2026, 10, 15, 10, tzinfo=UTC),
-        ends_at=datetime(2026, 10, 15, 11, tzinfo=UTC),
+        starts_at=datetime(2026, 10, 15, 4, tzinfo=UTC),
+        ends_at=datetime(2026, 10, 15, 4, 45, tzinfo=UTC),
     )
     write = Mock()
     write.__aenter__ = AsyncMock(return_value=write)

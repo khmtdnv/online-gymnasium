@@ -30,7 +30,7 @@ from gateway_service.application.user_profiles import (
 )
 from gateway_service.domain.user import Role
 from gateway_service.infrastructure.journal_client import JournalUnavailableError
-from gateway_service.infrastructure.schedule_client import ScheduleClient
+from gateway_service.infrastructure.schedule_client import ScheduleClient, SchoolPeriod
 
 router = APIRouter(
     prefix="/api/v1/schedule",
@@ -85,12 +85,13 @@ class CancelAdminLessonRequest(BaseModel):
 
 
 class DirectoryResponse(BaseModel):
-    """Справочники для формы расписания: классы и предметы."""
+    """Справочники для формы расписания: классы, предметы и периоды."""
 
     model_config = ConfigDict(extra="forbid")
 
     classes: list[dict[str, Any]]
     subjects: list[dict[str, Any]]
+    periods: list[SchoolPeriod]
 
 
 class TeacherDirectoryItem(BaseModel):
@@ -203,9 +204,10 @@ async def directory(
         raise HTTPException(503, "Service unavailable") from exc
     try:
         subjects = await client.list_subjects()
+        grid = await client.get_school_periods()
     except ScheduleUnavailableError as exc:
         raise HTTPException(503, "Service unavailable") from exc
-    return DirectoryResponse(classes=classes, subjects=subjects)
+    return DirectoryResponse(classes=classes, subjects=subjects, periods=grid.periods)
 
 
 @router.get("/teachers", response_model=list[TeacherDirectoryItem])
