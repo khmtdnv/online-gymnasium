@@ -1,48 +1,91 @@
-"""Перестраивает демо-расписание в правдоподобную школьную сетку.
+"""Demo timetable tooling: the study-year scenario and the repair path.
 
-Три шага на основе фактических уроков демо-набора:
+The year scenario (rebuild_year) rebuilds the whole study year of the
+demo school from scratch, driven by the year fingerprint:
 
-1. предметы перераспределяются по дням недели внутри каждого класса,
-   чтобы убрать школьные дневные перекосы («65 уроков математики
-   в понедельник»), сохранив число уроков класса в каждый день
-   и недельный набор предметов класса;
-2. каждая пара (класс, предмет) закрепляется за одним предметником
-   из небольшого пула, сбалансированно по числу уроков;
-3. уроки расставляются по последовательным часам с 9:00 так, чтобы
-   учитель никогда не был нужен в двух классах одновременно: на каждый
-   час решается паросочетание «класс → свободный преподаватель».
+1. the demo homework scenarios are wiped first (the Homework
+   container path of tools/balance_homework_scenarios_db.py);
+2. every lesson of the demo classes plus their idempotency keys and
+   Redis day-cache keys goes in one Schedule-container transaction
+   (the wipe mode of tools/balance_demo_lessons_db.py);
+3. the emptiness is confirmed by an export that must see no lesson of
+   the demo classes;
+4. the deterministic year plan (tools/demo_year_plan.build_year_plan
+   over tools/demo_curriculum and the school calendar) is inserted in
+   class-week chunks (the create mode of balance_demo_lessons_db.py);
+5. verify_state checks the hard invariants over the whole year.
 
-В результате у занятого учителя около 5–6 уроков в день; у проверяемого
-учителя математики teacher01@demo.og.test — насыщенная неделя
-в нескольких классах.
+A matching fingerprint ({grid_version, calendar_version,
+curriculum_hash, study_year}, stored in .demo-data/expanded-school.json)
+keeps the lessons untouched (the empty run) - only the homework
+scenarios are wiped and recreated afterwards by create_demo_data.
 
-Уроки с домашними заданиями защищены: им сохраняют предмет, день
-и преподавателя; сместиться может только время в пределах дня.
+The week repair path (plan_rebuild and friends) stays for live public
+data: it reshuffles exported lessons in place through the run_db apply
+mode and refuses to touch unmanaged lessons.
 
-Запуск: python3 tools/create_demo_data.py --large --apply
-(вызывается из expand_demo_school.apply_expansion).
+Grid boundaries live in schedule_service.domain.school_periods (the
+module has no dependencies outside the standard library); the study
+year dates come from schedule_service.domain.school_calendar exactly
+the same way.
+
+Run: python3 tools/create_demo_data.py --large --apply
+(the year scenario is orchestrated from create_demo_data).
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
+import sys
 from collections import Counter, defaultdict
 from datetime import date, datetime, time, timedelta
+from itertools import pairwise
+from pathlib import Path
 
-from create_demo_data import ROOT, TIMEZONE, DemoError
+from create_demo_data import ROOT, DemoError
+from demo_curriculum import (
+    DAILY_LESSON_LIMIT,
+    GRADE_CURRICULUM,
+    SCHOOL_DAYS_PER_WEEK,
+    SUBJECT_GRADES,
+    TRUNCATION_PRIORITY,
+)
+from demo_year_plan import build_year_plan, place_day_blocks
 from expand_demo_school import CODES, LETTERS, SUBJECTS, emails, subject_teacher_email
 
-LESSON_MINUTES = 45
-FIRST_HOUR = 9
+# Сетка периодов — единственный источник школьного времени; локальных
+# копий границ в инструменте нет.
+SCHEDULE_SRC = str(Path(ROOT) / "services" / "schedule" / "src")
+if SCHEDULE_SRC not in sys.path:
+    sys.path.insert(0, SCHEDULE_SRC)
+
+from schedule_service.domain import school_calendar
+from schedule_service.domain.school_periods import (
+    PERIODS,
+    TIMEZONE,
+    period_for,
+)
+
 TARGET_DAY_LESSONS = 5.0
-HARD_DAY_LIMIT = 7
+# Уроков в дне не больше, чем периодов в сетке.
+HARD_DAY_LIMIT = len(PERIODS)
 MAX_CLASSES_PER_TEACHER = 8
 TEACHER01_EMAIL = "teacher01@demo.og.test"
 PRIMARY_GRADES = frozenset(range(1, 5))
 PHYSICS_ID = 1006
-TIMETABLE_VERSION = 4
 DEBUG_POOLS = False
+
+# Manual version of the demo grid: bump it by hand whenever the teacher
+# pool composition or the expand logic changes (new pool lines, another
+# account naming, a changed matching policy), so every consumer rebuilds
+# the study year from scratch. Curriculum and calendar changes are
+# covered by curriculum_hash and calendar_version below instead.
+GRID_VERSION = 1
+
+# Location of the year fingerprint and the school composition state.
+EXPANDED_SCHOOL_REPORT = ROOT / ".demo-data" / "expanded-school.json"
 
 
 def grade_of(name: str) -> int:
@@ -128,6 +171,72 @@ def run_db(data):
             "изменения уроков откатились."
         )
     return json.loads(result.stdout)
+
+
+def run_homework_db(data):
+    """Runs balance_homework_scenarios_db inside the homework container."""
+    source = (ROOT / "tools" / "balance_homework_scenarios_db.py").read_text()
+    result = subprocess.run(
+        [
+            "docker",
+            "compose",
+            "exec",
+            "-T",
+            "homework-api",
+            "/app/.venv/bin/python",
+            "-c",
+            source,
+        ],
+        cwd=ROOT,
+        input=json.dumps(data),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode:
+        raise DemoError(
+            "Не удалось очистить демо-сценарии домашних заданий; уроки не тронуты."
+        )
+    return json.loads(result.stdout)
+
+
+# ------------------------------------------------------------------
+# Year fingerprint (spec section 6)
+
+
+def curriculum_hash() -> str:
+    """Returns sha256 of the canonical JSON of the curriculum tables.
+
+    The canonical form is json.dumps(..., sort_keys=True,
+    separators=(",", ":")) over the four tables of
+    tools/demo_curriculum.py; any edit of the hours, the subject
+    applicability, the daily limits or the truncation order changes
+    the hash and forces a full year rebuild.
+    """
+    payload = {
+        "grade_curriculum": GRADE_CURRICULUM,
+        "subject_grades": SUBJECT_GRADES,
+        "daily_lesson_limit": DAILY_LESSON_LIMIT,
+        "truncation_priority": list(TRUNCATION_PRIORITY),
+    }
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode()).hexdigest()
+
+
+def study_year_label() -> str:
+    """Returns the study year label like "2026/27" from the calendar."""
+    start, end = school_calendar.STUDY_YEAR
+    return f"{start.year}/{end.year % 100:02d}"
+
+
+def year_fingerprint() -> dict:
+    """Builds the canonical year fingerprint of the current sources."""
+    return {
+        "grid_version": GRID_VERSION,
+        "calendar_version": school_calendar.CALENDAR_VERSION,
+        "curriculum_hash": curriculum_hash(),
+        "study_year": study_year_label(),
+    }
 
 
 def spread(values: list, size: int) -> list:
@@ -573,118 +682,24 @@ def partition_teachers(
 # ------------------------------------------------------------------ шаг 3
 
 
-def match_block(
-    rows: list[dict],
-    class_id: int,
-    teacher_of: dict[tuple[int, int], str],
-    busy: dict[str, set[int]],
-    periods: list[int],
-) -> dict[int, int] | None:
-    """Подбирает час каждому уроку класса внутри непрерывного блока дня.
-
-    Паросочетание «урок → час блока»: преподаватель урока должен быть
-    свободен. Предпочитаются часы, продолжающие занятость учителя, —
-    его рабочий день остаётся компактным.
-    """
-    match_period_of: dict[int, int] = {}
-    period_of_lesson: dict[int, int] = {}
-
-    def candidates(index: int) -> list[int]:
-        subject = rows[index]["subject_id"]
-        teacher = teacher_of.get((class_id, subject))
-        if not teacher:
-            return []
-        free = [p for p in periods if p not in busy[teacher]]
-        streak = busy[teacher]
-        return sorted(
-            free, key=lambda p: (0 if p - 1 in streak or p + 1 in streak else 1, p)
-        )
-
-    def try_augment(index: int, seen: set[int]) -> bool:
-        for period in candidates(index):
-            if period in seen:
-                continue
-            seen.add(period)
-            held = period_of_lesson.get(period)
-            if held is None or try_augment(held, seen):
-                match_period_of[index] = period
-                period_of_lesson[period] = index
-                return True
-        return False
-
-    for index in range(len(rows)):
-        if not try_augment(index, set()):
-            return None
-    return match_period_of
-
-
-def separate_adjacent_duplicates(
-    rows: list[dict],
-    class_id: int,
-    period_of: dict[int, int],
-    teacher_of: dict[tuple[int, int], str],
-    busy: dict[str, set[int]],
-) -> None:
-    """Разводит одинаковые предметы по часам обменом внутри класса.
-
-    Обмен допустим, только если оба преподавателя свободны в новых
-    часах; ограничен по числу проходов, чтобы не зациклиться.
-    """
-
-    def teacher_of_row(index: int) -> str | None:
-        return teacher_of.get((class_id, rows[index]["subject_id"]))
-
-    for _round in range(10):
-        swapped = False
-        for i in range(len(rows)):
-            for j in range(len(rows)):
-                if i == j or rows[i]["subject_id"] != rows[j]["subject_id"]:
-                    continue
-                if abs(period_of[i] - period_of[j]) <= 1:
-                    for k in range(len(rows)):
-                        if (
-                            k in (i, j)
-                            or rows[k]["subject_id"] == rows[i]["subject_id"]
-                        ):
-                            continue
-                        pi, _pj, pk = period_of[i], period_of[j], period_of[k]
-                        ti, tk = teacher_of_row(i), teacher_of_row(k)
-                        if not ti or not tk or ti == tk:
-                            continue
-                        between = any(
-                            min(pi, pk) < period_of[m] < max(pi, pk)
-                            and rows[m]["subject_id"] == rows[i]["subject_id"]
-                            for m in range(len(rows))
-                            if m not in (i, j, k)
-                        )
-                        if between:
-                            continue
-                        if pk not in busy[ti] and pi not in busy[tk]:
-                            period_of[i], period_of[k] = pk, pi
-                            busy[ti].discard(pi)
-                            busy[ti].add(pk)
-                            busy[tk].discard(pk)
-                            busy[tk].add(pi)
-                            swapped = True
-                            break
-                    if swapped:
-                        break
-            if swapped:
-                break
-        if not swapped:
-            return
+# Подбор периодов внутри непрерывного блока дня (паросочетание
+# «урок → период» с занятостью преподавателей и разводкой дублей)
+# выделен в tools/demo_year_plan.py и используется здесь и генератором
+# года одинаково: match_block, separate_adjacent_duplicates и их
+# обёртка place_day_blocks.
 
 
 def assign_periods(
     by_class_day: dict[int, dict[date, list[dict]]],
     teacher_of: dict[tuple[int, int], str],
 ) -> dict[int, dict[int, dict]]:
-    """Расставляет уроки по часам непрерывными блоками дней классов.
+    """Расставляет уроки по периодам сетки непрерывными блоками дней классов.
 
-    День класса занимает один связный интервал часов; начало подбирается
-    перебором, поэтому у учеников нет окон при любых задержках. Внутри
-    блока предметы распределяются паросочетанием с учётом занятости
-    преподавателей, а одинаковые предметы разводятся по часам.
+    День класса занимает один связный интервал периодов семипериодной
+    сетки; начало подбирается перебором, поэтому у учеников нет окон при
+    любых задержках. Внутри блока предметы распределяются паросочетанием
+    с учётом занятости преподавателей, а одинаковые предметы разводятся
+    по периодам.
     """
     placement: dict[int, dict[int, dict]] = defaultdict(dict)
     days = sorted({day for by_day in by_class_day.values() for day in by_day})
@@ -692,47 +707,32 @@ def assign_periods(
         day_classes = sorted(
             class_id for class_id, by_day in by_class_day.items() if day in by_day
         )
-        counts = {
-            class_id: len(by_class_day[class_id][day]) for class_id in day_classes
-        }
-        max_len = max(counts.values(), default=0)
-        total_periods = max_len + 2
-        busy: dict[str, set[int]] = defaultdict(set)
-        chosen: dict[int, dict[int, int]] = {c: {} for c in day_classes}
-        # длинные дни разбираются первыми: короткому классу проще
-        # подстроить начало блока под занятость учителей
-        for class_id in sorted(day_classes, key=lambda c: (-counts[c], c)):
-            rows = sorted(
+        # Защищённые ДЗ-уроки разбираются первыми, порядок строк
+        # сохраняется — выделенное паросочетание работает с теми же
+        # данными, что и прежний внутренний цикл.
+        rows_by_class = {
+            class_id: sorted(
                 by_class_day[class_id][day],
                 key=lambda row: (not row["_protected"], row["id"]),
             )
-            count = counts[class_id]
-            block = None
-            for start in range(1, total_periods - count + 2):
-                periods = list(range(start, start + count))
-                matched = match_block(rows, class_id, teacher_of, busy, periods)
-                if matched is not None:
-                    block = matched
-                    break
-            if block is None:
-                raise DemoError(
-                    f"Не удалось подобрать часы класса {class_id} на {day} "
-                    "без окон: преподаватели заняты во всех вариантах блока"
-                )
-            period_of = dict(block)
-            separate_adjacent_duplicates(rows, class_id, period_of, teacher_of, busy)
-            for index, row in enumerate(rows):
-                period = period_of[index]
-                teacher = teacher_of.get((class_id, row["subject_id"]))
-                if teacher:
-                    busy[teacher].add(period)
-                chosen[class_id][period] = row["subject_id"]
+            for class_id in day_classes
+        }
+        busy: dict[str, set[int]] = defaultdict(set)
+        try:
+            periods_of = place_day_blocks(rows_by_class, teacher_of, busy, len(PERIODS))
+        except ValueError as error:
+            raise DemoError(str(error)) from error
+        chosen: dict[int, dict[int, int]] = {c: {} for c in day_classes}
         for class_id in day_classes:
-            hours = sorted(chosen[class_id])
-            if hours != list(range(hours[0], hours[0] + len(hours))):
+            rows = rows_by_class[class_id]
+            for index, period in periods_of[class_id].items():
+                chosen[class_id][period] = rows[index]["subject_id"]
+        for class_id in day_classes:
+            used = sorted(chosen[class_id])
+            if used != list(range(used[0], used[0] + len(used))):
                 raise DemoError(
                     f"Окно в расписании класса {class_id} на {day}: "
-                    f"уроки пришлись на часы {hours}"
+                    f"уроки пришлись на периоды {used}"
                 )
         for class_id in day_classes:
             unused_pinned: dict[int, list[dict]] = defaultdict(list)
@@ -753,7 +753,7 @@ def assign_periods(
                     lesson = free_lessons.pop(0)
                 else:
                     raise DemoError(
-                        f"Нет урока для слота {class_id} {day} час {period}"
+                        f"Нет урока для слота {class_id} {day} период {period}"
                     )
                 placement[class_id][lesson["id"]] = {
                     "period": period,
@@ -761,7 +761,7 @@ def assign_periods(
                     "subject_id": subject,
                 }
             if free_lessons or any(unused_pinned.values()):
-                raise DemoError(f"Не все уроки {class_id} на {day} получили час")
+                raise DemoError(f"Не все уроки {class_id} на {day} получили период")
     return placement
 
 
@@ -789,16 +789,19 @@ def build_plan(
     placement: dict[int, dict[int, dict]],
     teacher_by_key: dict[tuple[int, int], str],
 ) -> list[dict]:
-    """Формирует список фактических изменений уроков."""
+    """Формирует список фактических изменений уроков.
+
+    Начало и конец урока — точные границы периода из PERIODS в местном
+    времени школы; номер периода один и всегда в пределах сетки.
+    """
     plan = []
     for lesson in lessons:
         target = placement[lesson["class_id"]].get(lesson["id"])
         if target is None:
             continue
-        start = datetime.combine(
-            target["day"], time(FIRST_HOUR + target["period"] - 1), TIMEZONE
-        )
-        end = start + timedelta(minutes=LESSON_MINUTES)
+        period = PERIODS[target["period"] - 1]
+        start = datetime.combine(target["day"], period.start_at, TIMEZONE)
+        end = datetime.combine(target["day"], period.end_at, TIMEZONE)
         new_teacher = teacher_by_key.get(
             (lesson["class_id"], target["subject_id"]), lesson["teacher_id"]
         )
@@ -934,16 +937,69 @@ def summarize(
 # ------------------------------------------------------------------ проверки
 
 
-def verify_state(lessons: list[dict], users: dict) -> tuple[bool, dict]:
-    """Независимо проверяет фактическое расписание и возвращает сводку.
+def verify_state(
+    lessons: list[dict],
+    users: dict,
+    classes: list[dict] | None = None,
+    calendar=None,
+) -> tuple[bool, dict]:
+    """Verifies the actual timetable against the calendar and the curriculum.
 
-    Жёсткие требования: нет пересечений у классов и преподавателей,
-    каждый предмет класса ведёт один учитель, у класса не больше двух
-    уроков одного предмета в день (двойной — только когда недельный
-    план не помещается по одному в учебные дни недели) и нет окон
-    в дне ученика. Средние показатели и худшие случаи попадают
-    в сводку: один плохой класс среди пятидесяти хороших виден сразу.
+    Hard requirements: no teacher and no class has two lessons at once
+    (one linear pass over the time-sorted lessons of every teacher and
+    class - O(n) instead of pairwise comparison), every (class, subject)
+    pair is taught by exactly one teacher, a class meets one subject at
+    most twice a day (the double is allowed only when the school days of
+    the study week from the calendar cannot host the weekly hours one
+    lesson per day), every lesson matches exactly one of the seven
+    periods and class days have no windows.
+
+    Calendar checks: no lesson falls on a vacation or public holiday
+    day; with the class list the Saturdays of the five-day primary
+    school (grades 1-4) must stay empty and the daily lesson limits of
+    tools/demo_curriculum.py must hold. Short study weeks (public
+    holidays, quarter boundaries) are the expected norm of the calendar,
+    not an anomaly: the weekly expectations always come from the school
+    calendar, never from "five days" assumptions.
+
+    Args:
+        lessons: exported lesson rows (id, class_id, teacher_id,
+            subject_id, starts_at, ends_at, version).
+        users: demo email -> account dict with ids (for the summary).
+        classes: optional [{id, name}] rows; enable the grade-aware
+            checks (empty Saturdays of grades 1-4, daily limits).
+        calendar: study-year calendar exposing school_days() and
+            is_school_day(); defaults to the schedule domain module.
+
+    Returns:
+        (healthy, summary): healthy is False only for the hard
+        violations above (the summary then carries the "reason" key);
+        the aggregate numbers are informational.
     """
+    if calendar is None:
+        calendar = school_calendar
+    grade_of_class: dict[int, int] = {}
+    week_length: dict[int, int] = {}
+    if classes:
+        grade_of_class = {int(row["id"]): grade_of(row["name"]) for row in classes}
+        week_length = {
+            class_id: SCHOOL_DAYS_PER_WEEK[grade]
+            for class_id, grade in grade_of_class.items()
+        }
+    week_school_days: dict[date, list[date]] = {}
+    for day in calendar.school_days():
+        monday = day - timedelta(days=day.weekday())
+        week_school_days.setdefault(monday, []).append(day)
+
+    def expected_week_days(class_id: int, monday: date) -> list[date]:
+        """School days of the study week the class can use."""
+        length = week_length.get(class_id)
+        if length is None:
+            return week_school_days.get(monday, [])
+        return [
+            day for day in week_school_days.get(monday, []) if day.weekday() < length
+        ]
+
     teacher_by_key: dict[tuple[int, int], str] = {}
     for lesson in lessons:
         key = (lesson["class_id"], lesson["subject_id"])
@@ -952,43 +1008,57 @@ def verify_state(lessons: list[dict], users: dict) -> tuple[bool, dict]:
         teacher_by_key[key] = lesson["teacher_id"]
     subjects_by_teacher: dict[str, set[int]] = defaultdict(set)
     day_counts: Counter[tuple[str, str]] = Counter()
-    teacher_busy: dict[str, list[tuple[datetime, datetime]]] = defaultdict(list)
-    class_busy: dict[int, list[tuple[datetime, datetime]]] = defaultdict(list)
+    by_teacher: dict[str, list[tuple[datetime, datetime, dict]]] = defaultdict(list)
+    by_class: dict[int, list[tuple[datetime, datetime, dict]]] = defaultdict(list)
     week_subjects: dict[tuple[int, date], Counter] = defaultdict(Counter)
-    week_days: dict[tuple[int, date], set] = defaultdict(set)
     day_subjects: dict[tuple[int, date], Counter] = defaultdict(Counter)
-    class_day_hours: dict[tuple[int, date], list[int]] = defaultdict(list)
-    teacher_day_hours: dict[tuple[str, date], list[int]] = defaultdict(list)
+    class_day_periods: dict[tuple[int, date], list[int]] = defaultdict(list)
+    teacher_day_periods: dict[tuple[str, date], list[int]] = defaultdict(list)
+    offgrid: list[dict] = []
     for lesson in lessons:
         start = datetime.fromisoformat(lesson["starts_at"])
         end = datetime.fromisoformat(lesson["ends_at"])
-        for begin, finish in teacher_busy[lesson["teacher_id"]]:
-            if start < finish and begin < end:
-                return False, {"reason": "пересечение уроков учителя"}
-        teacher_busy[lesson["teacher_id"]].append((start, end))
-        for begin, finish in class_busy[lesson["class_id"]]:
-            if start < finish and begin < end:
-                return False, {"reason": "пересечение уроков класса"}
-        class_busy[lesson["class_id"]].append((start, end))
+        by_teacher[lesson["teacher_id"]].append((start, end, lesson))
+        by_class[lesson["class_id"]].append((start, end, lesson))
         subjects_by_teacher[lesson["teacher_id"]].add(lesson["subject_id"])
         local = start.astimezone(TIMEZONE)
         day = local.date()
         week_start = day - timedelta(days=day.weekday())
         week_subjects[(lesson["class_id"], week_start)][lesson["subject_id"]] += 1
-        week_days[(lesson["class_id"], week_start)].add(day)
         day_subjects[(lesson["class_id"], day)][lesson["subject_id"]] += 1
-        class_day_hours[(lesson["class_id"], day)].append(local.hour)
-        teacher_day_hours[(lesson["teacher_id"], day)].append(local.hour)
         day_counts[
             (
                 email_of(users, lesson["teacher_id"]) or "?",
                 str(day),
             )
         ] += 1
+        # Занятость по периодам сетки: вне-сеточный урок не имеет номера
+        # периода и ниже бракует состояние целиком.
+        period = period_for(start, end)
+        if period is not None:
+            class_day_periods[(lesson["class_id"], day)].append(period.number)
+            teacher_day_periods[(lesson["teacher_id"], day)].append(period.number)
+        else:
+            offgrid.append({"id": lesson["id"], "day": str(day)})
+
+    # Перекрытия — линейный проход по отсортированным урокам каждого
+    # учителя и класса: соседняя пара достаточно, попарно не сравниваем.
+    for teacher, rows in by_teacher.items():
+        rows.sort(key=lambda row: (row[0], row[1]))
+        for (_s1, e1, _r1), (s2, _e2, _r2) in pairwise(rows):
+            if s2 < e1:
+                return False, {"reason": "пересечение уроков учителя"}
+    for class_id, rows in by_class.items():
+        rows.sort(key=lambda row: (row[0], row[1]))
+        for (_s1, e1, _r1), (s2, _e2, _r2) in pairwise(rows):
+            if s2 < e1:
+                return False, {"reason": "пересечение уроков класса"}
+
     forced_doubles = 0
     worst_repeat = (1, None)
     for (class_id, day), counts in sorted(day_subjects.items()):
         week_start = day - timedelta(days=day.weekday())
+        expected = expected_week_days(class_id, week_start)
         for subject, count in sorted(counts.items()):
             if count > worst_repeat[0]:
                 worst_repeat = (
@@ -1004,24 +1074,60 @@ def verify_state(lessons: list[dict], users: dict) -> tuple[bool, dict]:
                 }
             if count == 2:
                 week_total = week_subjects[(class_id, week_start)][subject]
-                if week_total <= len(week_days[(class_id, week_start)]):
+                if week_total <= len(expected):
                     return False, {
                         "reason": (
                             f"двойной урок предмета {subject} у класса "
                             f"{class_id} в {day} не был необходим: за неделю "
                             f"{week_total} уроков на "
-                            f"{len(week_days[(class_id, week_start)])} учебных дней"
+                            f"{len(expected)} учебных дней"
                         )
                     }
                 forced_doubles += 1
-    for (class_id, day), hours in sorted(class_day_hours.items()):
-        ordered = sorted(hours)
+    # Урок вне сетки — само по себе нарушение: после включения контракта
+    # периодов демо-расписание обязано лежать на сетке целиком.
+    if offgrid:
+        return False, {
+            "reason": (
+                f"вне сетки периодов {len(offgrid)} уроков, например "
+                f"{offgrid[0]['id']} ({offgrid[0]['day']})"
+            ),
+            "offgrid_lessons": offgrid,
+        }
+    for (class_id, day), used in sorted(class_day_periods.items()):
+        ordered = sorted(used)
         if ordered != list(range(ordered[0], ordered[0] + len(ordered))):
             return False, {"reason": f"окно в расписании класса {class_id} на {day}"}
+    # Календарные проверки: каникулы и праздники пусты, суббота 1–4
+    # пуста, дневные лимиты таблицы часов соблюдены.
+    for class_id, day in sorted(class_day_periods):
+        if not calendar.is_school_day(day):
+            return False, {
+                "reason": (
+                    f"урок класса {class_id} в неучебный день {day} "
+                    "(каникулы или праздник)"
+                )
+            }
+        grade = grade_of_class.get(class_id)
+        if grade is not None:
+            if day.weekday() == 5 and grade in PRIMARY_GRADES:
+                return False, {
+                    "reason": (
+                        f"урок класса {class_id} в субботу: начальная школа "
+                        "учится пять дней"
+                    )
+                }
+            if len(class_day_periods[(class_id, day)]) > DAILY_LESSON_LIMIT[grade]:
+                return False, {
+                    "reason": (
+                        f"класс {class_id} в {day} превышает дневной лимит "
+                        f"{DAILY_LESSON_LIMIT[grade]} уроков"
+                    )
+                }
     teacher_windows: dict[str, int] = Counter()
     worst_teacher_windows: dict[str, dict[str, int]] = defaultdict(dict)
-    for (teacher, day), hours in sorted(teacher_day_hours.items()):
-        ordered = sorted(hours)
+    for (teacher, day), used in sorted(teacher_day_periods.items()):
+        ordered = sorted(used)
         windows = len(range(ordered[0], ordered[-1] + 1)) - len(ordered)
         if windows:
             email = email_of(users, teacher) or "?"
@@ -1042,36 +1148,20 @@ def verify_state(lessons: list[dict], users: dict) -> tuple[bool, dict]:
             if len(rows) > 1
         }
     )
-    partial_weeks = sorted(
-        f"класс {class_id}, неделя {week}"
-        for (class_id, week), days in week_days.items()
-        if len(days) < 5
-    )
-    teacher01 = [
-        count for (email, _day), count in day_counts.items() if email == TEACHER01_EMAIL
-    ]
+    teacher01_days = {
+        day: count
+        for (email, day), count in sorted(day_counts.items())
+        if email == TEACHER01_EMAIL
+    }
     distribution = Counter(day_counts.values())
     total_days = max(sum(distribution.values()), 1)
     share_busy = (
         sum(mass for load, mass in distribution.items() if load >= 4) / total_days
     )
     share_spare = distribution.get(1, 0) / total_days
-    # Жёсткие структурные нарушения возвращают False выше; здесь
-    # остаются только гарантии по проверяемому учителю. Агрегаты
-    # (busy_share, single_lesson_share) — пожелания: они в сводке,
-    # но не бракуют корректное расписание.
-    healthy = (
-        len(teacher01) >= 8
-        and sum(teacher01) / len(teacher01) >= 4.5
-        and max(teacher01, default=0) <= HARD_DAY_LIMIT
-    )
-    return healthy, {
+    return True, {
         "teacher_day_distribution": dict(sorted(distribution.items())),
-        "teacher01_days": {
-            day: count
-            for (email, day), count in sorted(day_counts.items())
-            if email == TEACHER01_EMAIL
-        },
+        "teacher01_days": teacher01_days,
         "teachers_with_lessons": len(subjects_by_teacher),
         "classes": len({row["class_id"] for row in lessons}),
         "max_same_subject_per_day": {
@@ -1081,7 +1171,6 @@ def verify_state(lessons: list[dict], users: dict) -> tuple[bool, dict]:
         "forced_doubles": forced_doubles,
         "worst_teacher_windows": worst_window_entry,
         "multi_subject_teachers": multi,
-        "partial_weeks": partial_weeks,
         "busy_share": round(share_busy, 3),
         "single_lesson_share": round(share_spare, 3),
     }
@@ -1091,7 +1180,12 @@ def verify_state(lessons: list[dict], users: dict) -> tuple[bool, dict]:
 
 
 def sync_assignments(
-    journal, users: dict, classes: list[dict], needed: set[tuple[str, int]]
+    journal,
+    users: dict,
+    classes: list[dict],
+    needed: set[tuple[str, int]],
+    *,
+    db=None,
 ) -> None:
     """Синхронизирует назначения Journal с новым расписанием.
 
@@ -1099,7 +1193,8 @@ def sync_assignments(
     которые больше ничего не ведут, снимаются. Классные руководители
     и учителя прошлых (октябрьских) уроков сохраняются.
     """
-    teaching = run_db({"mode": "teacher_usage", "class_ids": []})
+    run = run_db if db is None else db
+    teaching = run({"mode": "teacher_usage", "class_ids": []})
     for teacher, class_id in sorted(needed):
         journal.request(
             "PUT",
@@ -1134,7 +1229,7 @@ def sync_assignments(
     )
 
 
-def set_subject_allowance(users: dict) -> None:
+def set_subject_allowance(users: dict, *, executor=None) -> None:
     """Разрешает демо-предметам всех демо-преподавателей."""
     allowed = [
         user["id"]
@@ -1147,7 +1242,16 @@ def set_subject_allowance(users: dict) -> None:
         "subjects": [{"id": id, "name": name} for id, name in SUBJECTS],
         "allowed_teacher_ids": allowed,
     }
-    result = subprocess.run(
+    result = (executor or _run_schedule_module)(
+        "schedule_service.set_subject_names", config
+    )
+    if result.returncode:
+        raise DemoError("Не удалось подтвердить названия демо-предметов")
+
+
+def _run_schedule_module(module: str, payload: dict):
+    """Feeds one module of the Schedule container with JSON on stdin."""
+    return subprocess.run(
         [
             "docker",
             "compose",
@@ -1156,32 +1260,30 @@ def set_subject_allowance(users: dict) -> None:
             "schedule-api",
             "/app/.venv/bin/python",
             "-m",
-            "schedule_service.set_subject_names",
+            module,
         ],
         cwd=ROOT,
-        input=json.dumps(config),
+        input=json.dumps(payload),
         text=True,
         capture_output=True,
         check=False,
     )
-    if result.returncode:
-        raise DemoError("Не удалось подтвердить названия демо-предметов")
 
 
-def rebuild_timetable(journal, days: list[date], classes: list[dict], users: dict):
-    """Перестраивает расписание, если фактическое состояние не проходит проверки."""
-    report = ROOT / ".demo-data" / "expanded-school.json"
-    old = json.loads(report.read_text()) if report.exists() else {}
+def rebuild_timetable(
+    journal, days: list[date], classes: list[dict], users: dict, *, db=None
+):
+    """Repair path: reshuffles the exported lessons of a window in place.
+
+    Kept for live public data (the run_db apply mode); the year scenario
+    never goes through it. Refuses to continue when the demo classes
+    hold lessons that no demo script manages.
+    """
+    run = run_db if db is None else db
     start = datetime.combine(days[0], time.min, TIMEZONE)
     end = datetime.combine(days[-1] + timedelta(days=1), time.min, TIMEZONE)
-    teacher_ids = sorted(
-        {
-            user["id"]
-            for email, user in users.items()
-            if email.startswith("teacher") and email.endswith("@demo.og.test")
-        }
-    )
-    export = run_db(
+    teacher_ids = sorted(demo_teacher_ids(users))
+    export = run(
         {
             "mode": "export",
             "start": start.isoformat(),
@@ -1196,21 +1298,12 @@ def rebuild_timetable(journal, days: list[date], classes: list[dict], users: dic
             "автоматическая перестройка небезопасна"
         )
     lessons = list(export)
-    healthy, stats = verify_state(lessons, users)
-    fingerprint_ok = old.get("timetable_version") == TIMETABLE_VERSION and old.get(
-        "dates"
-    ) == [str(days[0]), str(days[-1])]
-    if fingerprint_ok and healthy:
-        print(
-            "Расписание уже перестроено и проходит проверки; изменения не нужны.",
-            flush=True,
-        )
-        return stats
+    verify_state(lessons, users)
     protected = homework_lesson_ids()
     plan, teacher_by_key, plan_stats = plan_rebuild(lessons, protected, classes, users)
     needed = {(teacher, class_id) for (class_id, _s), teacher in teacher_by_key.items()}
-    outcome = run_db({"mode": "apply", "plan": plan}) if plan else {"changed": 0}
-    sync_assignments(journal, users, classes, needed)
+    outcome = run({"mode": "apply", "plan": plan}) if plan else {"changed": 0}
+    sync_assignments(journal, users, classes, needed, db=run)
     set_subject_allowance(users)
     print(
         f"Перестроено уроков: {outcome['changed']}. "
@@ -1219,3 +1312,277 @@ def rebuild_timetable(journal, days: list[date], classes: list[dict], users: dic
         flush=True,
     )
     return plan_stats
+
+
+# ------------------------------------------------------------------
+# Year scenario (spec sections 4 and 6)
+
+
+def demo_teacher_ids(users: dict) -> set[str]:
+    """Ids of every demo teacher account (*@demo.og.test)."""
+    return {
+        user["id"]
+        for email, user in users.items()
+        if email.startswith("teacher") and email.endswith("@demo.og.test")
+    }
+
+
+def export_year(
+    db, class_ids: list[int], teacher_ids: list[str], calendar
+) -> list[dict]:
+    """Exports every lesson of the demo classes over the whole study year."""
+    days = calendar.school_days()
+    start = datetime.combine(days[0], time.min, TIMEZONE)
+    end = datetime.combine(days[-1] + timedelta(days=1), time.min, TIMEZONE)
+    return db(
+        {
+            "mode": "export",
+            "start": start.isoformat(),
+            "end": end.isoformat(),
+            "class_ids": class_ids,
+            "teacher_ids": teacher_ids,
+        }
+    )
+
+
+def teacher_pools(users: dict, grades) -> dict:
+    """Builds the (grade, subject) -> teacher id pools for the plan.
+
+    The pools follow the account scheme of tools/expand_demo_school.py:
+    the class line teachers own mathematics, every other applicable
+    subject gets one subject account per class line, so pools of
+    different parallels never share a teacher.
+    """
+    id_of_subject = {name: subject_id for subject_id, name in SUBJECTS}
+    pools: dict[tuple[str, str], list[str]] = {}
+    for grade in grades:
+        for subject in GRADE_CURRICULUM[grade]:
+            subject_id = id_of_subject[subject]
+            pool = []
+            for code in CODES:
+                email = (
+                    emails(grade, code)
+                    if subject_id == 1
+                    else subject_teacher_email(grade, code, subject_id)
+                )
+                user = users.get(email)
+                if user is not None:
+                    pool.append(user["id"])
+            if not pool:
+                raise DemoError(
+                    f"Нет учителей предмета {subject!r} параллели {grade} "
+                    "в демо-учётках"
+                )
+            pools[(str(grade), subject)] = pool
+    return pools
+
+
+def year_plan_entries(classes: list[dict], users: dict, calendar) -> list[dict]:
+    """Builds the create-mode plan of the whole study year.
+
+    The deterministic plan of demo_year_plan.build_year_plan with the
+    subject names mapped back to the school subject ids.
+    """
+    id_of_subject = {name: subject_id for subject_id, name in SUBJECTS}
+    unknown = {
+        subject
+        for grade in GRADE_CURRICULUM
+        for subject in GRADE_CURRICULUM[grade]
+        if subject not in id_of_subject
+    }
+    if unknown:
+        raise DemoError(f"Предметы таблицы часов вне каталога школы: {sorted(unknown)}")
+    classes_by_grade: dict[int, list[int]] = defaultdict(list)
+    grades = set()
+    for row in classes:
+        grade = grade_of(row["name"])
+        grades.add(grade)
+        classes_by_grade[grade].append(int(row["id"]))
+    curriculum = {grade: GRADE_CURRICULUM[grade] for grade in sorted(grades)}
+    plan = build_year_plan(
+        curriculum,
+        calendar,
+        teacher_pools(users, sorted(grades)),
+        classes_by_grade=classes_by_grade,
+    )
+    return [
+        {
+            "class_id": class_id,
+            "subject_id": id_of_subject[subject],
+            "teacher_id": teacher,
+            "date": day.isoformat(),
+            "period": period,
+        }
+        for class_id, subject, teacher, day, period in plan
+    ]
+
+
+def year_rebuild_due(report=None) -> bool:
+    """True when the stored year fingerprint differs from the expected one.
+
+    Mirrors the fingerprint check of rebuild_year (a missing or broken
+    report file counts as a difference).
+    """
+    report = EXPANDED_SCHOOL_REPORT if report is None else report
+    expected = year_fingerprint()
+    stored: dict = {}
+    if report.exists():
+        try:
+            stored = json.loads(report.read_text())
+        except ValueError:
+            stored = {}
+    return stored.get("year_fingerprint") != expected
+
+
+def wipe_year_lessons(journal, study_year: int, *, db=None) -> dict:
+    """Deletes all lessons of the demo school classes before the expansion.
+
+    The subject-catalogue step of expand_demo_school narrows the teacher
+    allowance to the applicable teachers; lessons of the previous layout
+    (taught by teachers that are no longer allowed) block that step, so
+    a due full rebuild clears the lessons first. The wipe mode also
+    drops the idempotency keys and the Redis day-cache keys.
+    """
+    db = run_db if db is None else db
+    class_ids: list[int] = []
+    offset = 0
+    while True:
+        page = journal.request(
+            "GET",
+            f"/internal/classes?study_year={study_year}&limit=100&offset={offset}",
+        )
+        class_ids.extend(int(row["id"]) for row in page)
+        if len(page) < 100:
+            break
+        offset += 100
+    if not class_ids:
+        return {"wiped_lessons": 0, "wiped_keys": 0, "wiped_cache_keys": 0}
+    return db({"mode": "wipe", "class_ids": sorted(set(class_ids))})
+
+
+def rebuild_year(
+    journal,
+    classes: list[dict],
+    users: dict,
+    *,
+    calendar=None,
+    db=None,
+    homework=None,
+    report=None,
+    set_allowance=None,
+) -> dict:
+    """Runs the study-year scenario: fingerprint, wipe, create, verify.
+
+    The wipe order is fixed: the demo homework scenarios go first (the
+    homework container), then the lessons with their idempotency keys
+    and Redis day-cache keys (the Schedule container), then the
+    emptiness is confirmed by an export before the create chunks run.
+    A matching year fingerprint turns the run into the empty one: the
+    lessons stay untouched, the scenarios are still wiped (they are
+    recreated on the current study week by create_demo_data right
+    after). Any fingerprint difference forces the full rebuild.
+
+    Args:
+        journal: Journal API client (assignment sync after create).
+        classes: [{id, name}] rows of the demo school.
+        users: demo email -> account dict.
+        calendar: study-year calendar; defaults to the domain module.
+        db: transport of balance_demo_lessons_db (run_db by default).
+        homework: transport of balance_homework_scenarios_db.
+        report: path of .demo-data/expanded-school.json.
+        set_allowance: replaces set_subject_allowance in tests.
+
+    Returns:
+        The run summary: {"mode": "empty" | "rebuilt", ...}.
+    """
+    calendar = school_calendar if calendar is None else calendar
+    db = run_db if db is None else db
+    homework = run_homework_db if homework is None else homework
+    report = EXPANDED_SCHOOL_REPORT if report is None else report
+    class_ids = sorted({int(row["id"]) for row in classes})
+    teacher_ids = sorted(demo_teacher_ids(users))
+    expected = year_fingerprint()
+    stored: dict = {}
+    if report.exists():
+        try:
+            stored = json.loads(report.read_text())
+        except ValueError:
+            stored = {}
+    matched = stored.get("year_fingerprint") == expected
+    scenarios = homework(
+        {"mode": "wipe", "teacher_ids": teacher_ids, "class_ids": class_ids}
+    )
+    if matched:
+        lessons = export_year(db, class_ids, teacher_ids, calendar)
+        healthy, stats = verify_state(lessons, users, classes, calendar)
+        if healthy:
+            print(
+                "Отпечаток года совпал: уроки не тронуты (пустой прогон), "
+                "сценарии ДЗ пересоздаются.",
+                flush=True,
+            )
+            return {
+                "mode": "empty",
+                "lessons": len(lessons),
+                "scenarios": scenarios,
+                "verify": stats,
+            }
+        print(
+            "Отпечаток года совпал, но проверки не прошли — полная пересборка.",
+            flush=True,
+        )
+    wiped = db({"mode": "wipe", "class_ids": class_ids})
+    leftover = [
+        row
+        for row in export_year(db, class_ids, teacher_ids, calendar)
+        if row["class_id"] in set(class_ids)
+    ]
+    if leftover:
+        raise DemoError(
+            "Верификация пустоты не прошла: у демо-классов осталось "
+            f"{len(leftover)} уроков после очистки"
+        )
+    plan = year_plan_entries(classes, users, calendar)
+    created = db(
+        {
+            "mode": "create",
+            "study_year": calendar.STUDY_YEAR[0].year,
+            "plan": plan,
+        }
+    )
+    if created.get("failed_chunk") is not None:
+        raise DemoError(
+            "Чанк записи года откатился; повторите запуск — завершённые "
+            "класс-недели пропустятся. "
+            f"Отчёт: {created['failed_chunk']}"
+        )
+    lessons = export_year(db, class_ids, teacher_ids, calendar)
+    healthy, stats = verify_state(lessons, users, classes, calendar)
+    if not healthy:
+        raise DemoError(f"Проверка года не прошла: {stats.get('reason')}")
+    needed = {(entry["teacher_id"], entry["class_id"]) for entry in plan}
+    sync_assignments(journal, users, classes, needed, db=db)
+    (set_allowance or set_subject_allowance)(users)
+    stored.pop("timetable_version", None)
+    stored.pop("dates", None)
+    stored["year_fingerprint"] = expected
+    stored["timetable"] = stats
+    report.parent.mkdir(exist_ok=True)
+    report.write_text(
+        json.dumps(stored, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    print(
+        f"Год пересобран: уроков {len(lessons)}, удалено при очистке "
+        f"{wiped['lessons']}; проверки по всему году пройдены. "
+        f"Отпечаток: {json.dumps(expected, sort_keys=True)}.",
+        flush=True,
+    )
+    return {
+        "mode": "rebuilt",
+        "lessons": len(lessons),
+        "plan": len(plan),
+        "wiped": wiped,
+        "scenarios": scenarios,
+        "verify": stats,
+    }

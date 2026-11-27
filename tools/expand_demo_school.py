@@ -1,18 +1,24 @@
-"""Расширяет локальную демо-школу: 1–11 классы А–Д, ученики и расписание.
+"""Expands the local demo school: grades 1-11 lines A-D, staff, students.
 
-Запуск: python3 tools/create_demo_data.py --large --apply
-Повторно использует демо-учётки и существующие уроки, не удаляет данные.
+Run: python3 tools/create_demo_data.py --large --apply
+Reuses the existing demo accounts and classes, never deletes data.
+Teacher accounts are created only for the subjects applicable to the
+grade (SUBJECT_GRADES x GRADE_CURRICULUM of tools/demo_curriculum.py);
+unused legacy accounts of non-applicable subjects stay (inert) - there
+is no user deletion API.
+
+The yearly timetable is not built here anymore: create_demo_data runs
+the year rebuild (tools/rebuild_demo_timetable.rebuild_year) and the
+homework scenarios right after this step.
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
 import subprocess
-from datetime import date, timedelta
-from urllib.parse import urlencode
 
-from create_demo_data import ROOT, DemoError, choose_lesson_start, ensure_user
+from create_demo_data import ROOT, DemoError, ensure_user
+from demo_curriculum import GRADE_CURRICULUM
 
 LETTERS = ("А", "Б", "В", "Г", "Д")
 CODES = ("a", "b", "v", "g", "d")
@@ -60,6 +66,9 @@ LAST_NAMES = (
     "Киселёв",
 )
 
+# Mathematics (id 1) is taught by the class line teacher.
+CLASS_TEACHER_SUBJECT_ID = 1
+
 
 def emails(grade: int, code: str, index: int | None = None) -> str:
     prefix = f"{grade:02}" + ("" if code == "a" else f".{code}")
@@ -71,15 +80,35 @@ def emails(grade: int, code: str, index: int | None = None) -> str:
 
 
 def subject_teacher_email(grade: int, code: str, subject_id: int) -> str:
-    """Прежний преподаватель класса остаётся преподавателем математики."""
-    if subject_id == 1:
+    """The class line teacher stays the mathematics teacher."""
+    if subject_id == CLASS_TEACHER_SUBJECT_ID:
         return emails(grade, code)
     return f"teacher{grade:02}.{code}.subject{subject_id}@demo.og.test"
+
+
+def applicable_subject_ids(grade: int) -> list[int]:
+    """Subject ids the grade actually studies per the curriculum table.
+
+    Hours come from GRADE_CURRICULUM (which check_feasibility keeps in
+    sync with the SUBJECT_GRADES applicability); mathematics is served
+    by the class line teachers and gets no separate subject account.
+    """
+    hours = GRADE_CURRICULUM[grade]
+    catalog = {name: subject_id for subject_id, name in SUBJECTS}
+    unknown = set(hours) - set(catalog)
+    if unknown:
+        raise DemoError(f"Предметы таблицы часов вне каталога школы: {sorted(unknown)}")
+    return [
+        subject_id
+        for subject_id, name in SUBJECTS
+        if name in hours and subject_id != CLASS_TEACHER_SUBJECT_ID
+    ]
 
 
 def expansion_accounts() -> list[dict]:
     accounts = []
     for grade in range(1, 12):
+        subjects = applicable_subject_ids(grade)
         for branch, code in enumerate(CODES):
             surname = LAST_NAMES[(grade - 1 + branch * 3) % len(LAST_NAMES)]
             accounts.append(
@@ -91,9 +120,7 @@ def expansion_accounts() -> list[dict]:
                     "middle_name": "Сергеевич",
                 }
             )
-            for subject_id, _ in SUBJECTS:
-                if subject_id == 1:
-                    continue
+            for subject_id in subjects:
                 accounts.append(
                     {
                         "email": subject_teacher_email(grade, code, subject_id),
@@ -125,112 +152,15 @@ def expansion_accounts() -> list[dict]:
     return accounts
 
 
-def subject_for(grade: int, day: date, slot: int) -> int:
-    """Отдаёт предмет слота из недельной сетки ступени обучения.
+def apply_expansion(gateway, journal, schedule, study_year):
+    """Creates the missing demo staff, classes and students; never deletes.
 
-    Сетка задаётся явно (WEEKLY_CURRICULUM): количество часов каждого
-    предмета правдоподобно для параллели и в сумме ровно заполняет
-    учебные дни. Раньше предметы шли по кругу остатков, и при наложении
-    нескольких источников у класса собиралось по 5–6 часов одного
-    предмета в неделю.
+    Lessons are not touched here: the study-year timetable is rebuilt by
+    tools/rebuild_demo_timetable.rebuild_year right after this step
+    (see create_demo_data.main), and the homework scenarios are created
+    on top of it. The report keeps the stored year fingerprint so the
+    following year run can stay empty.
     """
-    plan = _grade_day_plan(grade)
-    day_row = plan[day.weekday() % len(plan)]
-    return day_row[slot % len(day_row)]
-
-
-# Недельные часы предметов по ступеням. Сумма каждой сетки кратна пяти
-# учебным дням: начальная школа — 5 уроков в день, средняя и старшая — 6.
-WEEKLY_CURRICULUM: dict[str, dict[int, int]] = {
-    "primary": {
-        1: 5,  # математика
-        2: 5,  # русский язык
-        1001: 4,  # литература
-        1002: 3,  # окружающий мир
-        1004: 3,  # английский язык
-        1009: 3,  # физическая культура
-        1003: 2,  # история
-    },
-    "middle": {
-        1: 5,
-        2: 5,
-        1001: 3,
-        1003: 3,
-        1004: 3,
-        1005: 3,
-        1007: 3,
-        1008: 2,
-        1009: 3,
-    },
-    "senior": {
-        1: 5,
-        2: 4,
-        1001: 3,
-        1003: 3,
-        1004: 3,
-        1005: 2,
-        1006: 3,
-        1007: 2,
-        1008: 2,
-        1009: 3,
-    },
-}
-
-_DAY_PLAN_CACHE: dict[int, list[list[int]]] = {}
-
-
-def _grade_day_plan(grade: int) -> list[list[int]]:
-    """Строит детерминированную сетку «день недели → предметы слотов».
-
-    Часы предмета распределяются по разным дням (сначала по одному
-    в день, вторые часы — в наименее заполненные дни), поэтому набор
-    предметов каждого учебного дня разнообразен.
-    """
-    cached = _DAY_PLAN_CACHE.get(grade)
-    if cached is not None:
-        return cached
-    stage = "primary" if grade <= 4 else "middle" if grade <= 6 else "senior"
-    weekly = WEEKLY_CURRICULUM[stage]
-    days_count = 5
-    target = 5 if grade <= 4 else 6
-    if sum(weekly.values()) != days_count * target:
-        raise ValueError(
-            f"Недельная сетка ступени {stage} не заполняет "
-            f"{days_count} дней по {target} уроков"
-        )
-    day_rows: list[list[int]] = [[] for _ in range(days_count)]
-    for subject_id, hours in sorted(
-        weekly.items(), key=lambda item: (-item[1], item[0])
-    ):
-        # Часы предмета расходятся по разным дням: сначала в наименее
-        # заполненные, поэтому итоговая длина каждого дня одинакова.
-        for _ in range(hours):
-            options = [
-                index for index, row in enumerate(day_rows) if subject_id not in row
-            ]
-            if not options:
-                raise ValueError(
-                    f"Сетка ступени {stage}: предмет {subject_id} не помещается "
-                    f"по одному уроку в {days_count} дней"
-                )
-            chosen_day = min(options, key=lambda index: (len(day_rows[index]), index))
-            day_rows[chosen_day].append(subject_id)
-    for day_index, row in enumerate(day_rows):
-        if len(row) != target:
-            raise ValueError(
-                f"Сетка ступени {stage}: день {day_index} получил {len(row)} "
-                f"предметов вместо {target}"
-            )
-        # Сдвиг чередует порядок предметов между днями и параллелями,
-        # чтобы один предмет не открывал каждый день.
-        shift = (grade + day_index) % target
-        day_rows[day_index] = row[-shift:] + row[:-shift]
-    _DAY_PLAN_CACHE[grade] = day_rows
-    return day_rows
-
-
-def apply_expansion(gateway, journal, schedule, days, study_year):
-    """Добавляет только отсутствующие демо-данные, сохраняя существующие записи."""
     accounts = expansion_accounts()
     users = {
         u["email"]: u for u in gateway.request("GET", "/internal/backoffice/users")
@@ -240,14 +170,21 @@ def apply_expansion(gateway, journal, schedule, days, study_year):
         if i % 100 == 0:
             print(f"Учётные записи: {i}/{len(accounts)}", flush=True)
 
+    # Математику (CLASS_TEACHER_SUBJECT_ID) ведут классные руководители
+    # линий, остальные предметы — предметные аккаунты применимых предметов;
+    # разрешённый список покрывает обе группы, иначе set_subject_names
+    # отклоняет уроки года как «недемо-уроки».
+    allowed_teacher_ids = [
+        users[emails(grade, code)]["id"] for grade in range(1, 12) for code in CODES
+    ] + [
+        users[subject_teacher_email(grade, code, subject_id)]["id"]
+        for grade in range(1, 12)
+        for code in CODES
+        for subject_id in applicable_subject_ids(grade)
+    ]
     subject_config = {
         "subjects": [{"id": id, "name": name} for id, name in SUBJECTS],
-        "allowed_teacher_ids": [
-            users[subject_teacher_email(g, c, subject_id)]["id"]
-            for g in range(1, 12)
-            for c in CODES
-            for subject_id, _ in SUBJECTS
-        ],
+        "allowed_teacher_ids": allowed_teacher_ids,
     }
     result = subprocess.run(
         [
@@ -284,8 +221,8 @@ def apply_expansion(gateway, journal, schedule, days, study_year):
         offset += 100
     by_name = {row["name"]: row for row in existing}
     summary = []
-    teacher_mapping = []
     for grade in range(1, 12):
+        subjects = applicable_subject_ids(grade)
         for letter, code in zip(LETTERS, CODES, strict=True):
             name = f"{grade}{letter}"
             school_class = by_name.get(name)
@@ -304,22 +241,12 @@ def apply_expansion(gateway, journal, schedule, days, study_year):
                 f"/internal/teachers/{teacher['id']}/classes/{class_id}",
                 ok=(201, 204),
             )
-            subject_teachers = {}
-            for subject_id, subject_name in SUBJECTS:
+            for subject_id in subjects:
                 subject_teacher = users[subject_teacher_email(grade, code, subject_id)]
-                subject_teachers[subject_id] = subject_teacher
                 journal.request(
                     "PUT",
                     f"/internal/teachers/{subject_teacher['id']}/classes/{class_id}",
                     ok=(201, 204),
-                )
-                teacher_mapping.append(
-                    {
-                        "class_id": class_id,
-                        "subject_id": subject_id,
-                        "old_teacher_id": teacher["id"],
-                        "teacher_id": subject_teacher["id"],
-                    }
                 )
             for index in range(1, STUDENTS_PER_CLASS + 1):
                 student = users[emails(grade, code, index)]
@@ -329,88 +256,35 @@ def apply_expansion(gateway, journal, schedule, days, study_year):
                     {"class_id": class_id},
                     ok=(200, 201),
                 )
-            created = 0
-            for day in days:
-                query = urlencode({"class_id": class_id, "date": day.isoformat()})
-                class_lessons = schedule.request("GET", "/lessons?" + query)
-                active = [row for row in class_lessons if row["status"] == "planned"]
-                target_lessons = 5 if grade <= 4 else 6
-                while len(active) < target_lessons:
-                    subject_id = subject_for(grade, day, len(active))
-                    subject_teacher = subject_teachers[subject_id]
-                    subject_teacher_day = schedule.request(
-                        "GET",
-                        "/internal/teacher-lessons?"
-                        + urlencode(
-                            {"date_from": day.isoformat(), "date_to": day.isoformat()}
-                        ),
-                        headers={"X-Teacher-ID": subject_teacher["id"]},
-                    )
-                    start = choose_lesson_start(
-                        day, class_lessons + subject_teacher_day
-                    )
-                    body = {
-                        "class_id": class_id,
-                        "teacher_id": subject_teacher["id"],
-                        "subject_id": subject_id,
-                        "starts_at": start.isoformat(),
-                        "ends_at": (start + timedelta(minutes=45)).isoformat(),
-                    }
-                    key = (
-                        "demo-expanded-"
-                        + hashlib.sha256(
-                            json.dumps(body, sort_keys=True).encode()
-                        ).hexdigest()
-                    )
-                    lesson = schedule.request(
-                        "POST",
-                        "/lessons",
-                        body,
-                        ok=(200, 201),
-                        headers={"Idempotency-Key": key},
-                    )
-                    active.append(lesson)
-                    class_lessons.append(lesson)
-                    created += 1
             summary.append(
                 {
                     "name": name,
                     "id": class_id,
                     "teacher": teacher["email"],
-                    "subject_teachers": {
-                        name: subject_teachers[id]["email"] for id, name in SUBJECTS
-                    },
                     "students": [
                         emails(grade, code, i) for i in range(1, STUDENTS_PER_CLASS + 1)
                     ],
-                    "lessons_added": created,
                 }
             )
             print(
-                f"{name}: {STUDENTS_PER_CLASS} учеников, {5 if grade <= 4 else 6} уроков в день; добавлено уроков: {created}.",
+                f"{name}: {STUDENTS_PER_CLASS} учеников и преподаватели готовы.",
                 flush=True,
             )
-    from rebuild_demo_timetable import TIMETABLE_VERSION, rebuild_timetable
-
-    all_classes = [{"id": row["id"], "name": row["name"]} for row in by_name.values()]
-    timetable = rebuild_timetable(journal, days, all_classes, users)
-
     report = ROOT / ".demo-data" / "expanded-school.json"
-    for item in summary:
-        item["subject_teachers"] = {}
+    old = {}
+    if report.exists():
+        try:
+            old = json.loads(report.read_text())
+        except ValueError:
+            old = {}
+    state: dict = {"state_version": 2}
+    if isinstance(old.get("year_fingerprint"), dict):
+        state["year_fingerprint"] = old["year_fingerprint"]
+    state["classes"] = summary
     report.parent.mkdir(exist_ok=True)
     report.write_text(
-        json.dumps(
-            {
-                "timetable_version": TIMETABLE_VERSION,
-                "dates": [str(days[0]), str(days[-1])],
-                "timetable": timetable,
-                "classes": summary,
-            },
-            ensure_ascii=False,
-            indent=2,
-        )
-        + "\n"
+        json.dumps(state, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
     )
     return summary
 

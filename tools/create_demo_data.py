@@ -14,17 +14,27 @@ import json
 import struct
 import subprocess
 import sys
+import time
 import zlib
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, timedelta
 from http.cookies import SimpleCookie
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import HTTPRedirectHandler, Request, build_opener
-from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
-TIMEZONE = ZoneInfo("Asia/Yekaterinburg")
+
+# Единственный источник сетки учебного дня — модуль сервиса расписания;
+# он не имеет зависимостей вне stdlib, поэтому инструменты демо-данных
+# импортируют его напрямую (локальных копий сетки здесь нет).
+SCHEDULE_SRC = str(ROOT / "services" / "schedule" / "src")
+if SCHEDULE_SRC not in sys.path:
+    sys.path.insert(0, SCHEDULE_SRC)
+
+from schedule_service.domain import school_calendar
+from schedule_service.domain.school_periods import PERIODS, TIMEZONE
+
 DEMO_PASSWORD = "DemoSchool2026!"
 REPORT = ROOT / ".demo-data" / "report.json"
 SESSIONS: list[Api] = []
@@ -85,26 +95,40 @@ class Api:
         request = Request(
             self.base + path, data=body, headers=request_headers, method=method
         )
-        try:
-            response = self.opener.open(request, timeout=45)
-        except HTTPError as exc:
-            response = exc
-        except (URLError, TimeoutError, OSError) as exc:
-            raise DemoError(
-                f"Нет подтверждения {method} {path}; безопасно повторите скрипт"
-            ) from exc
-        with response:
-            status = response.code
-            self.last_cookie = response.headers.get("Set-Cookie", "")
-            content = response.read()
-            if status not in ok:
-                # Не печатаем запросы, токены, пароли или чужие ответы сервиса.
-                raise DemoError(f"{method} {path}: HTTP {status}")
-            if status == 404 or not content:
-                return None
-            if "json" in response.headers.get("Content-Type", ""):
-                return json.loads(content)
-            return content
+        attempts = 0
+        while True:
+            try:
+                response = self.opener.open(request, timeout=45)
+            except HTTPError as exc:
+                response = exc
+            except (URLError, TimeoutError, OSError) as exc:
+                raise DemoError(
+                    f"Нет подтверждения {method} {path}; безопасно повторите скрипт"
+                ) from exc
+            with response:
+                status = response.code
+                self.last_cookie = response.headers.get("Set-Cookie", "")
+                content = response.read()
+                content_type = response.headers.get("Content-Type", "")
+                retry_after = response.headers.get("Retry-After", "")
+            if status != 429 or attempts >= 7:
+                break
+            # Демо-школа логинится часто: уважаем лимит входа и ждём.
+            delay = (
+                float(retry_after)
+                if retry_after.replace(".", "", 1).isdigit()
+                else float(min(2**attempts, 20))
+            )
+            time.sleep(delay)
+            attempts += 1
+        if status not in ok:
+            # Не печатаем запросы, токены, пароли или чужие ответы сервиса.
+            raise DemoError(f"{method} {path}: HTTP {status}")
+        if status == 404 or not content:
+            return None
+        if "json" in content_type:
+            return json.loads(content)
+        return content
 
 
 def build_accounts() -> list[dict]:
@@ -174,17 +198,84 @@ def build_accounts() -> list[dict]:
     return result
 
 
-def school_days(today: date) -> list[date]:
-    """Возвращает десять будних дней текущей и следующей календарных недель."""
+def study_weeks_of_year() -> list[list[date]]:
+    """All study weeks of the school calendar (Monday-based lists).
+
+    The calendar module is the single source of school dates: the weeks
+    come from study_weeks of tools/demo_year_plan.py over its school
+    days, so vacations never produce a week and every day is a real
+    school day.
+    """
+    from demo_year_plan import study_weeks
+
+    return study_weeks(school_calendar.school_days())
+
+
+def current_study_week(today: date | None = None) -> list[date]:
+    """Returns the school days of the current study week.
+
+    The Monday-based week of today counts as the current study week
+    while it still holds a school day that is not in the past (a Sunday
+    after a study week therefore moves to the next one, so scenarios
+    land on lessons that are still ahead). When the week of today holds
+    no school day at all (a vacation week, a date outside the study
+    year) the nearest following study week is returned; past the end of
+    the year the last study week is returned, so scenarios always land
+    on real school days.
+    """
+    today = datetime.now(TIMEZONE).date() if today is None else today
+    weeks = study_weeks_of_year()
     monday = today - timedelta(days=today.weekday())
-    return [monday + timedelta(days=offset) for offset in range(12) if offset % 7 < 5]
+    for week in weeks:
+        if week[0] == monday:
+            if any(day >= today for day in week):
+                return list(week)
+            break
+    for week in weeks:
+        if week[0] > monday:
+            return list(week)
+    return list(weeks[-1])
+
+
+def scenario_span(today: date | None = None, minimum: int = 9) -> list[date]:
+    """Collects weekday study days for the scenario set of the classes.
+
+    The span starts at the current study week and follows the calendar
+    week by week (weekdays only - the small demo set keeps Saturday
+    free) until at least `minimum` days are collected: the seven
+    scenarios need nine lessons, seven issued plus two due targets.
+    """
+    today = datetime.now(TIMEZONE).date() if today is None else today
+    weeks = study_weeks_of_year()
+    monday = today - timedelta(days=today.weekday())
+    start = len(weeks)
+    for index, week in enumerate(weeks):
+        if week[0] == monday:
+            start = index
+            break
+    else:
+        for index, week in enumerate(weeks):
+            if week[0] > monday:
+                start = index
+                break
+    days: list[date] = []
+    for week in weeks[start:]:
+        days.extend(day for day in week if day.weekday() < 5)
+        if len(days) >= minimum:
+            return days
+    raise DemoError("Календарь не даёт достаточно учебных дней для демо-сценариев")
 
 
 def choose_lesson_start(day: date, existing: list[dict]) -> datetime:
-    """Выбирает свободные 45 минут класса, не передвигая существующие уроки."""
-    for hour in range(9, 20):
-        start = datetime.combine(day, time(hour), TIMEZONE)
-        end = start + timedelta(minutes=45)
+    """Выбирает первый период дня, полностью свободный для класса.
+
+    Урок занимает точные границы периода из PERIODS (45 минут внутри
+    периода, а не начало часа); существующие уроки не передвигаются.
+    Пересечение с любым неотменённым уроком из existing исключается.
+    """
+    for period in PERIODS:
+        start = datetime.combine(day, period.start_at, TIMEZONE)
+        end = datetime.combine(day, period.end_at, TIMEZONE)
         if all(
             row["status"] == "canceled"
             or end <= datetime.fromisoformat(row["starts_at"])
@@ -192,9 +283,7 @@ def choose_lesson_start(day: date, existing: list[dict]) -> datetime:
             for row in existing
         ):
             return start
-    raise DemoError(
-        f"Нет свободного демо-интервала {day}; существующие уроки сохранены"
-    )
+    raise DemoError(f"Нет свободного демо-периода {day}; существующие уроки сохранены")
 
 
 def ensure_user(api: Api, account: dict, existing: dict) -> dict:
@@ -428,8 +517,19 @@ def ensure_lessons(
     return result
 
 
-def ensure_homework(teacher: Api, lessons: list[dict], index: int) -> tuple[dict, bool]:
-    """Не изменяет существующее задание; создаёт недостающий демонстрационный пример."""
+def ensure_homework(
+    teacher: Api,
+    lessons: list[dict],
+    index: int,
+    *,
+    due_lesson: dict | str | None = "auto",
+) -> tuple[dict, bool]:
+    """Не изменяет существующее задание; создаёт недостающий демонстрационный пример.
+
+    due_lesson переопределяет цель срока: словарь урока — срок-урок,
+    None — ручной срок, "auto" (по умолчанию) — прежнее поведение
+    сценариев 0 и 6 (уроки 6 и 8 набора).
+    """
     lesson = lessons[index]
     card = teacher.request("GET", f"/api/v1/lessons/{lesson['id']}")
     found = card["homework_from_lesson"]
@@ -439,8 +539,13 @@ def ensure_homework(teacher: Api, lessons: list[dict], index: int) -> tuple[dict
         "description": f"[ДЕМО] {LABELS[index]}. Прочитайте условие и объясните решение.",
         "files": [],
     }
-    if index in (0, 6):
-        body["due_lesson_id"] = lessons[6 if index == 0 else 8]["id"]
+    target = due_lesson
+    if target == "auto":
+        target = lessons[6 if index == 0 else 8]["id"] if index in (0, 6) else None
+    if isinstance(target, dict):
+        body["due_lesson_id"] = target["id"]
+    elif isinstance(target, int):
+        body["due_lesson_id"] = target
     else:
         # Стабильный срок относительно недели, а не новый timestamp каждого повтора.
         start = datetime.fromisoformat(lessons[-1]["ends_at"])
@@ -469,12 +574,17 @@ def ensure_answer(
 
 
 def prepare_answers(
-    teacher: Api, students: list[Api], homework: list[dict], new: list[bool]
+    session_of, students: list[Api], homework: list[dict], new: list[bool]
 ) -> None:
-    """Наполняет только ещё не начатые сценарии, не перезаписывая ручную проверку."""
+    """Наполняет только ещё не начатые сценарии, не перезаписывая ручную проверку.
+
+    session_of(index) возвращает сеанс автора сценария: в маленькой
+    школе это один учитель, в большой — преподаватель каждого урока.
+    """
     # Если ответов ещё нет после прерванного запуска, можно безопасно продолжить.
     for index in range(1, 6):
         task = homework[index]
+        teacher = session_of(index)
         answers = teacher.request("GET", f"/api/v1/homework/{task['id']}/answers")
         if answers and not new[index]:
             continue
@@ -542,6 +652,216 @@ def verify_school(
     )
 
 
+# ------------------------------------------------------------------
+# Year scenarios on the current study week (spec section 7)
+
+
+def class_week_lessons(schedule: Api, class_id: int, days: list[date]) -> list[dict]:
+    """Planned lessons of the class inside the day window, time-sorted.
+
+    The lessons endpoint takes a single calendar date, so the window is
+    fetched one day at a time and merged.
+    """
+    rows: list[dict] = []
+    for day in days:
+        query = urlencode({"class_id": class_id, "date": day.isoformat()})
+        rows.extend(schedule.request("GET", "/lessons?" + query))
+    return sorted(
+        (row for row in rows if row["status"] == "planned"),
+        key=lambda row: (row["starts_at"], row["id"]),
+    )
+
+
+def choose_scenario_lessons(
+    rows: list[dict], extra_rows: list[dict], now: datetime
+) -> tuple[list[dict], dict | None]:
+    """Picks the issued lessons and the lesson deadline of the scenarios.
+
+    Slots 0-6 issue the seven scenarios on the earliest planned lessons
+    of the current study week (one homework per lesson). Scenario 0
+    needs a later future lesson of the same subject as its deadline;
+    extra_rows extends the search into the following study week. A None
+    deadline means the manual deadline of the default mechanism.
+    """
+    if len(rows) < 7:
+        raise DemoError(
+            "На текущей учебной неделе меньше семи уроков класса для сценариев ДЗ"
+        )
+    issued = rows[:7]
+    first_start = datetime.fromisoformat(issued[0]["starts_at"])
+    deadline = None
+    for row in rows[1:] + list(extra_rows):
+        start = datetime.fromisoformat(row["starts_at"])
+        if (
+            row["subject_id"] == issued[0]["subject_id"]
+            and start > first_start
+            and start > now
+        ):
+            deadline = row
+            break
+    return issued, deadline
+
+
+def future_school_days(after: date, count: int = 14) -> list[date]:
+    """Returns the first school days of the calendar after the date."""
+    return [day for day in school_calendar.school_days() if day > after][:count]
+
+
+def create_deadline_lesson(
+    schedule: Api, class_id: int, subject_id: int, teacher_id: str, after: date
+) -> dict:
+    """Creates one extra planned lesson as the canceled-deadline target.
+
+    The lesson repeats the subject of the showcase scenario on the
+    first free period of the next school days. It is canceled right
+    after the homework creation (the "срок привязан к отменённому
+    уроку" showcase), so the idempotent replay of an already canceled
+    slot moves the next attempt to another period.
+    """
+    taken: list[dict] = []
+    for day in future_school_days(after):
+        query = urlencode({"class_id": class_id, "date": day.isoformat()})
+        class_lessons = schedule.request("GET", "/lessons?" + query)
+        teacher_day = schedule.request(
+            "GET",
+            "/internal/teacher-lessons?"
+            + urlencode({"date_from": day.isoformat(), "date_to": day.isoformat()}),
+            headers={"X-Teacher-ID": teacher_id},
+        )
+        blocked = [
+            {**row, "status": "planned"} if row["status"] == "canceled" else row
+            for row in class_lessons + teacher_day
+        ] + [dict(row, status="planned") for row in taken]
+        try:
+            start = choose_lesson_start(day, blocked)
+        except DemoError:
+            continue
+        body = {
+            "class_id": class_id,
+            "teacher_id": teacher_id,
+            "subject_id": subject_id,
+            "starts_at": start.isoformat(),
+            "ends_at": (start + timedelta(minutes=45)).isoformat(),
+        }
+        key = (
+            "demo-school-"
+            + hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
+        )
+        lesson = schedule.request(
+            "POST",
+            "/lessons",
+            body,
+            ok=(200, 201),
+            headers={"Idempotency-Key": key},
+        )
+        if lesson["status"] == "planned":
+            return lesson
+        taken.append(lesson)
+    raise DemoError(
+        "Не нашлось свободного периода для урока-срока сценария отменённого дедлайна"
+    )
+
+
+def create_year_scenarios(
+    gateway: Api,
+    journal: Api,
+    schedule: Api,
+    public: Api,
+    users: dict,
+    summary: list[dict],
+    *,
+    today: date | None = None,
+) -> None:
+    """Recreates the demo homework scenarios on the current study week.
+
+    The showcase classes are the documented "А" lines (teacher01..
+    teacher11 are their class teachers). Seven homework per class are
+    issued on the lessons of the current study week of the year plan -
+    one homework per lesson, the author is the lesson teacher of the
+    plan - with the prepared answers on top (the existing idempotency
+    mechanism: found homework and answer keys are reused on repeats).
+    The canceled-deadline showcase points at a freshly created
+    demo-school lesson; year-plan lessons themselves are never
+    canceled, so the year verification of the next run stays green.
+    """
+    today = datetime.now(TIMEZONE).date() if today is None else today
+    now = datetime.combine(today, datetime.now(TIMEZONE).time(), TIMEZONE)
+    week = current_study_week(today)
+    weeks = study_weeks_of_year()
+    index = next(i for i, item in enumerate(weeks) if item[0] == week[0])
+    next_week = weeks[index + 1] if index + 1 < len(weeks) else []
+    email_by_id = {user["id"]: email for email, user in users.items()}
+    sessions: dict[str, Api] = {}
+
+    def teacher_session(teacher_id: str) -> Api:
+        email = email_by_id.get(teacher_id)
+        if email is None:
+            raise DemoError(f"Урок ведёт не демо-учитель: {teacher_id}")
+        if email not in sessions:
+            sessions[email] = login(public, email)
+        return sessions[email]
+
+    for row in summary:
+        if not row["name"].endswith("А"):
+            continue
+        class_id = row["id"]
+        rows = class_week_lessons(schedule, class_id, week)
+        extra_rows = class_week_lessons(schedule, class_id, next_week)
+        issued, deadline = choose_scenario_lessons(rows, extra_rows, now)
+        target = create_deadline_lesson(
+            schedule,
+            class_id,
+            issued[6]["subject_id"],
+            issued[6]["teacher_id"],
+            datetime.fromisoformat(issued[6]["starts_at"]).astimezone(TIMEZONE).date(),
+        )
+        lessons = [*issued, target]
+        prepared = []
+        for scenario in range(7):
+            due = deadline if scenario == 0 else (target if scenario == 6 else "auto")
+            prepared.append(
+                ensure_homework(
+                    teacher_session(issued[scenario]["teacher_id"]),
+                    lessons,
+                    scenario,
+                    due_lesson=due,
+                )
+            )
+        homework, created = (
+            [part[0] for part in prepared],
+            [part[1] for part in prepared],
+        )
+        file_task = homework[5]
+        if (
+            file_task["files"]
+            and file_task["files"][0]["file_name"] == "demo-example.png"
+        ):
+            upload_file(
+                teacher_session(issued[5]["teacher_id"]),
+                f"/api/v1/homework/{file_task['id']}/files/{file_task['files'][0]['id']}",
+                file_task["files"][0],
+            )
+        students = [login(public, email) for email in row["students"][:5]]
+        authors = [lesson_row["teacher_id"] for lesson_row in issued]
+        prepare_answers(
+            lambda scenario, authors=authors: teacher_session(authors[scenario]),
+            students,
+            homework,
+            created,
+        )
+        if target["status"] == "planned":
+            schedule.request(
+                "POST",
+                f"/lessons/{target['id']}/cancel",
+                {"expected_version": target["version"]},
+            )
+        print(
+            f"{row['name']}: 7 сценариев ДЗ и ответы на текущей учебной неделе "
+            f"({week[0]} — {week[-1]}).",
+            flush=True,
+        )
+
+
 def main() -> None:
     """Проверяет локальные API и по явному --apply создаёт согласованный демо-набор."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -558,26 +878,53 @@ def main() -> None:
     for api in (gateway, journal, schedule):
         api.request("GET", "/health/live")
     accounts = build_accounts()
-    days = school_days(datetime.now(TIMEZONE).date())
-    study_year = days[0].year if days[0].month >= 9 else days[0].year - 1
+    # Единственный источник дат — школьный календарь домена Schedule.
+    week = current_study_week()
+    days = scenario_span()
+    study_year = school_calendar.STUDY_YEAR[0].year
     if args.large:
         from expand_demo_school import apply_expansion, expansion_accounts
 
         print(
             f"План: 55 классов, {len(expansion_accounts())} демо-учёток, "
-            f"по 5–6 уроков в день; {days[0]} — {days[-1]}.",
+            f"полный учебный год {school_calendar.STUDY_YEAR[0].year}/"
+            f"{school_calendar.STUDY_YEAR[1].year % 100:02d} по календарю; "
+            f"текущая учебная неделя {week[0]} — {week[-1]}.",
             flush=True,
         )
         if not args.apply:
             print("API доступны. Для записи добавьте --apply. Ничего не изменено.")
             return
-        summary = apply_expansion(gateway, journal, schedule, days, study_year)
+        from rebuild_demo_timetable import (
+            rebuild_year,
+            wipe_year_lessons,
+            year_rebuild_due,
+        )
+
+        if year_rebuild_due():
+            # Старые уроки ведут учителей, которых новая сетка предметов
+            # больше не разрешает: чистим их до настройки справочника.
+            print(
+                "Отпечаток года не совпал: очистка старых уроков до expand.",
+                flush=True,
+            )
+            wiped = wipe_year_lessons(journal, study_year)
+            print(f"Очистка до expand: {wiped}", flush=True)
+        summary = apply_expansion(gateway, journal, schedule, study_year)
+        users = {
+            u["email"]: u for u in gateway.request("GET", "/internal/backoffice/users")
+        }
+        classes = [{"id": row["id"], "name": row["name"]} for row in summary]
+
+        rebuild_year(journal, classes, users)
+        create_year_scenarios(gateway, journal, schedule, public, users, summary)
         print(
             f"Готово: {len(summary)} классов. Список: .demo-data/expanded-school.json"
         )
         return
     print(
-        f"План: классы 1А–11А, {len(accounts)} учёток, 110 уроков, 77 ДЗ; {days[0]} — {days[-1]}.",
+        f"План: классы 1А–11А, {len(accounts)} учёток, {len(days) * 11} уроков, "
+        f"77 ДЗ; {days[0]} — {days[-1]}.",
         flush=True,
     )
     if not args.apply:
