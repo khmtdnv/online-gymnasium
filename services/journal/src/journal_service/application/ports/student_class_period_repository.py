@@ -1,5 +1,6 @@
 """Контракт чтения и изменения периодов нахождения учеников в классах."""
 
+from datetime import date
 from typing import Protocol
 from uuid import UUID
 
@@ -93,5 +94,23 @@ class StudentClassPeriodRepository(Protocol):
         Returns:
             Текущий состав по возрастанию ID периода; пустой список, если
             записей на странице нет.
+        """
+        ...
+
+    async def list_members_on_date(
+        self, class_id: int, day: date
+    ) -> list[StudentClassPeriod]:
+        """Получает состав класса на календарную дату урока.
+
+        Границы периода сравниваются по датам: дата joined_at не позже
+        дня урока, left_at не задан или его дата не раньше дня урока.
+
+        Args:
+            class_id: ID школьного класса в Journal.
+            day: Дата урока, на которую нужен состав.
+
+        Returns:
+            Периоды, покрывающие дату, по возрастанию ID; пустой список,
+            если на дату состав пуст.
         """
         ...

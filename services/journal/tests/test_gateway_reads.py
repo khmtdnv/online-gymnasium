@@ -105,7 +105,12 @@ def test_gateway_read_token_is_distinct_and_cannot_write():
             assert response.status_code == 200
             assert response.json() == {
                 "name": "gateway",
-                "permissions": ["classes:read", "student-current-class:read"],
+                "permissions": [
+                    "classes:read",
+                    "diary:read",
+                    "lesson-entries:read",
+                    "student-current-class:read",
+                ],
             }
             assert (await client.post("/write", headers=headers)).status_code == 403
             batch = await client.post(

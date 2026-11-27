@@ -1,8 +1,9 @@
 """Чтение периодов учеников через сессию SQLAlchemy."""
 
+from datetime import date
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from sqlalchemy import func, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -262,3 +263,52 @@ class SqlAlchemyStudentClassPeriodRepository:
             )
 
         return current_periods
+
+    async def list_members_on_date(
+        self, class_id: int, day: date
+    ) -> list[StudentClassPeriod]:
+        """Читает состав класса на календарную дату урока.
+
+        Границы периодов сравниваются по датам: вступление не позже дня
+        урока, выход не задан или не раньше дня урока. Используется
+        записями урока; переводы не прячут прошлые оценки при записи.
+
+        Args:
+            class_id: ID школьного класса в Journal.
+            day: Дата урока, на которую нужен состав.
+
+        Returns:
+            Периоды, покрывающие дату, по возрастанию ID.
+
+        Raises:
+            SQLAlchemyError: Запрос к базе не выполнен.
+        """
+        stmt = (
+            select(StudentClassPeriodRow)
+            .where(
+                StudentClassPeriodRow.class_id == class_id,
+                func.date(StudentClassPeriodRow.joined_at) <= day,
+                or_(
+                    StudentClassPeriodRow.left_at.is_(None),
+                    func.date(StudentClassPeriodRow.left_at) >= day,
+                ),
+            )
+            .order_by(StudentClassPeriodRow.id)
+        )
+
+        rows = await self._session.scalars(stmt)
+
+        members = []
+
+        for period in rows:
+            members.append(
+                StudentClassPeriod(
+                    student_id=period.student_id,
+                    class_id=period.class_id,
+                    id=period.id,
+                    joined_at=period.joined_at,
+                    left_at=period.left_at,
+                )
+            )
+
+        return members

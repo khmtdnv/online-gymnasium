@@ -15,6 +15,13 @@ from journal_service.application.classes import CreateClassHandler, ListClassesH
 from journal_service.application.end_student_class_period import (
     EndStudentClassPeriodHandler,
 )
+from journal_service.application.lesson_records import (
+    GetLastEntryDateHandler,
+    GetSubjectAveragesHandler,
+    ListLessonEntriesHandler,
+    ListStudentDiaryEntriesHandler,
+    RecordLessonEntriesHandler,
+)
 from journal_service.application.teacher_classes import (
     AssignTeacherToClassHandler,
     ListClassesForTeacherHandler,
@@ -67,6 +74,9 @@ def get_authenticated_service(
     gateway_read_token = getattr(
         request.app.state.settings, "gateway_read_service_token", None
     )
+    gateway_write_token = getattr(
+        request.app.state.settings, "gateway_write_service_token", None
+    )
     billing_read_token = getattr(
         request.app.state.settings, "billing_read_service_token", None
     )
@@ -76,6 +86,7 @@ def get_authenticated_service(
             homework_token,
             backoffice_token,
             gateway_read_token,
+            gateway_write_token,
             billing_read_token,
         )
         if value
@@ -93,7 +104,21 @@ def get_authenticated_service(
     ):
         return ServicePrincipal(
             service_name="gateway",
-            permissions=frozenset({"classes:read", "student-current-class:read"}),
+            permissions=frozenset(
+                {
+                    "classes:read",
+                    "student-current-class:read",
+                    "diary:read",
+                    "lesson-entries:read",
+                }
+            ),
+        )
+    if gateway_write_token and secrets.compare_digest(
+        incoming_token.encode(), gateway_write_token.encode()
+    ):
+        return ServicePrincipal(
+            service_name="gateway-write",
+            permissions=frozenset({"lesson-records:write"}),
         )
     if homework_token and secrets.compare_digest(
         homework_token.encode(), backoffice_token.encode()
@@ -292,3 +317,65 @@ def get_list_current_periods_for_class_handler(
         Отдельный обработчик для текущего запроса.
     """
     return ListCurrentPeriodsForClassHandler(request.app.state.uow_factory)
+
+
+def get_record_lesson_entries_handler(request: Request) -> RecordLessonEntriesHandler:
+    """Собирает замену записей урока из зависимостей приложения.
+
+    Args:
+        request: Запрос с фабрикой UoW в состоянии приложения.
+
+    Returns:
+        Обработчик команды записи без открытия транзакции.
+    """
+    return RecordLessonEntriesHandler(request.app.state.uow_factory)
+
+
+def get_list_student_diary_entries_handler(
+    request: Request,
+) -> ListStudentDiaryEntriesHandler:
+    """Собирает чтение записей ученика окном.
+
+    Args:
+        request: Запрос с фабрикой UoW в состоянии приложения.
+
+    Returns:
+        Обработчик чтения окна дневника.
+    """
+    return ListStudentDiaryEntriesHandler(request.app.state.uow_factory)
+
+
+def get_subject_averages_handler(request: Request) -> GetSubjectAveragesHandler:
+    """Собирает чтение средних по предметам за четверть.
+
+    Args:
+        request: Запрос с фабрикой UoW в состоянии приложения.
+
+    Returns:
+        Обработчик средних и четвертных оценок.
+    """
+    return GetSubjectAveragesHandler(request.app.state.uow_factory)
+
+
+def get_last_entry_date_handler(request: Request) -> GetLastEntryDateHandler:
+    """Собирает чтение даты последней записи ученика.
+
+    Args:
+        request: Запрос с фабрикой UoW в состоянии приложения.
+
+    Returns:
+        Обработчик якоря дефолтной недели.
+    """
+    return GetLastEntryDateHandler(request.app.state.uow_factory)
+
+
+def get_list_lesson_entries_handler(request: Request) -> ListLessonEntriesHandler:
+    """Собирает чтение записей одного урока.
+
+    Args:
+        request: Запрос с фабрикой UoW в состоянии приложения.
+
+    Returns:
+        Обработчик чтения записей урока для формы правки.
+    """
+    return ListLessonEntriesHandler(request.app.state.uow_factory)

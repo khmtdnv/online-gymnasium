@@ -5,6 +5,9 @@ from typing import Self
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from journal_service.infrastructure.class_repository import SqlAlchemyClassRepository
+from journal_service.infrastructure.lesson_record_repository import (
+    SqlAlchemyLessonRecordRepository,
+)
 from journal_service.infrastructure.outbox_repository import SqlAlchemyOutboxRepository
 from journal_service.infrastructure.student_class_period_repository import (
     SqlAlchemyStudentClassPeriodRepository,
@@ -35,6 +38,7 @@ class SqlAlchemyUnitOfWork:
         self.classes = SqlAlchemyClassRepository(self._session)
         self.teacher_classes = SqlAlchemyTeacherClassRepository(self._session)
         self.class_periods = SqlAlchemyStudentClassPeriodRepository(self._session)
+        self.lesson_records = SqlAlchemyLessonRecordRepository(self._session)
         self.outbox = SqlAlchemyOutboxRepository(self._session)
         return self
 
