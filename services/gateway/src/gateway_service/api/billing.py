@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, Res
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.exc import SQLAlchemyError
 
+from gateway_service.api.dependent_access import check_dependent_access
 from gateway_service.api.security import RequireRoles
 from gateway_service.application.auth import GetCurrentUserResult
 from gateway_service.application.billing import (
@@ -47,11 +48,7 @@ async def check_student(request, viewer, student_id):
     try:
         async with request.app.state.uow_factory() as uow:
             student = await uow.users.get_by_id(student_id)
-            allowed = viewer.role == Role.ADMIN or (
-                viewer.role == Role.STUDENT and viewer.id == student_id
-            )
-            if viewer.role == Role.PARENT:
-                allowed = await uow.users.has_parent_student_link(viewer.id, student_id)
+            allowed = await check_dependent_access(viewer, student_id, uow)
             if not allowed or student is None or student.role != Role.STUDENT:
                 raise HTTPException(403, "Access denied")
             return student
