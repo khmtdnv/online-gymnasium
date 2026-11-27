@@ -3833,6 +3833,26 @@ textarea.input {
   line-height: 1.5;
   color: var(--muted);
 }
+.login-demo {
+  padding-top: 18px;
+  border-top: 1px dashed var(--border-inner);
+  text-align: center;
+}
+.login-demo-title {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.login-demo-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.login-demo-actions .button {
+  min-height: 44px;
+  padding: 10px 12px;
+}
 .login-card-footnote {
   margin: 22px 0 0;
   padding-top: 16px;
@@ -4586,6 +4606,12 @@ textarea.input {
 @media (max-width: 390px) {
   .login-card {
     padding: 22px 16px;
+  }
+  .login-demo-actions {
+    gap: 8px;
+  }
+  .login-demo-actions .button {
+    font-size: 13px;
   }
   .login-emblem {
     width: 44px;

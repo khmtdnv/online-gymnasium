@@ -5,7 +5,7 @@ import { Button } from '../components/ui/button';
 import { LoginForm } from '../features/auth/login-form';
 import { useSession } from '../features/auth/session-context';
 
-/** Карточка входа по макету g01: одна колонка по центру, без тестовых аккаунтов. */
+/** Карточка входа по макету g01: одна колонка по центру; с 2026-11-27 — блок публичного демо-доступа (портфолио-витрина, решение в `concepts_brief.md`). */
 export default function Login() {
   const { state, session } = useSession();
   if (state.status === 'authenticated') return <Navigate to="/" replace />;
@@ -20,9 +20,7 @@ export default function Login() {
           <h1>Вход в гимназию</h1>
           <p>Используйте школьный email и пароль, выданные учебной частью</p>
         </header>
-        {state.status === 'checking' && (
-          <AsyncState state="loading" title="Проверяем сессию" />
-        )}
+        {state.status === 'checking' && <AsyncState state="loading" title="Проверяем сессию" />}
         {state.status === 'unavailable' && (
           <AsyncState
             state="error"

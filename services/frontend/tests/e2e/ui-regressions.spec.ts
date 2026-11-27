@@ -104,6 +104,13 @@ test('UI mock: login/reload/logout и память без persisted JWT', async 
   await page.getByRole('button', { name: 'Выйти', exact: true }).first().click();
   await expect(page.getByRole('heading', { name: 'Вход в гимназию' })).toBeVisible();
 });
+test('UI mock: демо-вход кнопкой роли учителя', async ({ page, context }) => {
+  await mockBackend(context, 'teacher');
+  await page.goto('/login');
+  await page.getByRole('button', { name: 'Учитель', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Сегодня', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Выйти', exact: true }).first()).toBeVisible();
+});
 test('UI mock: logout в одной вкладке очищает вторую', async ({ page, context }) => {
   await mockBackend(context);
   await login(page);
