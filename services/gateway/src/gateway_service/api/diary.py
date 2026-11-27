@@ -254,7 +254,9 @@ async def record_lesson_entries(
             {
                 "lesson_id": row.lesson_id,
                 "student_id": str(row.student_id),
-                "status": row.status.value,
+                "status": row.status.value
+                if hasattr(row.status, "value")
+                else row.status,
             }
             for row in result.attendance
         ],
@@ -263,7 +265,7 @@ async def record_lesson_entries(
                 "lesson_id": row.lesson_id,
                 "student_id": str(row.student_id),
                 "grade": row.grade,
-                "kind": row.kind.value,
+                "kind": row.kind.value if hasattr(row.kind, "value") else row.kind,
             }
             for row in result.grades
         ],
