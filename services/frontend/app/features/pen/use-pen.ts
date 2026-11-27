@@ -9,6 +9,8 @@ import {
 } from './contracts';
 
 /** Одна очередь в памяти: неизвестный результат повторяется с прежним batch_id. */
+export type PenConnectionStatus = 'connecting' | 'online' | 'offline' | 'failure';
+
 export function usePen(lessonId: number, studentId: string, readonly: boolean) {
   const { session } = useSession();
   const [version, setVersion] = useState(0);
@@ -16,6 +18,8 @@ export function usePen(lessonId: number, studentId: string, readonly: boolean) {
     batches: [] as PenBatch[],
     ready: false,
     message: 'Подключаем ручку…',
+    status: 'connecting' as PenConnectionStatus,
+    queue: 0,
   });
   const pending = useRef<PenBatch[]>([]);
   const saved = useRef(new Map<string, SavedPenBatch>());
@@ -25,6 +29,7 @@ export function usePen(lessonId: number, studentId: string, readonly: boolean) {
   const cursor = useRef(0);
   const socket = useRef<WebSocket | null>(null);
   const ready = useRef(false);
+  const opened = useRef(false);
   const inFlight = useRef<string | null>(null);
   const error = useRef<string | null>(null);
   const identity = useRef(`${lessonId}:${studentId}`);
@@ -46,6 +51,14 @@ export function usePen(lessonId: number, studentId: string, readonly: boolean) {
     setView({
       batches,
       ready: ready.current,
+      status: error.current
+        ? 'failure'
+        : ready.current
+          ? 'online'
+          : opened.current
+            ? 'offline'
+            : 'connecting',
+      queue: pending.current.length + (drawing.length ? 1 : 0),
       message:
         error.current ??
         (!ready.current
@@ -112,6 +125,7 @@ export function usePen(lessonId: number, studentId: string, readonly: boolean) {
     }
     async function connect() {
       ready.current = false;
+      opened.current = false;
       inFlight.current = null;
       error.current = null;
       saved.current.clear();
@@ -143,6 +157,7 @@ export function usePen(lessonId: number, studentId: string, readonly: boolean) {
                 ws.close(1000);
               } else {
                 ready.current = true;
+                opened.current = true;
                 retries = 0;
                 sendNext();
               }

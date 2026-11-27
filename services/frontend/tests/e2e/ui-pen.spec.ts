@@ -35,6 +35,9 @@ test('student sends points through WebSocket, receives ACK and restores the save
   });
   await page.goto('/pen/lessons/1');
   await expect(page.getByText('Подключено. Все штрихи сохранены.')).toBeVisible();
+  // Панель связи s06: статус соединения и пустая очередь штрихов.
+  await expect(page.locator('.pen-status', { hasText: 'Подключено' })).toBeVisible();
+  await expect(page.getByText('Синхронизировано (0 в очереди)')).toBeVisible();
   const canvas = page.getByRole('img', { name: 'Холст умной ручки' });
   const box = await canvas.boundingBox();
   expect(box).not.toBeNull();
@@ -44,6 +47,8 @@ test('student sends points through WebSocket, receives ACK and restores the save
   await page.mouse.up();
   await expect.poll(() => saved.length).toBeGreaterThan(0);
   await expect(canvas.locator('polyline')).toHaveCount(1);
+  // После ACK очередь снова пуста, соединение в норме.
+  await expect(page.getByText('Синхронизировано (0 в очереди)')).toBeVisible();
   await page.reload();
   await expect(canvas.locator('polyline')).toHaveCount(1);
   await expect(page.getByText('Подключено. Все штрихи сохранены.')).toBeVisible();
@@ -94,6 +99,9 @@ test('teacher chooses a named student and cannot draw on the read-only page', as
   });
   await page.goto('/pen/lessons/1');
   await expect(page.getByLabel('Ученик')).toHaveValue(studentId);
+  // Состав класса загружен: счётчик учеников и режим только просмотра.
+  await expect(page.getByText('Выберите ученика · 1 ученик')).toBeVisible();
+  await expect(page.locator('.pen-queue', { hasText: 'Только просмотр' })).toBeVisible();
   const canvas = page.getByRole('img', { name: 'Холст умной ручки' });
   await expect(canvas.locator('polyline')).toHaveCount(1);
   const box = await canvas.boundingBox();
@@ -103,4 +111,28 @@ test('teacher chooses a named student and cannot draw on the read-only page', as
   await page.mouse.up();
   expect(writes).toBe(0);
   await expect(canvas.locator('polyline')).toHaveCount(1);
+});
+
+test('teacher sees loading and empty class states without a canvas', async ({ page, context }) => {
+  const id = '75ef34f4-2588-41b1-b41e-cbd058c6025c';
+  await context.route('**/api/v1/**', async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path.endsWith('/refresh'))
+      return route.fulfill({ json: { access_token: 'teacher-token' } });
+    if (path.endsWith('/me'))
+      return route.fulfill({ json: { id, email: 'teacher@example.test', role: 'teacher' } });
+    if (path.endsWith('/students')) {
+      // Задержка, чтобы успеть увидеть состояние загрузки состава.
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      return route.fulfill({ json: [] });
+    }
+    return route.fulfill({ status: 404, json: {} });
+  });
+  await page.goto('/pen/lessons/1');
+  await expect(page.getByText('Загружаем состав класса…')).toBeVisible();
+  await expect(page.getByText('В классе нет учеников')).toBeVisible();
+  await expect(page.getByLabel('Ученик')).toHaveValue('');
+  // Пустой состав: селектор заблокирован, полотна нет.
+  await expect(page.getByLabel('Ученик')).toBeDisabled();
+  await expect(page.getByRole('img', { name: 'Холст умной ручки' })).toHaveCount(0);
 });

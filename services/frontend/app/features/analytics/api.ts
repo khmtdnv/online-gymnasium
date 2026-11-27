@@ -32,6 +32,7 @@ const auditEvent = z.strictObject({
   }),
   payload: z.record(z.string(), z.unknown()),
 });
+export type AuditEvent = z.infer<typeof auditEvent>;
 const schoolClass = z.strictObject({
   id: positiveIdSchema,
   name: z.string(),

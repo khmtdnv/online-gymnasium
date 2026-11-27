@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { Alert } from '../../components/ui/alert';
 import { Button } from '../../components/ui/button';
 import type { DocumentJob } from '../../lib/api/contracts';
+import { documentNames } from './names';
 import { utcDateTime } from '../schedule/utc';
 
 const labels = {
@@ -26,18 +27,16 @@ export function JobStatus({
       : job.status === 'failed'
         ? TriangleAlert
         : LoaderCircle;
+  const inFlight = job.status === 'pending' || job.status === 'processing';
   return (
-    <section className="card" style={{ marginBottom: 24 }}>
-      <span className={`badge${job.status === 'failed' ? ' badge-error' : ''}`}>
-        <Icon
-          size={16}
-          className={
-            job.status === 'pending' || job.status === 'processing' ? 'spinner' : undefined
-          }
-          aria-hidden="true"
-        />
-        {labels[job.status]}
-      </span>
+    <section className="card job-status-card" data-status={job.status}>
+      <div className="job-status-head">
+        <span className={`badge${job.status === 'failed' ? ' badge-error' : ''}`}>
+          <Icon size={16} className={inFlight ? 'spinner' : undefined} aria-hidden="true" />
+          {labels[job.status]}
+        </span>
+        <span className="job-status-kind">{documentNames[job.document_type]}</span>
+      </div>
       <h2 className="section-title">Задание генерации</h2>
       <p className="job-id">ID: {job.id}</p>
       <p>Принято: {utcDateTime(job.created_at)}</p>

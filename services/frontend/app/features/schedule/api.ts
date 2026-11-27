@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { ApiClient } from '../../lib/api/client';
 import { createMyScheduleApi } from './my-schedule-api';
+import { schoolPeriodSchema } from './school-periods';
 import {
   daySchema,
   instantSchema,
@@ -50,6 +51,7 @@ export const directorySubjectSchema = z.object({
 export const directorySchema = z.object({
   classes: z.array(directoryClassSchema),
   subjects: z.array(directorySubjectSchema),
+  periods: z.array(schoolPeriodSchema),
 });
 export const teacherOptionSchema = z.object({
   id: uuidSchema,

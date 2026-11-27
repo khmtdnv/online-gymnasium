@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import type { Lesson } from '../../lib/api/contracts';
 import { ApiError, ApiNetworkError, ApiProtocolError, explainError } from '../../lib/api/errors';
+import { schoolDatetime } from '../schedule/school-dates';
 import type { Homework, HomeworkApi, HomeworkFile, HomeworkFileInput } from './api';
 import { prepareFile, uploadFilesWithRetry, type UploadTask } from './file-upload';
 import { HomeworkFiles } from './homework-files';
@@ -189,7 +190,7 @@ export function HomeworkForm({
             >
               {nextLesson && (
                 <option value="lesson">
-                  К следующему уроку · {new Date(nextLesson.starts_at).toLocaleString('ru-RU')}
+                  К следующему уроку · {schoolDatetime(nextLesson.starts_at)}
                 </option>
               )}
               <option value="manual">Указать дату и время вручную</option>

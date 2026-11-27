@@ -4,7 +4,7 @@
 {% block content %}
 <section class="og-form-card">
   <h1>{{ title }}</h1>
-  <p>Найдите преподавателя и выберите класс. Назначения не меняют расписание уроков.</p>
+  <p class="og-intro">Найдите преподавателя и выберите класс. Назначения не меняют расписание уроков.</p>
   {% if service_error %}<p role="alert">{{ service_error }}</p>{% endif %}
   <form method="get" id="student-class-form" data-search-url="{% url 'backoffice-search-teachers' %}" data-id-field="id_teacher_search_id" data-user-kind="teacher">
     <label for="student-search">Найти преподавателя</label>
@@ -21,8 +21,9 @@
   {% if teacher_id %}
     <h2>{{ teacher_label|default:teacher_id }}</h2>
     <h3>Назначенные классы</h3>
+    <div class="og-assign-list">
     {% for school_class in assigned_classes %}
-      <form method="post">
+      <form method="post" class="og-assign-row">
         {% csrf_token %}
         <input type="hidden" name="teacher_id" value="{{ teacher_id }}">
         <input type="hidden" name="teacher_label" value="{{ teacher_label }}">
@@ -31,7 +32,8 @@
         <span>{{ school_class.name }} · {{ school_class.study_year }}/{{ school_class.study_year|add:1 }}</span>
         <button type="submit">Снять назначение</button>
       </form>
-    {% empty %}<p>{% if service_error %}Список назначений недоступен.{% else %}Назначений пока нет.{% endif %}</p>{% endfor %}
+    {% empty %}<p class="og-assign-empty">{% if service_error %}Список назначений недоступен.{% else %}Назначений пока нет.{% endif %}</p>{% endfor %}
+    </div>
   {% endif %}
   {{ form.non_field_errors }}{{ form.teacher_id.errors }}{{ form.class_id.errors }}{{ form.action.errors }}
   {% if teacher_id %}

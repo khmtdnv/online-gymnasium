@@ -11,6 +11,7 @@ import { DayFilters, useDaySelection } from '../features/schedule/day-filters';
 import { LessonForm } from '../features/schedule/lesson-form';
 import { LessonList } from '../features/schedule/lesson-list';
 import { scheduleKeys, workloadKeys } from '../features/schedule/query-keys';
+import type { SchoolPeriod } from '../features/schedule/school-periods';
 import { utcDateTime } from '../features/schedule/utc';
 import type { Lesson } from '../lib/api/contracts';
 import { useFeatures } from '../lib/api/context';
@@ -21,6 +22,7 @@ export default function Schedule() {
   const { schedule } = useFeatures();
   const queryClient = useQueryClient();
   const [editor, setEditor] = useState<Lesson | 'create' | null>(null);
+  const [presetPeriod, setPresetPeriod] = useState<SchoolPeriod | null>(null);
   const [canceling, setCanceling] = useState<Lesson | null>(null);
   const [cancelBusy, setCancelBusy] = useState(false);
   const [cancelFailure, setCancelFailure] = useState<unknown>(null);
@@ -74,11 +76,12 @@ export default function Schedule() {
       <PageHeader
         title="Расписание"
         eyebrow="Школьный ритм"
-        description="Уроки выбранного класса на один день. Время показано в UTC, а не в часовом поясе устройства."
+        description="Уроки выбранного класса на один день. Время уроков — UTC; периоды сетки — школьное время."
         action={
           <Button
             onClick={() => {
               setEditorConflict(null);
+              setPresetPeriod(null);
               setEditor('create');
             }}
           >
@@ -135,7 +138,7 @@ export default function Schedule() {
                 void query.refetch();
               }}
             />
-          ) : query.data.length === 0 ? (
+          ) : query.data.length === 0 && !directory.data?.periods.length ? (
             <AsyncState
               state="empty"
               title="На этот день уроков нет"
@@ -144,6 +147,7 @@ export default function Schedule() {
           ) : (
             <LessonList
               lessons={query.data}
+              periods={directory.data?.periods ?? []}
               onEdit={(lesson) => {
                 setEditorConflict(null);
                 setEditor(lesson);
@@ -153,6 +157,15 @@ export default function Schedule() {
                 setCancelFailure(null);
                 setCancelConflict(null);
               }}
+              onCreateAtPeriod={
+                selection.classId === null
+                  ? undefined
+                  : (period) => {
+                      setEditorConflict(null);
+                      setPresetPeriod(period);
+                      setEditor('create');
+                    }
+              }
             />
           )}
         </>
@@ -189,10 +202,12 @@ export default function Schedule() {
         )}
         {editor !== null && (
           <LessonForm
-            key={editor === 'create' ? 'create' : editor.id}
+            key={editor === 'create' ? `create-${presetPeriod?.number ?? 'none'}` : editor.id}
             lesson={editor === 'create' ? undefined : editor}
             classId={selection.classId}
             day={selection.day}
+            periods={directory.data?.periods ?? []}
+            presetPeriod={editor === 'create' ? (presetPeriod ?? undefined) : undefined}
             subjects={directory.data?.subjects}
             classes={directory.data?.classes}
             searchTeachers={(q, signal) => schedule.searchTeachers(q, signal)}

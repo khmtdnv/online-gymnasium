@@ -1,18 +1,20 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, X } from 'lucide-react';
+import { ArrowRight, Bell, CheckCheck, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, Navigate, Outlet } from 'react-router';
 import { AppShell } from '../components/app-shell';
 import { AsyncState } from '../components/async-state';
 import { enterBackoffice, readCsrfCookie } from '../features/auth/backoffice-sso';
 import { useSession } from '../features/auth/session-context';
+import { NotificationRow, NotificationsEmpty } from '../features/notifications/notification-row';
 import { useFeatures } from '../lib/api/context';
 
 function NotificationControl() {
   const { notifications } = useFeatures();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState<'all' | 'unread'>('all');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const count = useQuery({
@@ -42,7 +44,9 @@ function NotificationControl() {
       setBusy(false);
     }
   };
-  const unreadIds = list.data?.filter((item) => !item.read_at).map((item) => item.id) ?? [];
+  const all = list.data ?? [];
+  const unreadIds = all.filter((item) => !item.read_at).map((item) => item.id);
+  const items = tab === 'unread' ? all.filter((item) => !item.read_at) : all;
   return (
     <Dialog.Root open={open} onOpenChange={setOpen} modal={false}>
       <Dialog.Trigger asChild>
@@ -62,19 +66,51 @@ function NotificationControl() {
       <Dialog.Portal>
         <Dialog.Content className="notification-popover" aria-describedby={undefined}>
           <div className="notification-popover-header">
-            <div>
-              <Dialog.Title>Уведомления</Dialog.Title>
-              <span>
-                {count.isError
-                  ? 'Счётчик недоступен'
-                  : unread
-                    ? `Непрочитанных: ${unread}`
-                    : 'Нет новых уведомлений'}
+            <div className="notification-popover-heading">
+              <span className="notification-popover-emblem" aria-hidden="true">
+                <Bell size={17} />
               </span>
+              <Dialog.Title>Уведомления</Dialog.Title>
+              {count.isError ? (
+                <span className="notif-badge is-muted">счётчик недоступен</span>
+              ) : (
+                <span className={`notif-badge${unread ? '' : ' is-muted'}`}>
+                  {unread ? `${unread} новых` : 'нет новых'}
+                </span>
+              )}
             </div>
-            <Dialog.Close className="notification-popover-close" aria-label="Закрыть уведомления">
-              <X size={19} />
-            </Dialog.Close>
+            <div className="notification-popover-tools">
+              <button
+                type="button"
+                className="notification-popover-mark-all"
+                disabled={busy || !unreadIds.length}
+                onClick={() => void markRead(unreadIds)}
+              >
+                <CheckCheck size={15} aria-hidden="true" />
+                Отметить все как прочитанные
+              </button>
+              <Dialog.Close className="notification-popover-close" aria-label="Закрыть уведомления">
+                <X size={18} aria-hidden="true" />
+              </Dialog.Close>
+            </div>
+          </div>
+          <div className="notif-tabs">
+            <button
+              type="button"
+              aria-pressed={tab === 'all'}
+              className={tab === 'all' ? 'is-active' : ''}
+              onClick={() => setTab('all')}
+            >
+              Все{list.data ? ` (${all.length})` : ''}
+            </button>
+            <button
+              type="button"
+              aria-pressed={tab === 'unread'}
+              className={tab === 'unread' ? 'is-active' : ''}
+              onClick={() => setTab('unread')}
+            >
+              Непрочитанные{unreadIds.length ? ` (${unreadIds.length})` : ''}
+            </button>
           </div>
           {list.isPending && (
             <p className="notification-popover-message" role="status">
@@ -94,67 +130,27 @@ function NotificationControl() {
               {error}
             </p>
           )}
-          {list.data?.length === 0 && (
-            <p className="notification-popover-message">Уведомлений пока нет.</p>
+          {list.data && items.length === 0 && <NotificationsEmpty compact />}
+          {items.length > 0 && (
+            <div className="notification-popover-list">
+              {items.map((item) => (
+                <NotificationRow
+                  key={item.id}
+                  item={item}
+                  busy={busy}
+                  onMarkRead={(id) => void markRead([id])}
+                  onOpen={() => setOpen(false)}
+                />
+              ))}
+            </div>
           )}
-          {list.data && list.data.length > 0 && (
-            <>
-              <div className="notification-popover-toolbar">
-                <button
-                  type="button"
-                  disabled={busy || !unreadIds.length}
-                  onClick={() => void markRead(unreadIds)}
-                >
-                  Прочитать показанные
-                </button>
-              </div>
-              <div className="notification-popover-list">
-                {list.data.map((item) => (
-                  <article
-                    className={`notification-popover-item${item.read_at ? '' : ' is-unread'}`}
-                    key={item.id}
-                  >
-                    <div className="notification-popover-item-heading">
-                      <strong>{item.title}</strong>
-                      {!item.read_at && (
-                        <span className="notification-unread-dot" aria-label="Не прочитано" />
-                      )}
-                    </div>
-                    <p>{item.body}</p>
-                    <time dateTime={item.created_at}>
-                      {new Date(item.created_at).toLocaleString('ru-RU', {
-                        day: 'numeric',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </time>
-                    <div className="notification-popover-actions">
-                      <Link to={item.link} onClick={() => setOpen(false)}>
-                        Открыть
-                      </Link>
-                      {!item.read_at && (
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => void markRead([item.id])}
-                        >
-                          Отметить прочитанным
-                        </button>
-                      )}
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </>
-          )}
-          <Link
-            className="notification-popover-footer"
-            to="/notifications"
-            onClick={() => setOpen(false)}
-          >
-            Все уведомления
-          </Link>
+          <div className="notification-popover-footer">
+            <Link to="/notifications" onClick={() => setOpen(false)}>
+              Все уведомления и архив
+              <ArrowRight size={15} aria-hidden="true" />
+            </Link>
+            <Dialog.Close className="notification-popover-esc">Закрыть (Esc)</Dialog.Close>
+          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

@@ -5,6 +5,37 @@ import { BrowserProviders } from './features/auth/session-context';
 import { FeaturesProvider } from './lib/api/context';
 import { AsyncState } from './components/async-state';
 
+/* --- Тема (этап 4): тёмные значения токенов — s01._dark_mode_1/2. --- */
+
+export type Theme = 'light' | 'dark';
+export const THEME_STORAGE_KEY = 'og-theme';
+
+/** Inline-скрипт для <head>: ставит data-theme ДО загрузки бандла (нет FOUC). */
+export const THEME_BOOTSTRAP_SCRIPT = `(function(){try{var s=localStorage.getItem('${THEME_STORAGE_KEY}');var t=s==='dark'?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`;
+
+export function readStoredTheme(): Theme | null {
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    return stored === 'dark' ? 'dark' : stored === 'light' ? 'light' : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Применяет тему к <html> и сохраняет выбор. Выбора нет — светлая. */
+export function applyTheme(theme: Theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    /* приватный режим — тема живёт только в этой вкладке */
+  }
+}
+
+export function currentTheme(): Theme {
+  return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+}
+
 export function meta() {
   return [
     { title: 'Онлайн-гимназия' },
@@ -32,6 +63,8 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#267b99" />
+        {/* Тема ставится до бандла и до первой отрисовки — мигание исключено. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
         <Meta />
         <Links />
       </head>

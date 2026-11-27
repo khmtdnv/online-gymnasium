@@ -5,6 +5,7 @@ import { Alert } from '../components/ui/alert';
 import { Button } from '../components/ui/button';
 import { useFeatures } from '../lib/api/context';
 import { displayHomeworkDescription } from '../features/homework/display-description';
+import { HomeworkFiles } from '../features/homework/homework-files';
 import { explainError } from '../lib/api/errors';
 import {
   formatSchoolDay,
@@ -16,13 +17,14 @@ import {
 export default function StudentLessonPage() {
   const id = Number(useParams().lessonId);
   const valid = Number.isInteger(id) && id > 0 && id <= 2147483647;
-  const { schedule } = useFeatures();
+  const { schedule, homework } = useFeatures();
   const query = useQuery({
     queryKey: ['student-lesson', id],
     enabled: valid,
     queryFn: ({ signal }) => schedule.getLessonView(id, signal),
   });
   if (!valid) return <Alert tone="error">Некорректный номер урока.</Alert>;
+  const lesson = query.data?.lesson;
   return (
     <div className="workspace-page lesson-page">
       <Link className="workspace-back" to="/schedule">
@@ -31,11 +33,21 @@ export default function StudentLessonPage() {
       <header className="lesson-heading">
         <div>
           <span className="workspace-kicker">Информация об уроке</span>
-          <h1>{query.data?.lesson.subject_name ?? 'Урок и домашние задания'}</h1>
+          <h1>{lesson?.subject_name ?? 'Урок и домашние задания'}</h1>
           <p>
-            {query.data
-              ? `${query.data.lesson.class_name} · ${query.data.lesson.teacher_name}`
+            {lesson
+              ? `${lesson.class_name} · ${lesson.teacher_name}`
               : 'Занятие и связанные задания'}
+          </p>
+          <p className="lesson-meta">
+            {lesson
+              ? `${formatSchoolDay(schoolDay(new Date(lesson.starts_at)), {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })} · ${schoolTime(lesson.starts_at)}–${schoolTime(lesson.ends_at)}`
+              : 'Дата и время появятся после загрузки урока'}
           </p>
         </div>
         <div className="lesson-header-actions">
@@ -58,89 +70,87 @@ export default function StudentLessonPage() {
           {query.data.lesson.status === 'canceled' && <Alert>Этот урок отменён.</Alert>}
           <div className="lesson-layout">
             <div className="lesson-content">
-              {(
-                [
-                  [
-                    'Подготовить к этому уроку',
-                    'Работы, которые нужно было выполнить к занятию.',
-                    query.data.homework_for_lesson,
-                  ],
-                ] as const
-              ).map(([title, description, tasks]) => (
-                <section className="workspace-panel lesson-tasks" key={title}>
-                  <div className="workspace-panel-head">
-                    <div>
-                      <h2>{title}</h2>
-                      <p>{description}</p>
-                    </div>
-                    <span className="workspace-icon">
-                      <BookOpen size={20} />
-                    </span>
+              {/* У ученика есть только подготовка: секции «Задано на этом уроке» у него нет. */}
+              <section className="workspace-panel lesson-tasks">
+                <div className="workspace-panel-head">
+                  <div>
+                    <h2>Подготовить к этому уроку</h2>
+                    <p>Задания, которые нужно было выполнить к этому занятию.</p>
                   </div>
-                  {!tasks.length && (
-                    <div className="workspace-empty">
-                      <BookOpen size={21} />
-                      <div>
-                        <strong>Заданий нет</strong>
-                        <p>Здесь появятся задания, связанные с уроком.</p>
-                      </div>
+                  <span className="workspace-icon">
+                    <BookOpen size={20} />
+                  </span>
+                </div>
+                {!query.data.homework_for_lesson.length && (
+                  <div className="workspace-empty">
+                    <BookOpen size={21} />
+                    <div>
+                      <strong>Заданий нет</strong>
+                      <p>Здесь появятся задания, связанные с уроком.</p>
                     </div>
-                  )}
-                  {tasks.map((task) => (
-                    <article className="lesson-task" key={task.id}>
-                      <div>
-                        <p className="homework-description">
-                          {displayHomeworkDescription(task.description)}
-                        </p>
-                        <span className="lesson-task-deadline">
-                          <Clock3 size={15} />
-                          {task.final_due_datetime
-                            ? `Сдать до ${schoolDatetime(task.final_due_datetime)}`
-                            : 'Срок уточняется'}
-                        </span>
-                      </div>
-                      <Link className="button button-primary" to={`/homework/${task.id}`}>
-                        Открыть задание
-                      </Link>
-                    </article>
-                  ))}
-                </section>
-              ))}
+                  </div>
+                )}
+                {query.data.homework_for_lesson.map((task) => (
+                  <article className="lesson-task" key={task.id}>
+                    <div className="lesson-task-body">
+                      <p className="homework-description">
+                        {displayHomeworkDescription(task.description)}
+                      </p>
+                      <span className="lesson-task-deadline">
+                        <Clock3 size={15} />
+                        {task.final_due_datetime
+                          ? `Сдать до ${schoolDatetime(task.final_due_datetime)}`
+                          : 'Срок уточняется'}
+                      </span>
+                      {task.files.length > 0 && (
+                        <div className="lesson-task-files">
+                          <HomeworkFiles files={task.files} api={homework} />
+                        </div>
+                      )}
+                    </div>
+                    <Link className="button button-primary" to={`/homework/${task.id}`}>
+                      Открыть задание
+                    </Link>
+                  </article>
+                ))}
+              </section>
             </div>
-            <aside className="workspace-panel lesson-info">
-              <h2>Об уроке</h2>
-              <div className="lesson-info-row">
-                <CalendarDays size={18} />
-                <div>
-                  <span>Дата</span>
-                  <strong>
-                    {formatSchoolDay(schoolDay(new Date(query.data.lesson.starts_at)), {
-                      weekday: 'long',
-                      year: 'numeric',
-                    })}
-                  </strong>
+            <aside className="lesson-aside">
+              <section className="workspace-panel lesson-info">
+                <h2>Об уроке</h2>
+                <div className="lesson-info-row">
+                  <CalendarDays size={18} />
+                  <div>
+                    <span>Дата</span>
+                    <strong>
+                      {formatSchoolDay(schoolDay(new Date(query.data.lesson.starts_at)), {
+                        weekday: 'long',
+                        year: 'numeric',
+                      })}
+                    </strong>
+                  </div>
                 </div>
-              </div>
-              <div className="lesson-info-row">
-                <Clock3 size={18} />
-                <div>
-                  <span>Время школы</span>
-                  <strong>
-                    {schoolTime(query.data.lesson.starts_at)}–
-                    {schoolTime(query.data.lesson.ends_at)}
-                  </strong>
+                <div className="lesson-info-row">
+                  <Clock3 size={18} />
+                  <div>
+                    <span>Время школы</span>
+                    <strong>
+                      {schoolTime(query.data.lesson.starts_at)}–
+                      {schoolTime(query.data.lesson.ends_at)}
+                    </strong>
+                  </div>
                 </div>
-              </div>
-              <div className="lesson-info-row">
-                <UserRound size={18} />
-                <div>
-                  <span>Преподаватель</span>
-                  <strong>{query.data.lesson.teacher_name}</strong>
+                <div className="lesson-info-row">
+                  <UserRound size={18} />
+                  <div>
+                    <span>Преподаватель</span>
+                    <strong>{query.data.lesson.teacher_name}</strong>
+                  </div>
                 </div>
-              </div>
-              <Link to="/homework" className="lesson-info-link">
-                Все домашние задания
-              </Link>
+                <Link to="/homework" className="lesson-info-link">
+                  Все домашние задания
+                </Link>
+              </section>
             </aside>
           </div>
         </>

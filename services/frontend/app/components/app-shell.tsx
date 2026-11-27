@@ -6,12 +6,15 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Moon,
   Settings,
+  Sun,
   X,
 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { NavLink, Link } from 'react-router';
 import type { CurrentUser } from '../lib/api/contracts';
+import { applyTheme, currentTheme, type Theme } from '../root';
 import { Button } from './ui/button';
 import { Alert } from './ui/alert';
 
@@ -39,6 +42,31 @@ export function Brand() {
         <span>Академический реестр</span>
       </div>
     </Link>
+  );
+}
+
+/** Переключатель темы: меняет атрибут на <html> и пишет выбор в localStorage. */
+export function ThemeToggle({ className }: { className?: string }) {
+  const [theme, setTheme] = useState<Theme>(() => currentTheme());
+  const dark = theme === 'dark';
+  const label = dark
+    ? 'Тёмная тема включена. Переключить на светлую'
+    : 'Светлая тема включена. Переключить на тёмную';
+  return (
+    <Button
+      variant="ghost"
+      className={`icon-button theme-toggle${className ? ` ${className}` : ''}`}
+      aria-pressed={dark}
+      aria-label={label}
+      title={dark ? 'Переключить на светлую тему' : 'Переключить на тёмную тему'}
+      onClick={() => {
+        const next: Theme = dark ? 'light' : 'dark';
+        applyTheme(next);
+        setTheme(next);
+      }}
+    >
+      {dark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
+    </Button>
   );
 }
 
@@ -152,6 +180,12 @@ export function AppShell({
       setLeaving(false);
     }
   }
+  const accountName = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email;
+  const initials =
+    [user.first_name?.[0], user.last_name?.[0]]
+      .filter((letter): letter is string => typeof letter === 'string')
+      .join('')
+      .toUpperCase() || user.email[0].toUpperCase();
   return (
     <div className="app-layout">
       <a href="#main-content" className="skip-link">
@@ -180,6 +214,9 @@ export function AppShell({
                 <Dialog.Description className="sr-only">Разделы онлайн-гимназии</Dialog.Description>
                 <Brand />
                 {navigation}
+                <div className="mobile-theme-row">
+                  <ThemeToggle />
+                </div>
                 <Button variant="ghost" onClick={logout} disabled={leaving}>
                   <LogOut size={20} aria-hidden="true" />
                   Выйти
@@ -201,15 +238,14 @@ export function AppShell({
           </span>
           <div className="account">
             {notificationControl}
+            <ThemeToggle />
             <Link to="/profile" className="account-link" aria-label="Профиль">
               <div className="account-info">
-                <strong>
-                  {[user.first_name, user.last_name].filter(Boolean).join(' ') || user.email}
-                </strong>
+                <strong>{accountName}</strong>
                 <span>{roleLabels[user.role]}</span>
               </div>
               <span className="avatar" aria-hidden="true">
-                {(user.first_name || user.email)[0].toUpperCase()}
+                {initials}
               </span>
             </Link>
             <Button variant="ghost" className="desktop-logout" onClick={logout} disabled={leaving}>

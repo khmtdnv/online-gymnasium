@@ -57,6 +57,15 @@ test('преподаватель открывает и проверяет раб
     return route.fulfill({ json: [] });
   });
   await page.goto('/homework');
+  await expect(
+    page.getByRole('heading', { name: 'Очередь проверки домашних заданий' }),
+  ).toBeVisible();
+  await expect(page.getByText('Работ на проверке: 1')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'На проверке', exact: true })).toContainText('1');
+  await page.getByLabel('Поиск ученика').fill('Неттакова');
+  await expect(page.getByText('В загруженных работах ничего не найдено.')).toBeVisible();
+  await page.getByLabel('Поиск ученика').fill('Иван');
+  await page.getByRole('combobox', { name: 'Сортировка работ' }).selectOption('old');
   await expect(page.getByRole('article').getByText('Математика', { exact: true })).toBeVisible();
   await expect(page.getByRole('article').getByText('7А', { exact: true })).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
@@ -65,6 +74,7 @@ test('преподаватель открывает и проверяет раб
   );
   await page.getByRole('link', { name: 'Открыть работу' }).click();
   await expect(page.getByText('Мой ответ')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Оценка и рецензия' })).toBeVisible();
   await page.getByRole('button', { name: /Поставить оценку/ }).click();
   await expect(page.getByText('Оценка: 5')).toBeVisible();
   await page.getByRole('button', { name: 'Проверено', exact: true }).click();

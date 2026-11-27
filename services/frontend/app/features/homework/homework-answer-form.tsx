@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Alert } from '../../components/ui/alert';
 import { Button } from '../../components/ui/button';
 import { ApiError, ApiNetworkError, ApiProtocolError, explainError } from '../../lib/api/errors';
+import { schoolDatetime } from '../schedule/school-dates';
 import type {
   HomeworkAnswer,
   HomeworkAnswerFile,
@@ -52,26 +53,32 @@ export function HomeworkAnswerCard({
   children?: React.ReactNode;
 }) {
   return (
-    <article className="card">
+    <article className="card homework-answer-card">
       <h3>
         Попытка №{answer.attempt_number} · {answer.student_name}
       </h3>
-      <p>
-        {new Date(answer.submitted_at).toLocaleString('ru-RU')} ·{' '}
-        {
-          { submitted: 'На проверке', returned: 'Нужно исправить', graded: 'Проверено' }[
-            answer.status
-          ]
-        }
+      <p className="homework-answer-meta">
+        <span>Сдано {schoolDatetime(answer.submitted_at)}</span>
+        <span className={`homework-answer-chip is-${answer.status}`}>
+          {
+            { submitted: 'На проверке', returned: 'Нужно исправить', graded: 'Проверено' }[
+              answer.status
+            ]
+          }
+        </span>
       </p>
-      {answer.answer_text && <p style={{ whiteSpace: 'pre-wrap' }}>{answer.answer_text}</p>}
+      {answer.answer_text && (
+        <blockquote className="homework-answer-text">
+          <p style={{ whiteSpace: 'pre-wrap' }}>{answer.answer_text}</p>
+        </blockquote>
+      )}
       {answer.grade !== null && (
-        <p>
+        <p className="homework-answer-grade">
           <strong>Оценка: {answer.grade}</strong>
         </p>
       )}
       {answer.teacher_comment && (
-        <p style={{ whiteSpace: 'pre-wrap' }}>
+        <p className="homework-answer-comment" style={{ whiteSpace: 'pre-wrap' }}>
           Комментарий преподавателя: {answer.teacher_comment}
         </p>
       )}
@@ -256,7 +263,10 @@ export function HomeworkAnswerForm({ homeworkId, api }: { homeworkId: number; ap
       {error && <Alert tone="error">{error}</Alert>}
       {query.isSuccess && !query.data.length && <p>Вы ещё не сдавали работу.</p>}
       {(canSubmit || uncertain) && (
-        <form className="homework-form" onSubmit={(event) => void submit(event)}>
+        <form
+          className="homework-form homework-answer-form"
+          onSubmit={(event) => void submit(event)}
+        >
           <label>
             Ваш ответ
             <textarea
@@ -267,6 +277,9 @@ export function HomeworkAnswerForm({ homeworkId, api }: { homeworkId: number; ap
               onChange={(event) => setText(event.target.value)}
             />
           </label>
+          <span className="review-form-counter" aria-hidden="true">
+            {text.length} / 10000 симв.
+          </span>
           <label>
             Файлы ответа
             <input

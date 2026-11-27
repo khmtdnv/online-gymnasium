@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router';
 import { AsyncState } from '../components/async-state';
 import { PageHeader } from '../components/page-header';
 import { JobStatus } from '../features/documents/job-status';
+import { documentNames } from '../features/documents/names';
 import { PdfPreview } from '../features/documents/pdf-preview';
 import { getDocumentPollInterval } from '../features/documents/polling';
 import { uuidSchema } from '../lib/api/contracts';
@@ -51,7 +52,11 @@ function JobPage({ jobId }: { jobId: string }) {
       <PageHeader
         title="Ваш документ"
         eyebrow="Задание генерации"
-        description="Сохраните адрес этой страницы, чтобы вернуться к результату."
+        description={
+          query.data
+            ? `${documentNames[query.data.document_type]} · Сохраните адрес этой страницы, чтобы вернуться к результату.`
+            : 'Сохраните адрес этой страницы, чтобы вернуться к результату.'
+        }
         action={
           <Link to="/documents" className="button button-secondary">
             К документам

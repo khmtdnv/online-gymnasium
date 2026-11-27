@@ -54,6 +54,15 @@ async function backend(context: BrowserContext, temporary = false) {
             day.setUTCDate(day.getUTCDate() + index);
             return { date: day.toISOString().slice(0, 10), lessons: [] };
           }),
+          periods: [
+            { number: 1, start_at: '09:00', end_at: '09:45' },
+            { number: 2, start_at: '09:55', end_at: '10:40' },
+            { number: 3, start_at: '11:00', end_at: '11:45' },
+            { number: 4, start_at: '11:55', end_at: '12:40' },
+            { number: 5, start_at: '13:00', end_at: '13:45' },
+            { number: 6, start_at: '13:55', end_at: '14:40' },
+            { number: 7, start_at: '15:00', end_at: '15:45' },
+          ],
         },
       });
     }
@@ -171,6 +180,8 @@ test('one click: текст и частичный успех, reload, ручна
   await expect(
     page.getByRole('button', { name: 'Повторить загрузку two.txt', exact: true }),
   ).toBeVisible();
+  await expect(page.getByText('Готов к скачиванию')).toBeVisible();
+  await expect(page.getByText('Ещё не загружен')).toBeVisible();
   expect(state.created()).toBe(1);
   expect(state.calls).toEqual({ 8: 1, 9: 1 });
   await page.reload();
@@ -197,6 +208,7 @@ test('one click: текст и частичный успех, reload, ручна
     });
   state.student();
   await page.goto('/homework/42');
+  await expect(page.getByRole('heading', { name: 'Материалы к заданию' })).toBeVisible();
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Скачать one.txt', exact: true }).click();
   expect((await download).suggestedFilename()).toBe('one.txt');

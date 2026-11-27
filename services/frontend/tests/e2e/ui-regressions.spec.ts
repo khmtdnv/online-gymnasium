@@ -109,7 +109,7 @@ test('UI mock: logout в одной вкладке очищает вторую',
   await login(page);
   const second = await context.newPage();
   await second.goto('/profile');
-  await expect(second.getByRole('heading', { level: 1 })).toHaveText('Ваш профиль');
+  await expect(second.getByRole('heading', { level: 1 })).toHaveText('Личное дело');
   await page.getByRole('button', { name: 'Выйти', exact: true }).first().click();
   await expect(second.getByRole('heading', { name: 'Вход в гимназию' })).toBeVisible();
 });

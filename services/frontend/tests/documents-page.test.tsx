@@ -43,6 +43,9 @@ async function fill() {
   await userEvent.type(screen.getByLabelText('Класс'), '7А');
   await userEvent.type(screen.getByLabelText('Учебный год'), '2026/2027');
 }
+function radio(name: string) {
+  return screen.getByRole('radio', { name: new RegExp(name) });
+}
 
 describe('справки', () => {
   it('проверяет пустые поля до отправки', async () => {
@@ -73,5 +76,27 @@ describe('справки', () => {
     const { getDocument } = setup(undefined, '/documents/broken');
     expect(screen.getByText('Неверный ID задания')).toBeInTheDocument();
     expect(getDocument).not.toHaveBeenCalled();
+  });
+});
+
+describe('типы документов (A04)', () => {
+  it('переключает формуляр по выбранной карточке типа', async () => {
+    setup();
+    expect(screen.getByRole('button', { name: 'Создать справку' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('Начало периода')).not.toBeInTheDocument();
+    await userEvent.click(radio('Акт об оказании услуг'));
+    expect(screen.getByRole('button', { name: 'Создать акт' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Начало периода')).toBeInTheDocument();
+    expect(screen.getByLabelText('Конец периода')).toBeInTheDocument();
+    await userEvent.click(radio('Договор об обучении'));
+    expect(screen.getByRole('button', { name: 'Создать договор' })).toBeInTheDocument();
+    await userEvent.click(radio('Квитанция тестовой оплаты'));
+    expect(screen.getByRole('button', { name: 'Создать квитанцию' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Номер платежа в портале')).toBeInTheDocument();
+  });
+  it('готовит квитанцию по глубокой ссылке из истории платежей', () => {
+    setup(undefined, '/documents?type=receipt&payment=7');
+    expect(radio('Квитанция тестовой оплаты')).toBeChecked();
+    expect(screen.getByLabelText('Номер платежа в портале')).toHaveValue(7);
   });
 });

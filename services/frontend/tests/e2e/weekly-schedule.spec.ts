@@ -21,6 +21,16 @@ test('UI mock: неделя, мобильный день, урок и ДЗ с п
     class_name: '7А',
     teacher_name: 'Иванов Иван Иванович',
   };
+  // Контракт сетки: семь периодов школьного дня из ответа my-schedule.
+  const periods = [
+    { number: 1, start_at: '09:00', end_at: '09:45' },
+    { number: 2, start_at: '09:55', end_at: '10:40' },
+    { number: 3, start_at: '11:00', end_at: '11:45' },
+    { number: 4, start_at: '11:55', end_at: '12:40' },
+    { number: 5, start_at: '13:00', end_at: '13:45' },
+    { number: 6, start_at: '13:55', end_at: '14:40' },
+    { number: 7, start_at: '15:00', end_at: '15:45' },
+  ];
   const homework = {
     id: 42,
     issued_lesson_id: 501,
@@ -51,6 +61,7 @@ test('UI mock: неделя, мобильный день, урок и ДЗ с п
           week_start: week,
           timezone: 'Asia/Yekaterinburg',
           has_class: true,
+          periods,
           days: Array.from({ length: 6 }, (_, index) => {
             const day = new Date(week + 'T12:00:00Z');
             day.setUTCDate(day.getUTCDate() + index);
@@ -96,10 +107,13 @@ test('UI mock: неделя, мобильный день, урок и ДЗ с п
   });
   await page.goto('/my-schedule');
   await expect(page.getByRole('heading', { name: 'Моё расписание' })).toBeVisible();
+  // Настольный лист строится по семи периодам из API, включая седьмой урок.
+  await expect(page.locator('.week-sheet-hour')).toHaveCount(7);
+  await expect(page.locator('.week-sheet-hour', { hasText: '15:00–15:45' })).toHaveCount(1);
   for (const width of [1440, 1024, 768, 360]) {
     await page.setViewportSize({ width, height: 1000 });
     if (width > 900) {
-      // Настольный лист: шесть строк-дней, уроки в колонках часов.
+      // Настольный лист: шесть строк-дней, уроки в колонках периодов.
       await expect(page.locator('.week-sheet-row')).toHaveCount(6);
       await expect(page.locator('.week-day:visible')).toHaveCount(0);
     } else {

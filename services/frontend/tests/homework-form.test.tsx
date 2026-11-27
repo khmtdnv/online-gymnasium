@@ -99,4 +99,17 @@ describe('форма задания', () => {
     expect(screen.getByLabelText('Выбрать файл заново: Задачи.txt')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Задать ДЗ' })).not.toBeInTheDocument();
   });
+
+  it('показывает срок следующего урока по времени школы, а не устройства', () => {
+    render(
+      <HomeworkForm
+        lessonId={501}
+        nextLesson={nextLesson}
+        api={{ createHomework: vi.fn() } as unknown as HomeworkApi}
+      />,
+    );
+    // 2030-10-23T10:00:00Z — 15:00 того же дня по школе (UTC+5).
+    const option = screen.getByRole('combobox', { name: 'Срок сдачи' }) as HTMLSelectElement;
+    expect(option.selectedOptions[0].textContent).toBe('К следующему уроку · 23 октября в 15:00');
+  });
 });

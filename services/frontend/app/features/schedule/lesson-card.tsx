@@ -4,9 +4,11 @@ import { schoolTime } from './school-dates';
 export function LessonCard({
   lesson,
   compact = false,
+  offGrid = false,
 }: {
   lesson: LessonCardData;
   compact?: boolean;
+  offGrid?: boolean;
 }) {
   return (
     <Link
@@ -14,7 +16,7 @@ export function LessonCard({
       data-subject={lesson.subject_name}
       className={`calendar-lesson${compact ? ' calendar-lesson--compact' : ''}${
         lesson.status === 'canceled' ? ' is-canceled' : ''
-      }`}
+      }${offGrid ? ' is-offgrid' : ''}`}
     >
       <span className="lesson-time">
         {schoolTime(lesson.starts_at)}–{schoolTime(lesson.ends_at)}
@@ -22,6 +24,7 @@ export function LessonCard({
       <h3>{lesson.subject_name}</h3>
       <span className="lesson-class">{lesson.class_name}</span>
       <span className="lesson-teacher">{lesson.teacher_name}</span>
+      {offGrid && <span className="lesson-offgrid">вне сетки</span>}
       {lesson.status === 'canceled' ? (
         <span className="lesson-canceled">Урок отменён</span>
       ) : (

@@ -1,8 +1,25 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { FileImage, FileSpreadsheet, FileText, File as FileIcon, Presentation } from 'lucide-react';
 import { Alert } from '../../components/ui/alert';
 import { Button } from '../../components/ui/button';
 import { explainError } from '../../lib/api/errors';
 import type { HomeworkApi, HomeworkFile } from './api';
+
+function fileIcon(file: HomeworkFile): ReactNode {
+  const type = file.content_type;
+  if (type.startsWith('image/')) return <FileImage size={20} aria-hidden="true" />;
+  if (type.includes('spreadsheet')) return <FileSpreadsheet size={20} aria-hidden="true" />;
+  if (type.includes('presentation')) return <Presentation size={20} aria-hidden="true" />;
+  if (type === 'application/pdf' || type.startsWith('text/'))
+    return <FileText size={20} aria-hidden="true" />;
+  return <FileIcon size={20} aria-hidden="true" />;
+}
+
+function fileSize(bytes: number): string {
+  return bytes >= 1048576
+    ? `${(bytes / 1048576).toFixed(1)} МиБ`
+    : `${Math.max(1, Math.ceil(bytes / 1024))} КиБ`;
+}
 
 /** Метаданные не дают права на скачивание: API заново проверяет пользователя. */
 export function HomeworkFiles({
@@ -50,18 +67,26 @@ export function HomeworkFiles({
     <div className="homework-files" aria-label="Файлы задания">
       {error && <Alert tone="error">{error}</Alert>}
       {files.map((file) => (
-        <div className="card" key={file.id}>
-          <strong>{file.file_name}</strong>
-          <p>
-            {Math.ceil(file.size_bytes / 1024)}КиБ ·{' '}
-            {file.upload_status === 'ready' ? 'Готов к скачиванию' : 'Ещё не загружен'}
-          </p>
+        <div
+          className={`homework-file-row${file.upload_status === 'pending' ? ' is-pending' : ''}`}
+          key={file.id}
+        >
+          <span className="homework-file-icon" aria-hidden="true">
+            {fileIcon(file)}
+          </span>
+          <div className="homework-file-info">
+            <strong>{file.file_name}</strong>
+            <p>
+              {fileSize(file.size_bytes)} ·{' '}
+              {file.upload_status === 'ready' ? 'Готов к скачиванию' : 'Ещё не загружен'}
+            </p>
+          </div>
           {file.upload_status === 'ready' ? (
             <Button variant="secondary" disabled={downloading} onClick={() => void download(file)}>
               Скачать {file.file_name}
             </Button>
           ) : (
-            <>
+            <div className="homework-file-retry">
               <p>Текст задания доступен. Вложение пока недоступно.</p>
               {onRetry && (
                 <>
@@ -90,7 +115,7 @@ export function HomeworkFiles({
                   </Button>
                 </>
               )}
-            </>
+            </div>
           )}
         </div>
       ))}

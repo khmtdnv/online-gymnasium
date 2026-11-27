@@ -41,8 +41,8 @@ export function PdfPreview({ jobId }: { jobId: string }) {
   if (query.isPending || !preview || preview.jobId !== jobId)
     return <AsyncState state="loading" title="Загружаем PDF" />;
   return (
-    <section className="card">
-      <div className="page-header">
+    <section className="card pdf-preview">
+      <div className="pdf-preview-head">
         <div>
           <span className="eyebrow">Документ готов</span>
           <h2>Учебный документ</h2>

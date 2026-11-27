@@ -1,9 +1,9 @@
 {% extends "admin/base_site.html" %}
 
 {% block content %}
-<section class="og-form-card">
+<section class="og-form-card og-card-wide">
   <h1>Успеваемость и аудит</h1>
-  <p>Отчёт включает события после подключения общего аудита.</p>
+  <p class="og-intro">Отчёт включает события после подключения общего аудита.</p>
   <form method="get">
     {{ form.non_field_errors }}
     <input type="hidden" name="class_offset" value="{{ report.class_offset|default:0 }}">
@@ -19,17 +19,17 @@
     <button type="submit">Показать</button>
   </form>
   {% if report %}
-  <p>
+  <p class="og-pager">
     {% if report.previous_class_offset != None %}<a href="?date_from={{ form.cleaned_data.date_from|date:'Y-m-d' }}&amp;date_to={{ form.cleaned_data.date_to|date:'Y-m-d' }}&amp;class_offset={{ report.previous_class_offset }}">Предыдущие классы</a>{% endif %}
     {% if report.next_class_offset != None %}<a href="?date_from={{ form.cleaned_data.date_from|date:'Y-m-d' }}&amp;date_to={{ form.cleaned_data.date_to|date:'Y-m-d' }}&amp;class_offset={{ report.next_class_offset }}">Следующие классы</a>{% endif %}
   </p>
   <h2>Успеваемость класса</h2>
-  <table><thead><tr><th>Ученик</th><th>Предмет</th><th>Оценок</th><th>Средняя оценка</th></tr></thead><tbody>
+  <table><thead><tr><th scope="col">Ученик</th><th scope="col">Предмет</th><th scope="col">Оценок</th><th scope="col">Средняя оценка</th></tr></thead><tbody>
     {% for row in report.progress %}<tr><td>{{ row.student_name }}</td><td>{{ row.subject_name }}</td><td>{{ row.graded_count }}</td><td>{{ row.average_grade }}</td></tr>{% empty %}<tr><td colspan="4">За выбранный период оценок нет.</td></tr>{% endfor %}
   </tbody></table>
   <h2>Последние события</h2>
-  <table><thead><tr><th>Время</th><th>Источник</th><th>Действие</th><th>Инициатор</th><th>Данные</th></tr></thead><tbody>
-    {% for event in report.events %}<tr><td>{{ event.occurred_at }}</td><td>{{ event.event_source }}</td><td>{{ event.event_type }}</td><td>{{ event.actor.source }}: {{ event.actor.id }}</td><td>{{ event.payload }}</td></tr>{% empty %}<tr><td colspan="5">За выбранный период событий нет.</td></tr>{% endfor %}
+  <table><thead><tr><th scope="col">Время</th><th scope="col">Источник</th><th scope="col">Действие</th><th scope="col">Инициатор</th><th scope="col">Данные</th></tr></thead><tbody>
+    {% for event in report.events %}<tr><td>{{ event.occurred_at }}</td><td>{{ event.event_source }}</td><td>{{ event.event_type }}</td><td>{{ event.actor.source }}: {{ event.actor.id }}</td><td><code class="og-payload">{{ event.payload }}</code></td></tr>{% empty %}<tr><td colspan="5">За выбранный период событий нет.</td></tr>{% endfor %}
   </tbody></table>
   {% if report.previous_offset != None %}<a href="?date_from={{ form.cleaned_data.date_from|date:'Y-m-d' }}&amp;date_to={{ form.cleaned_data.date_to|date:'Y-m-d' }}{% if report.selected_class %}&amp;class_id={{ report.selected_class }}{% endif %}&amp;class_offset={{ report.class_offset }}&amp;offset={{ report.previous_offset }}">Предыдущие события</a>{% endif %}
   {% if report.next_offset != None %}<a href="?date_from={{ form.cleaned_data.date_from|date:'Y-m-d' }}&amp;date_to={{ form.cleaned_data.date_to|date:'Y-m-d' }}{% if report.selected_class %}&amp;class_id={{ report.selected_class }}{% endif %}&amp;class_offset={{ report.class_offset }}&amp;offset={{ report.next_offset }}">Следующие события</a>{% endif %}

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { ApiClient } from '../../lib/api/client';
 import { daySchema, lessonSchema, positiveIdSchema } from '../../lib/api/contracts';
 import { teacherLessonSchema } from '../homework/api';
+import { schoolPeriodSchema } from './school-periods';
 export const lessonCardSchema = lessonSchema.extend({
   class_name: z.string().min(1),
   subject_name: z.string().min(1),
@@ -13,12 +14,14 @@ const scheduleDaySchema = z.strictObject({
   lessons: z.array(lessonCardSchema).max(1000),
 });
 export type ScheduleDay = z.infer<typeof scheduleDaySchema>;
-const myScheduleSchema = z.strictObject({
+export const myScheduleSchema = z.strictObject({
   week_start: daySchema,
   timezone: z.literal('Asia/Yekaterinburg'),
   has_class: z.boolean(),
   days: z.array(scheduleDaySchema).length(6),
+  periods: z.array(schoolPeriodSchema),
 });
+export type MySchedule = z.infer<typeof myScheduleSchema>;
 const lessonViewSchema = teacherLessonSchema.extend({
   lesson: lessonCardSchema,
   next_lesson: lessonCardSchema.nullable(),

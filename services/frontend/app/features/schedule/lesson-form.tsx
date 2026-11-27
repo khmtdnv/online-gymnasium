@@ -20,40 +20,24 @@ import {
   createLessonInputSchema,
 } from './api';
 import { textIdSchema } from './day-filters';
-import { isoToUtcInput, utcInputToIso } from './utc';
+import { type SchoolPeriod, matchPeriod, periodToUtc } from './school-periods';
+import { schoolDay, schoolTime } from './school-dates';
 
-const schema = z
-  .object({
-    class_id: textIdSchema,
-    teacher_id: z.uuid({ error: 'Введите UUID учителя из Gateway.' }),
-    subject_id: textIdSchema,
-    starts_at: z.string(),
-    ends_at: z.string(),
-  })
-  .superRefine((values, context) => {
-    try {
-      const start = utcInputToIso(values.starts_at);
-      const end = utcInputToIso(values.ends_at);
-      if (start >= end || start.slice(0, 10) !== end.slice(0, 10))
-        context.addIssue({
-          code: 'custom',
-          path: ['ends_at'],
-          message: 'Конец должен быть позже начала в тот же день UTC.',
-        });
-    } catch {
-      context.addIssue({
-        code: 'custom',
-        path: ['starts_at'],
-        message: 'Введите корректную дату и время UTC.',
-      });
-    }
-  });
+const schema = z.object({
+  class_id: textIdSchema,
+  teacher_id: z.uuid({ error: 'Введите UUID учителя из Gateway.' }),
+  subject_id: textIdSchema,
+  day: z.iso.date({ error: 'Введите корректную школьную дату урока.' }),
+  period: z.string().regex(/^[1-7]$/, 'Выберите период урока.'),
+});
 type Fields = z.infer<typeof schema>;
 
 export function LessonForm({
   lesson,
   classId,
   day,
+  periods,
+  presetPeriod,
   subjects,
   classes,
   searchTeachers,
@@ -63,6 +47,8 @@ export function LessonForm({
   lesson?: Lesson;
   classId: number | null;
   day: string;
+  periods: SchoolPeriod[];
+  presetPeriod?: SchoolPeriod;
   subjects?: { id: number; name: string | null }[];
   classes?: { id: number; name: string }[];
   searchTeachers?: (q: string, signal?: AbortSignal) => Promise<TeacherOption[]>;
@@ -80,6 +66,10 @@ export function LessonForm({
   const [teacherSearchError, setTeacherSearchError] = useState(false);
   const attempt = useRef<{ input: CreateLessonInput; key: string } | null>(null);
 
+  // Урок редактируется по сетке: период подбирается по точному совпадению
+  // сохранённого времени; вне сетки — период обязателен к выбору вручную.
+  const storedPeriod = lesson ? matchPeriod(lesson.starts_at, lesson.ends_at, periods) : undefined;
+  const offGrid = lesson !== undefined && storedPeriod === undefined;
 
   const {
     register,
@@ -93,8 +83,14 @@ export function LessonForm({
       class_id: String(lesson?.class_id ?? classId ?? ''),
       teacher_id: String(lesson?.teacher_id ?? ''),
       subject_id: String(lesson?.subject_id ?? ''),
-      starts_at: lesson ? isoToUtcInput(lesson.starts_at) : `${day}T09:00`,
-      ends_at: lesson ? isoToUtcInput(lesson.ends_at) : `${day}T09:45`,
+      day: lesson ? schoolDay(new Date(lesson.starts_at)) : day,
+      period: lesson
+        ? storedPeriod
+          ? String(storedPeriod.number)
+          : ''
+        : presetPeriod
+          ? String(presetPeriod.number)
+          : '',
     },
   });
 
@@ -123,9 +119,7 @@ export function LessonForm({
     };
   }, [teacherQuery, searchTeachers]);
   const selectedTeacher = teacherOptions.find((row) => row.id === teacherValue);
-  const selectedSubjectName = subjects?.find(
-    (row) => String(row.id) === watchSubject,
-  )?.name;
+  const selectedSubjectName = subjects?.find((row) => String(row.id) === watchSubject)?.name;
   async function run(input: CreateLessonInput | UpdateLessonInput, key?: string) {
     setBusy(true);
     setFailure(null);
@@ -145,10 +139,9 @@ export function LessonForm({
     }
   }
   async function submit(values: Fields) {
-    const interval = {
-      starts_at: utcInputToIso(values.starts_at),
-      ends_at: utcInputToIso(values.ends_at),
-    };
+    const period = periods.find((item) => String(item.number) === values.period);
+    if (!period) return;
+    const interval = periodToUtc(values.day, period);
     if (lesson) return run({ ...interval, expected_version: lesson.version });
     const input = createLessonInputSchema.parse({
       ...interval,
@@ -209,9 +202,7 @@ export function LessonForm({
               ) : (
                 <Input id="lesson-subject_id" inputMode="numeric" {...register('subject_id')} />
               )}
-              {selectedSubjectName && (
-                <p className="field-hint">Выбрано: {selectedSubjectName}</p>
-              )}
+              {selectedSubjectName && <p className="field-hint">Выбрано: {selectedSubjectName}</p>}
               {errors.subject_id && (
                 <p className="field-error" id="lesson-subject_id-error">
                   {errors.subject_id.message}
@@ -238,7 +229,11 @@ export function LessonForm({
                     <p className="field-hint">ID преподавателя: {teacherValue || 'не выбран'}</p>
                   )}
                   {teacherOptions.length > 0 && !selectedTeacher && (
-                    <ul className="teacher-options" role="listbox" aria-label="Найденные преподаватели">
+                    <ul
+                      className="teacher-options"
+                      role="listbox"
+                      aria-label="Найденные преподаватели"
+                    >
                       {teacherOptions.map((row) => (
                         <li key={row.id}>
                           <button
@@ -284,33 +279,48 @@ export function LessonForm({
             </div>
           </>
         )}
-        <div className="field full-width">
-          <label htmlFor="lesson-start">Начало · UTC</label>
+        <div className="field">
+          <label htmlFor="lesson-day">Дата · школа</label>
           <Input
-            id="lesson-start"
-            type="datetime-local"
-            {...register('starts_at')}
-            aria-invalid={!!errors.starts_at}
-            aria-describedby={errors.starts_at ? 'lesson-start-error' : undefined}
+            id="lesson-day"
+            type="date"
+            {...register('day')}
+            aria-invalid={!!errors.day}
+            aria-describedby={errors.day ? 'lesson-day-error' : undefined}
           />
-          {errors.starts_at && (
-            <p className="field-error" id="lesson-start-error">
-              {errors.starts_at.message}
+          {errors.day && (
+            <p className="field-error" id="lesson-day-error">
+              {errors.day.message}
             </p>
           )}
         </div>
-        <div className="field full-width">
-          <label htmlFor="lesson-end">Окончание · UTC</label>
-          <Input
-            id="lesson-end"
-            type="datetime-local"
-            {...register('ends_at')}
-            aria-invalid={!!errors.ends_at}
-            aria-describedby={errors.ends_at ? 'lesson-end-error' : undefined}
-          />
-          {errors.ends_at && (
-            <p className="field-error" id="lesson-end-error">
-              {errors.ends_at.message}
+        <div className="field">
+          <label htmlFor="lesson-period">Период</label>
+          <select
+            id="lesson-period"
+            className="input"
+            {...register('period')}
+            aria-invalid={!!errors.period}
+            aria-describedby={
+              errors.period ? 'lesson-period-error' : offGrid ? 'lesson-period-offgrid' : undefined
+            }
+          >
+            <option value="">{periods.length ? 'Выберите период' : 'Периоды недоступны'}</option>
+            {periods.map((item) => (
+              <option key={item.number} value={item.number}>
+                {item.number} · {item.start_at}–{item.end_at}
+              </option>
+            ))}
+          </select>
+          {offGrid && (
+            <p className="field-hint" id="lesson-period-offgrid">
+              Урок вне сетки (старое время {schoolTime(lesson.starts_at)}). Сохранить можно только
+              выбрав период.
+            </p>
+          )}
+          {errors.period && (
+            <p className="field-error" id="lesson-period-error">
+              {errors.period.message}
             </p>
           )}
         </div>

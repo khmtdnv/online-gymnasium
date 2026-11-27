@@ -9,6 +9,8 @@ import { WorkloadCard } from '../features/workload/workload-card';
 import { useFeatures } from '../lib/api/context';
 import { ApiError, errorRequestId, explainError } from '../lib/api/errors';
 
+/* Макет a03 — визуальный ориентир. Данные: готовый дневной расчёт Analytics
+   (GET). «Обновить» — повторное чтение того же расчёта, НЕ запуск пересчёта. */
 export default function Workload() {
   const selection = useDaySelection();
   const { workload } = useFeatures();
@@ -21,8 +23,8 @@ export default function Workload() {
     <div className="workspace-page workload-page">
       <PageHeader
         title="Нагрузка расписания"
-        eyebrow="Один день в цифрах"
-        description="Плановые уроки и минуты выбранного класса — из готового расчёта Analytics."
+        eyebrow="Реестр администрирования"
+        description="Один день класса в цифрах: плановые уроки и минуты из готового расчёта Analytics."
         action={
           <Button
             variant="secondary"

@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { uploadFilesWithRetry } from '../app/features/homework/file-upload';
 import { prepareFile } from '../app/features/homework/file-upload';
+import { HomeworkFiles } from '../app/features/homework/homework-files';
+import type { HomeworkApi, HomeworkFile } from '../app/features/homework/api';
 import { File as NodeFile } from 'node:buffer';
 import { webcrypto } from 'node:crypto';
 import { ApiError, ApiNetworkError } from '../app/lib/api/errors';
@@ -86,5 +89,54 @@ describe('загрузка ожидаемых файлов', () => {
     } finally {
       vi.unstubAllGlobals();
     }
+  });
+});
+
+describe('строки файлов задания', () => {
+  const ready: HomeworkFile = {
+    id: 8,
+    homework_id: 42,
+    file_name: 'Теория.pdf',
+    size_bytes: 1468006,
+    content_type: 'application/pdf',
+    upload_status: 'ready',
+  };
+  const pending: HomeworkFile = {
+    ...ready,
+    id: 9,
+    file_name: 'Задачи.txt',
+    size_bytes: 4096,
+    content_type: 'text/plain',
+    upload_status: 'pending',
+  };
+  const api = {
+    downloadHomeworkFile: vi.fn(),
+  } as unknown as HomeworkApi;
+
+  it('различает готовый и незагруженный файл: размер, статус, действия', () => {
+    const retry = vi.fn();
+    render(<HomeworkFiles files={[ready, pending]} api={api} onRetry={retry} />);
+    expect(screen.getByText('Теория.pdf')).toBeInTheDocument();
+    expect(screen.getByText('1.4 МиБ · Готов к скачиванию')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Скачать Теория.pdf' })).toBeInTheDocument();
+    expect(screen.getByText('4 КиБ · Ещё не загружен')).toBeInTheDocument();
+    expect(screen.getByLabelText('Выбрать файл заново: Задачи.txt')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Повторить загрузку Задачи.txt' })).toBeDisabled();
+    expect(
+      screen.queryByRole('button', { name: 'Повторить загрузку Теории.pdf' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('после выбора того же файла повтор включается и передаёт исходные метаданные', () => {
+    const retry = vi.fn().mockResolvedValue(undefined);
+    render(<HomeworkFiles files={[pending]} api={api} onRetry={retry} />);
+    fireEvent.change(screen.getByLabelText('Выбрать файл заново: Задачи.txt'), {
+      target: { files: [new File(['x'], 'Задачи.txt', { type: 'text/plain' })] },
+    });
+    const button = screen.getByRole('button', { name: 'Повторить загрузку Задачи.txt' });
+    expect(button).toBeEnabled();
+    fireEvent.click(button);
+    expect(retry).toHaveBeenCalledTimes(1);
+    expect(retry.mock.calls[0][0]).toMatchObject({ id: 9, file_name: 'Задачи.txt' });
   });
 });

@@ -21,22 +21,30 @@ export function HomeworkAnswerReview({
     queryFn: ({ signal }) => api.listAnswers(homeworkId, { studentId, offset }, signal),
   });
   return (
-    <section className="card">
-      <h2>Работы учеников</h2>
-      <Button variant="secondary" disabled={query.isFetching} onClick={() => void query.refetch()}>
-        Обновить работы
-      </Button>{' '}
-      {studentId && (
-        <Button
-          variant="secondary"
-          onClick={() => {
-            setStudentId(undefined);
-            setOffset(0);
-          }}
-        >
-          Все ученики
-        </Button>
-      )}
+    <section className="card homework-works-panel">
+      <div className="homework-works-head">
+        <h2>Работы учеников</h2>
+        <div>
+          <Button
+            variant="secondary"
+            disabled={query.isFetching}
+            onClick={() => void query.refetch()}
+          >
+            Обновить работы
+          </Button>{' '}
+          {studentId && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setStudentId(undefined);
+                setOffset(0);
+              }}
+            >
+              Все ученики
+            </Button>
+          )}
+        </div>
+      </div>
       {query.isPending && <p role="status">Загружаем работы…</p>}
       {query.isError && <Alert tone="error">{explainError(query.error)}</Alert>}
       {query.isSuccess && !query.data.length && <p>Сданных работ пока нет.</p>}
@@ -123,7 +131,11 @@ export function ReviewForm({ answer, api }: { answer: HomeworkAnswer; api: Homew
   }
   const pending = answer.files.some((file) => file.upload_status === 'pending');
   return (
-    <form className="homework-form" onSubmit={(event) => void review(event, 'graded')}>
+    <form className="homework-form review-form" onSubmit={(event) => void review(event, 'graded')}>
+      <div className="review-form-head">
+        <h3>Оценка и рецензия</h3>
+        <span className="review-form-code">Работа №{answer.id}</span>
+      </div>
       {error && <Alert tone="error">{error}</Alert>}
       <label>
         Оценка
@@ -148,20 +160,28 @@ export function ReviewForm({ answer, api }: { answer: HomeworkAnswer; api: Homew
           onChange={(event) => setComment(event.target.value)}
         />
       </label>
+      <span className="review-form-counter" aria-hidden="true">
+        {comment.length} / 10000 симв.
+      </span>
       {pending && (
         <p>Не все файлы загружены. Оценить пока нельзя; можно вернуть работу с комментарием.</p>
       )}
-      <Button type="submit" disabled={busy || pending}>
-        Поставить оценку
-      </Button>{' '}
-      <Button
-        type="button"
-        variant="secondary"
-        disabled={busy}
-        onClick={(event) => void review(event, 'returned')}
-      >
-        Вернуть на исправление
-      </Button>
+      <div className="review-form-actions">
+        <Button type="submit" disabled={busy || pending}>
+          Поставить оценку
+        </Button>{' '}
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={busy}
+          onClick={(event) => void review(event, 'returned')}
+        >
+          Вернуть на исправление
+        </Button>
+      </div>
+      <p className="review-form-note">
+        Оценка сразу видна ученику; для новых правок верните работу на доработку.
+      </p>
     </form>
   );
 }

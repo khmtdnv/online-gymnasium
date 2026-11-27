@@ -1,8 +1,22 @@
 import { useMemo, type PointerEvent } from 'react';
 import { Button } from '../../components/ui/button';
-import { usePen } from './use-pen';
+import { usePen, type PenConnectionStatus } from './use-pen';
 
 /** SVG — только холст симулятора; сами точки нормализованы и хранятся на сервере. */
+const CONNECTION_LABELS: Record<PenConnectionStatus, string> = {
+  online: 'Подключено',
+  connecting: 'Подключаем',
+  offline: 'Нет связи',
+  failure: 'Ошибка связи',
+};
+
+/** Очередь несохранённых пачек: 0 — всё на сервере (макет s06 «Синхронизировано»). */
+function queueLabel(queue: number) {
+  if (queue >= 50) return 'Очередь заполнена';
+  if (queue === 0) return 'Синхронизировано (0 в очереди)';
+  return `Сохраняем (${queue} в очереди)`;
+}
+
 export function PenCanvas({
   lessonId,
   studentId,
@@ -29,6 +43,7 @@ export function PenCanvas({
       y: Math.min(1, Math.max(0, (event.clientY - box.top) / box.height)),
     };
   }
+  const queueTone = pen.queue >= 50 ? ' pen-queue--full' : pen.queue > 0 ? ' pen-queue--busy' : '';
   return (
     <section className="workspace-panel pen-workspace">
       <div className="pen-workspace-heading">
@@ -36,11 +51,19 @@ export function PenCanvas({
           <span className="workspace-kicker">Рабочая область</span>
           <h2>{readonly ? 'Записи ученика' : 'Мои записи'}</h2>
         </div>
-        <p className="pen-connection" role="status" aria-live="polite">
-          {pen.message}
-        </p>
+        <div className="pen-status-panel">
+          <span className={`pen-status pen-status--${pen.status}`}>
+            <span className="pen-status-dot" aria-hidden="true" />
+            {CONNECTION_LABELS[pen.status]}
+          </span>
+          {readonly ? (
+            <span className="pen-queue">Только просмотр</span>
+          ) : (
+            <span className={`pen-queue${queueTone}`}>{queueLabel(pen.queue)}</span>
+          )}
+        </div>
       </div>
-      <p>
+      <p className="pen-workspace-hint">
         {readonly
           ? 'Режим преподавателя: рисунок ученика, только просмотр.'
           : 'Пишите мышью, пальцем или стилусом. Не закрывайте вкладку, пока штрихи сохраняются.'}
@@ -78,19 +101,26 @@ export function PenCanvas({
             key={id}
             points={points.join(' ')}
             fill="none"
-            stroke="#267b99"
+            className="pen-stroke"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         ))}
       </svg>
-      <Button variant="secondary" onClick={pen.reconnect}>
-        Переподключить
-      </Button>
-      <p className="muted">
-        Штрихи сохраняются для этого урока. Симулятор не распознаёт рукописный текст.
-      </p>
+      <div className="pen-workspace-footer">
+        <div>
+          <p className="pen-connection" role="status" aria-live="polite">
+            {pen.message}
+          </p>
+          <p className="pen-autosave-note">
+            Штрихи сохраняются на сервере этого урока. Симулятор не распознаёт рукописный текст.
+          </p>
+        </div>
+        <Button variant="secondary" onClick={pen.reconnect}>
+          Переподключить
+        </Button>
+      </div>
     </section>
   );
 }

@@ -51,6 +51,24 @@ describe('оболочка', () => {
     expect(trigger).toHaveFocus();
   });
 
+  it('показывает монограмму, роль и слот уведомлений в шапке', () => {
+    render(
+      <MemoryRouter>
+        <AppShell
+          user={{ ...user, first_name: 'Мария', last_name: 'Соколова' }}
+          onLogout={vi.fn()}
+          notificationControl={<button type="button">bell-stub</button>}
+        >
+          <h1>Главная</h1>
+        </AppShell>
+      </MemoryRouter>,
+    );
+    expect(screen.getByText('МС')).toBeInTheDocument();
+    expect(screen.getByText('Администратор')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'bell-stub' })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: 'Профиль' }).length).toBeGreaterThan(0);
+  });
+
   it('показывает request ID и доступную кнопку повторного чтения', async () => {
     const retry = vi.fn();
     render(

@@ -2,15 +2,21 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { PageHeader } from '../components/page-header';
+import { AsyncState } from '../components/async-state';
 import { Alert } from '../components/ui/alert';
 import { Button } from '../components/ui/button';
+import { NotificationRow, NotificationsEmpty } from '../features/notifications/notification-row';
 import { useFeatures } from '../lib/api/context';
 import { explainError } from '../lib/api/errors';
 
+const PAGE_SIZE = 50;
+
+/** Полная страница уведомлений по макету g02: состояния, отметки, пусто, пагинация. */
 export default function NotificationsPage() {
   const { notifications } = useFeatures();
   const [offset, setOffset] = useState(0);
   const [pendingId, setPendingId] = useState<number | null>(null);
+  const [markingAll, setMarkingAll] = useState(false);
   const [error, setError] = useState('');
   const list = useQuery({
     queryKey: ['notifications', offset],
@@ -27,6 +33,7 @@ export default function NotificationsPage() {
   const refresh = async () => {
     await Promise.all([list.refetch(), count.refetch()]);
   };
+  const unreadIds = (list.data ?? []).filter((row) => !row.read_at).map((row) => row.id);
   const markRead = async (id: number) => {
     setPendingId(id);
     setError('');
@@ -39,83 +46,91 @@ export default function NotificationsPage() {
       setPendingId(null);
     }
   };
+  const markAllShown = async () => {
+    setMarkingAll(true);
+    setError('');
+    try {
+      for (const id of unreadIds) await notifications.markRead(id);
+      await refresh();
+    } catch (failure) {
+      setError(explainError(failure));
+    } finally {
+      setMarkingAll(false);
+    }
+  };
   return (
     <div className="workspace-page notification-page">
       <PageHeader
+        eyebrow="Личный кабинет"
         title="Уведомления"
         description="Проверка домашних заданий, оплата и готовность документов. Только сообщения для вашего аккаунта."
+        action={
+          <Link to="/" className="button button-secondary notif-back">
+            На главную
+          </Link>
+        }
       />
       <section className="notification-toolbar">
         {count.data && <p role="status">Непрочитанных: {count.data.unread}</p>}
-        <Button
-          variant="secondary"
-          disabled={list.isFetching || count.isFetching}
-          onClick={() => {
-            void refresh();
-          }}
-        >
-          Обновить уведомления
-        </Button>
+        <div className="notification-toolbar-actions">
+          <Button
+            variant="secondary"
+            disabled={markingAll || pendingId !== null || !unreadIds.length || list.isFetching}
+            onClick={() => {
+              void markAllShown();
+            }}
+          >
+            {markingAll ? 'Отмечаем…' : 'Отметить все как прочитанные'}
+          </Button>
+          <Button
+            variant="secondary"
+            disabled={list.isFetching || count.isFetching}
+            onClick={() => {
+              void refresh();
+            }}
+          >
+            Обновить уведомления
+          </Button>
+        </div>
       </section>
       {error && <Alert tone="error">{error}</Alert>}
       {count.error && <Alert tone="error">Счётчик недоступен: {explainError(count.error)}</Alert>}
-      {list.isPending && <p role="status">Загружаем уведомления…</p>}
+      {list.isPending && <AsyncState state="loading" title="Загружаем уведомления" />}
       {list.error && <Alert tone="error">{explainError(list.error)}</Alert>}
-      {list.data?.length === 0 && (
-        <section className="card">
-          <p>На этой странице пока нет уведомлений.</p>
-        </section>
-      )}
-      {(list.data ?? []).map((row) => (
-        <article
-          className={`notification-item${row.read_at ? '' : ' notification-item-unread'}`}
-          key={row.id}
-        >
-          <div className="notification-body">
-            <h2>{row.title}</h2>
-            <p>{row.body}</p>
-            <p className="field-hint">
-              <time dateTime={row.created_at}>
-                {new Date(row.created_at).toLocaleString('ru-RU')}
-              </time>
-            </p>
-            <span className={`badge notification-status${row.read_at ? ' is-read' : ''}`}>
-              {row.read_at ? 'Прочитано' : 'Не прочитано'}
-            </span>
-          </div>
-          <div className="form-actions">
-            <Link className="button button-secondary" to={row.link}>
-              Открыть
-            </Link>
-            {!row.read_at && (
-              <Button
-                disabled={pendingId !== null}
-                onClick={() => {
-                  void markRead(row.id);
-                }}
-              >
-                {pendingId === row.id ? 'Сохраняем…' : 'Отметить прочитанным'}
-              </Button>
-            )}
-          </div>
-        </article>
-      ))}
-      <div className="form-actions">
+      {list.data?.length === 0 && <NotificationsEmpty />}
+      <div className="notif-list">
+        {(list.data ?? []).map((row) => (
+          <NotificationRow
+            key={row.id}
+            item={row}
+            busy={pendingId !== null || markingAll}
+            onMarkRead={(id) => {
+              void markRead(id);
+            }}
+          />
+        ))}
+      </div>
+      <nav className="notif-pagination" aria-label="Постраничный выбор уведомлений">
         <Button
           variant="secondary"
           disabled={offset === 0 || list.isFetching}
-          onClick={() => setOffset(Math.max(0, offset - 50))}
+          onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
         >
           Назад
         </Button>
+        <span role="status">
+          {list.data
+            ? `Показаны уведомления с ${offset + 1} по ${offset + list.data.length}`
+            : `Страница ${Math.floor(offset / PAGE_SIZE) + 1}`}
+        </span>
         <Button
           variant="secondary"
-          disabled={!list.data || list.data.length < 50 || list.isFetching}
-          onClick={() => setOffset(offset + 50)}
+          disabled={!list.data || list.data.length < PAGE_SIZE || list.isFetching}
+          onClick={() => setOffset(offset + PAGE_SIZE)}
         >
           Дальше
         </Button>
-      </div>
+      </nav>
     </div>
   );
 }

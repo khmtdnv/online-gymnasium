@@ -1,12 +1,89 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { PageHeader } from '../components/page-header';
 import { Alert } from '../components/ui/alert';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { ProgressTable } from '../features/analytics/progress-table';
+import { AuditPayload, ProgressTable } from '../features/analytics/progress-table';
+import type { AuditEvent } from '../features/analytics/api';
+import { schoolTime } from '../features/schedule/school-dates';
 import { useFeatures } from '../lib/api/context';
 import { explainError } from '../lib/api/errors';
+
+const AUDIT_PAGE_SIZE = 50;
+
+function utcTime(instant: string) {
+  return new Date(instant).toLocaleTimeString('ru-RU', {
+    timeZone: 'UTC',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+}
+
+/* Журнал аудита: строки-события с раскрытием технического JSON (a06 —
+   визуальный ориентир; колонки соответствуют реальным полям события). */
+function AuditJournal({ events }: { events: AuditEvent[] }) {
+  const [openId, setOpenId] = useState<string | null>(null);
+  if (!events.length) return <p>Событий на этой странице нет.</p>;
+  return (
+    <div className="audit-table-wrap">
+      <table className="data-table audit-table">
+        <caption>Журнал действий за выбранный период</caption>
+        <thead>
+          <tr>
+            <th scope="col">Время (UTC+5 / UTC)</th>
+            <th scope="col">Инициатор</th>
+            <th scope="col">Событие</th>
+            <th scope="col">Источник</th>
+            <th scope="col">Данные</th>
+          </tr>
+        </thead>
+        <tbody>
+          {events.map((event) => {
+            const open = openId === event.event_id;
+            return (
+              <Fragment key={event.event_id}>
+                <tr>
+                  <td>
+                    <time dateTime={event.occurred_at} className="audit-time">
+                      {schoolTime(event.occurred_at)}
+                    </time>
+                    <span className="audit-time-utc">{utcTime(event.occurred_at)} UTC</span>
+                  </td>
+                  <td>
+                    <span className="audit-actor">{event.actor.source}</span>
+                    <span className="audit-actor-id">{event.actor.id}</span>
+                  </td>
+                  <td>{event.event_type}</td>
+                  <td>{event.event_source}</td>
+                  <td>
+                    <Button
+                      variant="ghost"
+                      className="audit-toggle"
+                      aria-expanded={open}
+                      aria-controls={`audit-payload-${event.event_id}`}
+                      onClick={() => setOpenId(open ? null : event.event_id)}
+                    >
+                      {open ? 'Скрыть данные' : 'Данные события'}
+                    </Button>
+                  </td>
+                </tr>
+                {open && (
+                  <tr className="audit-payload-row">
+                    <td colSpan={5} id={`audit-payload-${event.event_id}`}>
+                      <AuditPayload payload={event.payload} />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export default function AnalyticsPage() {
   const { analytics } = useFeatures();
@@ -39,6 +116,7 @@ export default function AnalyticsPage() {
     update();
     setOffset(0);
   };
+  const page = offset / AUDIT_PAGE_SIZE + 1;
   return (
     <>
       <PageHeader
@@ -116,41 +194,22 @@ export default function AnalyticsPage() {
         {audit.isError && <Alert tone="error">{explainError(audit.error)}</Alert>}
         {valid && !audit.isError && audit.data && (
           <>
-            {!audit.data.length && <p>Событий на этой странице нет.</p>}
-            <ol>
-              {audit.data.map((event) => (
-                <li key={event.event_id}>
-                  <p>
-                    <time dateTime={event.occurred_at}>
-                      {new Date(event.occurred_at).toLocaleString('ru-RU', { timeZone: 'UTC' })} UTC
-                    </time>{' '}
-                    · {event.event_type}
-                  </p>
-                  <p>
-                    Источник: {event.event_source}; инициатор: {event.actor.source} /{' '}
-                    {event.actor.id}
-                  </p>
-                  <details>
-                    <summary>Данные события</summary>
-                    <pre style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
-                      {JSON.stringify(event.payload, null, 2)}
-                    </pre>
-                  </details>
-                </li>
-              ))}
-            </ol>
-            <div className="form-actions">
+            <AuditJournal events={audit.data} />
+            <div className="form-actions audit-pagination">
+              <span className="audit-page" aria-live="polite">
+                Страница {page}
+              </span>
               <Button
                 variant="secondary"
                 disabled={offset === 0 || audit.isFetching}
-                onClick={() => setOffset((value) => Math.max(0, value - 50))}
+                onClick={() => setOffset((value) => Math.max(0, value - AUDIT_PAGE_SIZE))}
               >
                 Предыдущие
               </Button>
               <Button
                 variant="secondary"
-                disabled={audit.data.length < 50 || audit.isFetching}
-                onClick={() => setOffset((value) => value + 50)}
+                disabled={audit.data.length < AUDIT_PAGE_SIZE || audit.isFetching}
+                onClick={() => setOffset((value) => value + AUDIT_PAGE_SIZE)}
               >
                 Следующие
               </Button>

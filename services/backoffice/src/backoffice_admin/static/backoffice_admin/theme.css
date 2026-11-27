@@ -1,3 +1,9 @@
+/* Тема Backoffice «Academic Stationery».
+   Значения синхронизированы со светлой палитрой портала
+   (services/frontend/app/styles/tokens.css, блок :root); контракт
+   проверяет tests/test_admin_theme.py. Тёмная тема Backoffice
+   не вводится: тёмные значения токенов здесь не определяются. */
+
 @font-face {
   font-family: Manrope;
   font-style: normal;
@@ -13,10 +19,29 @@
   font-display: swap;
   src: url('fonts/manrope-latin-wght-normal.woff2') format('woff2');
 }
-:root, html[data-theme='light'], html[data-theme='dark'] {
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/source-serif-4-cyrillic-400-normal.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/source-serif-4-cyrillic-600-normal.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+:root {
+  /* Копия светлых токенов tokens.css портала (источник истины). */
   --canvas: #f8f9fd;
   --sidebar: #f4f3ef;
   --surface: #ffffff;
+  --surface-dim: #f2f3f7;
   --text: #191c1f;
   --muted: #59616a;
   --accent: #245892;
@@ -24,15 +49,21 @@
   --accent-soft: #ebf2fa;
   --peach: #fffaf0;
   --border: #dcdad5;
+  --border-inner: #eceae4;
   --danger: #ba1a1a;
   --danger-soft: #fff5f5;
   --success: #276749;
-  --surface-dim: #f2f3f7;
-  --border-inner: #eceae4;
   --success-soft: #f0fff4;
   --warn: #975a16;
   --warn-border: #feebc8;
   --return: #c05621;
+  --radius: 4px;
+  --radius-lg: 6px;
+  --shadow-overlay: 0 2px 8px rgba(30, 33, 36, 0.06), 0 1px 2px rgba(30, 33, 36, 0.04);
+  --font-sans: 'Manrope', system-ui, sans-serif;
+  --font-serif: 'Source Serif 4', Georgia, serif;
+
+  /* Предметные серии (совпадают с порталными закладками). */
   --subject-math: #2b6cb0;
   --subject-russian: #c05621;
   --subject-literature: #6b46c1;
@@ -41,6 +72,10 @@
   --subject-nature: #2f855a;
   --subject-language: #0f766e;
   --subject-default: #59616a;
+
+  color-scheme: light;
+
+  /* Отображение на переменные Django admin. */
   --primary: var(--accent);
   --secondary: var(--accent);
   --accent-color: var(--peach);
@@ -52,7 +87,7 @@
   --body-loud-color: var(--text);
   --header-color: var(--text);
   --header-branding-color: var(--text);
-  --header-bg: var(--sidebar);
+  --header-bg: var(--surface);
   --header-link-color: var(--accent);
   --breadcrumbs-fg: var(--text);
   --breadcrumbs-link-fg: var(--accent);
@@ -62,7 +97,7 @@
   --link-selected-fg: var(--accent);
   --hairline-color: var(--border);
   --border-color: var(--border);
-  --darkened-bg: var(--sidebar);
+  --darkened-bg: var(--surface-dim);
   --selected-bg: var(--accent-soft);
   --selected-row: var(--accent-soft);
   --error-fg: var(--danger);
@@ -74,89 +109,214 @@
   --close-button-bg: var(--muted);
   --message-info-bg: var(--accent-soft);
   --message-error-bg: var(--danger-soft);
-  --message-warning-bg: var(--peach);
+  --message-warning-bg: var(--warn-border);
   --message-success-bg: var(--accent-soft);
-  --font-family-primary: Manrope, system-ui, sans-serif;
+  --font-family-primary: var(--font-sans);
 }
-body { font-family: var(--font-family-primary); font-size: 16px; line-height: 1.6; }
+
+/* Базовая типографика: Manrope для интерфейса, Source Serif 4 для заголовков. */
+body { font-family: var(--font-family-primary); font-size: 14px; line-height: 1.6; color: var(--text); }
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
   outline: 3px solid var(--accent); outline-offset: 3px;
 }
-#header { flex-wrap: wrap; gap: 16px; padding: 24px 32px; border-bottom: 1px solid var(--border); }
-#branding { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; }
-#site-name { margin: 0; font-weight: 800; font-size: 24px; }
+
+/* Шапка и верхняя навигация. */
+#header {
+  flex-wrap: wrap; gap: 10px 24px; padding: 14px 28px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+#branding { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }
+#site-name { margin: 0; font-family: var(--font-sans); font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
 .og-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text) !important; }
-.og-brand-mark { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; color: var(--surface); background: var(--accent); }
-.og-brand-caption { font-size: 14px; color: var(--muted); font-weight: 600; }
-.og-staff-badge { font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 30px; background: var(--peach); color: var(--text); }
-.og-admin-nav { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
-.og-admin-nav a { padding: 8px 14px; border-radius: 24px; background: var(--accent-soft); color: var(--accent) !important; font-size: 12px; font-weight: 700; }
-.og-admin-nav a:hover { background: var(--peach); }
-#user-tools { font-size: 11px; line-height: 1.8; color: var(--muted); }
-div.breadcrumbs { padding: 12px 32px; font-size: 12px; }
-#content { padding: 32px; }
-#content h1 { font-size: clamp(22px, 3vw, 32px); letter-spacing: -0.04em; color: var(--text); font-weight: 700; }
-.module, .inline-group, #changelist, .og-form-card { border: 1px solid var(--border); border-radius: 20px; background: var(--surface); overflow: hidden; }
-.module h2, .module caption, .inline-group h2 { background: var(--accent-soft); color: var(--text); padding: 12px 18px; font-weight: 700; }
+.og-brand-mark { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius); color: var(--surface); background: var(--accent); }
+.og-brand-caption { font-size: 12px; color: var(--muted); font-weight: 600; }
+.og-staff-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+  padding: 5px 10px; border-radius: var(--radius);
+  background: var(--accent-soft); color: var(--accent-hover);
+}
+.og-admin-nav { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
+.og-admin-nav a {
+  padding: 7px 10px; border-radius: var(--radius); background: transparent;
+  color: var(--muted) !important; font-size: 13px; font-weight: 600;
+}
+.og-admin-nav a:hover, .og-admin-nav a:focus { background: var(--accent-soft); color: var(--accent) !important; }
+#user-tools { font-size: 12px; line-height: 1.8; color: var(--muted); }
+#user-tools a { color: var(--accent); }
+div.breadcrumbs { padding: 10px 28px; font-size: 13px; background: var(--accent-soft); }
+div.breadcrumbs a { color: var(--accent); }
+
+/* Контент и заголовки страниц. */
+#content { padding: 28px; max-width: 1440px; margin: 0 auto; box-sizing: border-box; }
+#content h1, .og-form-card h1 {
+  font-family: var(--font-serif); font-size: 28px; line-height: 1.3;
+  font-weight: 600; letter-spacing: -0.01em; color: var(--text);
+}
+.og-form-card h2 { font-family: var(--font-serif); font-size: 18px; line-height: 1.35; font-weight: 600; color: var(--text); margin: 24px 0 12px; }
+#content h3, .og-form-card h3 {
+  font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted);
+  margin: 20px 0 10px;
+}
+
+/* Карточки-модули. */
+.module, .inline-group, #changelist, .og-form-card {
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface); box-shadow: var(--shadow-overlay); overflow: hidden;
+}
+#content .module h2, #content .module caption, #content .inline-group h2 {
+  background: var(--surface-dim); color: var(--muted); padding: 10px 16px;
+  font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
 .module caption a { color: var(--accent) !important; }
-.module ul { margin: 16px; padding-left: 20px; }
-.og-form-card { max-width: 680px; padding: 28px; }
+.module ul { margin: 8px 0; padding: 8px 16px 12px 36px; }
+.module ul li { padding: 3px 0; }
+
+/* Формульные карточки сотрудников. */
+.og-form-card { max-width: 720px; padding: 24px; }
+.og-card-wide { max-width: 1080px; }
 .og-form-card h1 { margin-top: 0; }
-.og-form-card p { margin: 0 0 20px; }
-.og-form-card .og-intro { color: var(--muted); font-size: 16px; }
-.og-form-card label { display: block; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
-.og-form-card input, .og-form-card select { width: 100%; box-sizing: border-box; min-height: 46px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); padding: 10px 14px; color: var(--text); font: inherit; }
-.og-form-card button, .button, input[type=submit], .submit-row input { border-radius: 30px; padding: 12px 22px; background: var(--accent); color: var(--surface); border: 0; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; }
-.og-form-card button:hover { background: var(--accent-hover); }
-.errorlist { color: var(--danger); background: var(--danger-soft); border-radius: 12px; padding: 12px 24px; }
-.messagelist li { border-radius: 14px; margin-bottom: 8px; }
+.og-form-card p { margin: 0 0 14px; }
+.og-intro { color: var(--muted); font-size: 14px; }
+.og-context { color: var(--muted); font-size: 13px; }
+.og-note { color: var(--muted); font-size: 13px; }
+p[role="alert"] {
+  color: var(--danger); background: var(--danger-soft);
+  border-radius: var(--radius); padding: 10px 14px; font-size: 13px;
+}
+.og-form-card label {
+  display: block; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 6px;
+}
+.og-form-card input, .og-form-card select, .og-form-card textarea {
+  width: 100%; box-sizing: border-box; min-height: 44px;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface); padding: 10px 12px; color: var(--text); font: inherit;
+}
+.og-form-card input[type="checkbox"] { width: auto; min-height: 0; }
+.og-form-card input:focus, .og-form-card select:focus, .og-form-card textarea:focus { border-color: var(--accent); }
+.og-form-card button, .button, input[type=submit], .submit-row input {
+  border-radius: var(--radius); padding: 10px 16px;
+  background: var(--accent); color: var(--surface); border: 0;
+  font-family: var(--font-sans); font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.og-form-card button:hover, .button:hover, input[type=submit]:hover, .submit-row input:hover {
+  background: var(--accent-hover); color: var(--surface);
+}
+.submit-row { background: var(--surface-dim); border-radius: var(--radius); padding: 12px 14px; }
+.errorlist {
+  color: var(--danger); background: var(--danger-soft);
+  border-radius: var(--radius); padding: 10px 16px;
+  font-size: 13px; list-style: none; margin: 0 0 12px;
+}
+.messagelist li { border-radius: var(--radius); margin-bottom: 8px; font-size: 13px; }
+.messagelist li.info, .messagelist li.success { background-color: var(--accent-soft); color: var(--text); }
+.messagelist li.warning { background-color: var(--warn-border); color: var(--warn); }
+.messagelist li.error { background-color: var(--danger-soft); color: var(--danger); }
+
+/* Рабочие таблицы: плотная разметка, табличные цифры, строгие линии. */
+#content table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+#content table thead th {
+  text-align: left; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted);
+  background: var(--surface-dim); padding: 8px 12px;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+#content table tbody th, #content table tbody td {
+  padding: 9px 12px; border-bottom: 1px solid var(--border-inner);
+  vertical-align: top; line-height: 1.5;
+}
+#content table tbody tr:last-child th, #content table tbody tr:last-child td { border-bottom: 0; }
+#content table tbody tr:hover { background: var(--accent-soft); }
+#content table td a, #content table th a { color: var(--accent); }
+.og-payload {
+  display: block; max-width: 60ch; font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.og-pager { display: flex; gap: 18px; margin: 12px 0 0; font-size: 13px; }
+
+/* Список результатов поиска пользователей. */
+.og-user-list {
+  list-style: none; margin: 16px 0 0; padding: 0;
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface); overflow: hidden;
+}
+.og-user-list li { padding: 10px 14px; border-bottom: 1px solid var(--border-inner); font-size: 14px; }
+.og-user-list li:last-child { border-bottom: 0; }
+.og-user-list a { color: var(--accent); font-weight: 600; }
+
+/* Компактная строка фильтра. */
+.og-filters p { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 14px; }
+.og-filters p label { margin: 0; }
+.og-filters p input { flex: 1 1 240px; width: auto; }
+
+/* Назначения преподавателя: строка «класс — действие». */
+.og-assign-list {
+  margin: 12px 0 20px; border: 1px solid var(--border);
+  border-radius: var(--radius-lg); background: var(--surface); overflow: hidden;
+}
+.og-assign-empty { margin: 0; padding: 10px 14px; color: var(--muted); font-size: 14px; }
+.og-assign-row {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 8px 16px; margin: 0; padding: 10px 14px;
+  border-bottom: 1px solid var(--border-inner);
+}
+.og-assign-row:last-child { border-bottom: 0; }
+.og-assign-row span { font-size: 14px; font-weight: 600; }
+.og-assign-row button { padding: 6px 12px; font-size: 13px; }
+
+/* Выбор ученика/преподавателя (student_search.js). */
 .og-form-card:has(.og-student-picker) { overflow: visible; }
 .og-student-field { margin-bottom: 8px; }
 .og-student-picker { position: relative; }
-.og-form-card .og-student-picker input { padding-right: 48px; }
-.og-form-card .og-clear-student { position: absolute; inset: 4px 4px auto auto; padding: 0; width: 38px; height: 38px; border-radius: 10px; background: transparent; color: var(--muted); font-size: 24px; line-height: 1; }
+.og-form-card .og-student-picker input { padding-right: 44px; }
+.og-form-card .og-clear-student {
+  position: absolute; inset: 4px 4px auto auto; padding: 0;
+  width: 36px; height: 36px; border-radius: var(--radius);
+  background: transparent; color: var(--muted); font-size: 22px; line-height: 1;
+}
 .og-form-card .og-clear-student:hover { background: var(--accent-soft); color: var(--text); }
-.og-student-results { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20; max-height: 260px; overflow-y: auto; list-style: none; padding: 6px; margin: 0; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--text); box-shadow: 0 12px 30px #223b3620; }
-.og-student-results li { padding: 10px 12px; margin: 0; border-radius: 9px; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; cursor: pointer; }
+.og-student-results {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
+  max-height: 260px; overflow-y: auto; list-style: none; padding: 6px; margin: 0;
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface); color: var(--text); box-shadow: var(--shadow-overlay);
+}
+.og-student-results li {
+  padding: 10px 12px; margin: 0; border-radius: var(--radius);
+  font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; cursor: pointer;
+}
 .og-student-results li:hover, .og-student-results li[aria-selected='true'] { background: var(--accent-soft); color: var(--text); }
 #student-search-status { margin-top: 8px; font-size: 13px; color: var(--muted); }
+
+/* Боковая навигация Django admin. */
 #nav-sidebar { background: var(--sidebar); border-color: var(--border); padding: 8px; }
-.login #container { border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 20px 60px #223b3610; background: var(--surface); }
-.login #header { padding: 24px; justify-content: center; }
-.login #content { padding: 28px; }
-.login .form-row input { border-radius: 12px; padding: 12px; }
+
+/* Вход сотрудников. */
+.login #container {
+  border-radius: var(--radius-lg); border: 1px solid var(--border);
+  box-shadow: var(--shadow-overlay); background: var(--surface);
+}
+.login #header { padding: 20px; justify-content: center; background: var(--surface); border-bottom: 1px solid var(--border); }
+.login #content { padding: 24px; max-width: none; }
+.login .form-row input { border-radius: var(--radius); padding: 10px 12px; }
+.login .form-row label {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--muted);
+}
+
 @media (max-width: 767px) {
-  #header, div.breadcrumbs { padding: 18px; }
-  #content { padding: 18px; }
-  .og-admin-nav { gap: 6px; }
-  .og-admin-nav a { font-size: 11px; padding: 7px 10px; }
-  .og-form-card { padding: 20px; }
+  #header, div.breadcrumbs { padding: 14px 16px; }
+  #content { padding: 16px 14px; }
+  #content h1, .og-form-card h1 { font-size: 24px; }
+  .og-admin-nav { overflow-x: auto; flex-wrap: nowrap; }
+  .og-admin-nav a { white-space: nowrap; font-size: 12px; }
+  .og-form-card { padding: 18px; }
   #branding { gap: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
-
-/* Общая структура списков, форм и таблиц для сотрудников. */
-#header { gap: 12px 24px; padding: 18px 28px; background: #fff; }
-#site-name { font-size: 19px; letter-spacing: -.03em; }
-.og-brand-mark { border-radius: 10px; }
-.og-staff-badge { background: var(--accent-soft); color: var(--accent-hover); }
-.og-admin-nav a { border-radius: 9px; background: transparent; font-size: 13px; padding: 8px 10px; }
-.og-admin-nav a:hover, .og-admin-nav a:focus { background: var(--accent-soft); }
-div.breadcrumbs { padding: 12px 28px; background: #eaf1f5; font-size: 13px; }
-#content { max-width: 1440px; margin: 0 auto; }
-#content h1 { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(26px, 3vw, 34px); }
-.module, .inline-group, #changelist, .og-form-card { border-radius: 15px; box-shadow: 0 1px 2px rgba(35,42,49,.05); }
-.module h2, .module caption, .inline-group h2 { background: #f4f7f9; }
-.og-form-card label { font-size: 14px; }
-.og-form-card input, .og-form-card select { border-radius: 9px; }
-.og-form-card button, .button, input[type=submit], .submit-row input { border-radius: 9px; font-size: 14px; }
-#result_list { width: 100%; border-collapse: collapse; }
-#result_list thead th { background: #f4f7f9; color: var(--muted); padding: 12px; }
-#result_list tbody th, #result_list tbody td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
-#result_list tbody tr:hover { background: #f7fafc; }
-.messagelist li.info, .messagelist li.success { background-color: var(--accent-soft); color: var(--text); }
-.messagelist li.warning { background-color: #f9f0dc; color: #785008; }
-.messagelist li.error { background-color: #f9e9e7; color: var(--danger); }
-@media (max-width: 767px) { #header, div.breadcrumbs { padding: 16px; } #content { padding: 18px 14px; } .og-admin-nav { overflow-x: auto; flex-wrap: nowrap; } .og-admin-nav a { white-space: nowrap; font-size: 12px; } }

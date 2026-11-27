@@ -120,6 +120,9 @@ test('ученик сдаёт, преподаватель возвращает, 
     });
   });
   await page.goto('/homework/42');
+  await expect(page.getByRole('heading', { name: 'Условие задания' })).toBeVisible();
+  await expect(page.getByText('Иванов Иван', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Урок, на котором задано' })).toBeVisible();
   await page.getByLabel('Ваш ответ').fill('Первый ответ');
   await page
     .getByLabel('Файлы ответа', { exact: true })

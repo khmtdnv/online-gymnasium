@@ -40,6 +40,7 @@ it('создаёт доступную ссылку на PDF и освобожд�
     'download',
     `document-${id}.pdf`,
   );
+  expect(screen.getByText('Документ готов')).toBeInTheDocument();
   expect(screen.getByTitle('Учебный документ — PDF')).toHaveAttribute('src', 'blob:pdf-preview');
   view.unmount();
   expect(revokeUrl).toHaveBeenCalledWith('blob:pdf-preview');

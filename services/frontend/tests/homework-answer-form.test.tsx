@@ -30,3 +30,21 @@ it('повтор неизвестной сдачи сохраняет ключ �
   await waitFor(() => expect(submitAnswer).toHaveBeenCalledTimes(2));
   expect(submitAnswer.mock.calls[0].slice(0, 3)).toEqual(submitAnswer.mock.calls[1].slice(0, 3));
 });
+
+it('показывает счётчик символов ответа рядом с полем', async () => {
+  const api = {
+    listAnswers: vi.fn().mockResolvedValue([]),
+    submitAnswer: vi.fn(),
+  } as unknown as HomeworkApi;
+  render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      <HomeworkAnswerForm homeworkId={7} api={api} />
+    </QueryClientProvider>,
+  );
+  await screen.findByText('Вы ещё не сдавали работу.');
+  expect(screen.getByText('0 / 10000 симв.')).toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText('Ваш ответ'), { target: { value: 'Решение' } });
+  expect(screen.getByText('7 / 10000 симв.')).toBeInTheDocument();
+});

@@ -1,21 +1,15 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Button } from '../../components/ui/button';
 import type { ScheduleDay } from './my-schedule-api';
 import { LessonCard } from './lesson-card';
-import {
-  addSchoolDays,
-  formatSchoolDay,
-  schoolDay,
-  schoolHour,
-  schoolWeek,
-} from './school-dates';
-
-/** Учебные часы школьного дня: колонки недельного листа. */
-const LESSON_HOURS = [9, 10, 11, 12, 13, 14] as const;
+import type { SchoolPeriod } from './school-periods';
+import { splitByPeriods } from './school-periods';
+import { addSchoolDays, formatSchoolDay, schoolDay, schoolWeek } from './school-dates';
 
 export function WeeklySchedule({
   weekStart,
   days,
+  periods,
   onWeekChange,
   timezone,
   loading = false,
@@ -23,6 +17,7 @@ export function WeeklySchedule({
 }: {
   weekStart: string;
   days: ScheduleDay[];
+  periods: SchoolPeriod[];
   onWeekChange: (day: string) => void;
   timezone: string;
   loading?: boolean;
@@ -97,83 +92,109 @@ export function WeeklySchedule({
 
       {!loading && !failed && (
         <>
-          {/* Настольный лист: строка-день, уроки в колонках часов. */}
+          {/* Настольный лист: строка-день, уроки в колонках периодов сетки. */}
           <div className="week-sheet">
             <div className="week-sheet-head">
               <span className="week-sheet-corner">День / время</span>
-              {LESSON_HOURS.map((hour) => (
-                <span key={hour} className="week-sheet-hour">
-                  {String(hour).padStart(2, '0')}:00
+              {periods.map((period) => (
+                <span key={period.number} className="week-sheet-hour">
+                  <span>{period.number}</span>
+                  <span>
+                    {period.start_at}–{period.end_at}
+                  </span>
                 </span>
               ))}
             </div>
-            {days.map((day) => (
-              <div
-                key={day.date}
-                className={`week-sheet-row${day.date === today ? ' is-today' : ''}`}
-              >
-                <div className="week-sheet-day">
-                  <strong>
-                    {formatSchoolDay(day.date, {
-                      weekday: 'long',
-                      month: undefined,
-                      day: undefined,
-                    })}
-                  </strong>
-                  <span>{formatSchoolDay(day.date)}</span>
-                  <span className="week-sheet-count">
-                    {day.lessons.length
-                      ? `${day.lessons.length} ${plural(day.lessons.length)}`
-                      : 'Уроков нет'}
-                  </span>
-                  {day.date === today && <span className="week-today-label">Сегодня</span>}
-                </div>
-                {LESSON_HOURS.map((hour) => {
-                  const lessons = day.lessons.filter(
-                    (lesson) => schoolHour(lesson.starts_at) === hour,
-                  );
-                  return (
-                    <div key={hour} className="week-sheet-cell">
-                      {lessons.map((lesson) => (
-                        <LessonCard key={lesson.id} lesson={lesson} compact />
-                      ))}
+            {days.map((day) => {
+              const { byPeriod, offGrid } = splitByPeriods(day.lessons, periods);
+              return (
+                <Fragment key={day.date}>
+                  <div className={`week-sheet-row${day.date === today ? ' is-today' : ''}`}>
+                    <div className="week-sheet-day">
+                      <strong>
+                        {formatSchoolDay(day.date, {
+                          weekday: 'long',
+                          month: undefined,
+                          day: undefined,
+                        })}
+                      </strong>
+                      <span>{formatSchoolDay(day.date)}</span>
+                      <span className="week-sheet-count">
+                        {day.lessons.length
+                          ? `${day.lessons.length} ${plural(day.lessons.length)}`
+                          : 'Уроков нет'}
+                      </span>
+                      {day.date === today && <span className="week-today-label">Сегодня</span>}
                     </div>
-                  );
-                })}
-              </div>
-            ))}
+                    {periods.map((period) => (
+                      <div key={period.number} className="week-sheet-cell">
+                        {(byPeriod.get(period.number) ?? []).map((lesson) => (
+                          <LessonCard key={lesson.id} lesson={lesson} compact />
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                  {offGrid.length > 0 && (
+                    <div className="week-sheet-row week-sheet-row--offgrid">
+                      <div className="week-sheet-day week-sheet-offgrid-label">
+                        <strong>Вне сетки</strong>
+                        <span>время сохранено</span>
+                      </div>
+                      <div className="week-sheet-offgrid">
+                        {offGrid.map((lesson) => (
+                          <LessonCard key={lesson.id} lesson={lesson} compact offGrid />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </Fragment>
+              );
+            })}
           </div>
 
-          {/* Мобильный список выбранного дня. */}
+          {/* Мобильный список выбранного дня по тем же периодам. */}
           <div className="week-mobile-day">
             {days
               .filter((day) => day.date === selectedDay)
-              .map((day) => (
-                <section
-                  id={`calendar-${day.date}`}
-                  key={day.date}
-                  className={`week-day${day.date === today ? ' is-today' : ''}`}
-                  aria-labelledby={`heading-${day.date}`}
-                >
-                  <header>
-                    <h2 id={`heading-${day.date}`}>
-                      {formatSchoolDay(day.date, {
-                        weekday: 'long',
-                        month: undefined,
-                        day: undefined,
-                      })}
-                    </h2>
-                    <span>{formatSchoolDay(day.date)}</span>
-                    {day.date === today && <span className="week-today-label">Сегодня</span>}
-                  </header>
-                  <div className="day-lessons">
-                    {day.lessons.map((lesson) => (
-                      <LessonCard key={lesson.id} lesson={lesson} />
-                    ))}
-                    {!day.lessons.length && <p className="empty-school-day">Уроков нет</p>}
-                  </div>
-                </section>
-              ))}
+              .map((day) => {
+                const { byPeriod, offGrid } = splitByPeriods(day.lessons, periods);
+                return (
+                  <section
+                    id={`calendar-${day.date}`}
+                    key={day.date}
+                    className={`week-day${day.date === today ? ' is-today' : ''}`}
+                    aria-labelledby={`heading-${day.date}`}
+                  >
+                    <header>
+                      <h2 id={`heading-${day.date}`}>
+                        {formatSchoolDay(day.date, {
+                          weekday: 'long',
+                          month: undefined,
+                          day: undefined,
+                        })}
+                      </h2>
+                      <span>{formatSchoolDay(day.date)}</span>
+                      {day.date === today && <span className="week-today-label">Сегодня</span>}
+                    </header>
+                    <div className="day-lessons">
+                      {periods.map((period) =>
+                        (byPeriod.get(period.number) ?? []).map((lesson) => (
+                          <LessonCard key={lesson.id} lesson={lesson} />
+                        )),
+                      )}
+                      {!day.lessons.length && <p className="empty-school-day">Уроков нет</p>}
+                    </div>
+                    {offGrid.length > 0 && (
+                      <div className="day-lessons day-lessons--offgrid">
+                        <h3>Вне сетки</h3>
+                        {offGrid.map((lesson) => (
+                          <LessonCard key={lesson.id} lesson={lesson} offGrid />
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
           </div>
         </>
       )}

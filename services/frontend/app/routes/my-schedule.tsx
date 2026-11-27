@@ -45,6 +45,7 @@ function MySchedule() {
           query.data?.days ??
           Array.from({ length: 6 }, (_, i) => ({ date: addSchoolDays(week, i), lessons: [] }))
         }
+        periods={query.data?.periods ?? []}
         timezone={schoolTimezone}
         loading={query.isPending}
         failed={query.isError}

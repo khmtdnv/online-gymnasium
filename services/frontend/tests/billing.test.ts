@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
 import { createBillingApi, paymentSchema } from '../app/features/billing/api';
+import { labels } from '../app/routes/billing';
 import { createApiClient } from '../app/lib/api/client';
 import { ApiError, explainError } from '../app/lib/api/errors';
 
@@ -7,6 +8,27 @@ it('объясняет, как восстановить доступ при не
   expect(explainError(new ApiError(403, 'tuition_payment_required', 'Payment required'))).toMatch(
     /оплат/i,
   );
+});
+
+it('держит ровно семь статусов оплаты с подписями из таблицы спецификации', () => {
+  expect(Object.keys(labels)).toEqual([
+    'creating',
+    'pending',
+    'succeeded',
+    'canceled',
+    'unknown',
+    'manual_review',
+    'refunded',
+  ]);
+  expect(Object.values(labels)).toEqual([
+    'Создаём платёж',
+    'Ожидает оплаты',
+    'Оплачено',
+    'Отменено',
+    'Уточняем результат',
+    'Нужна ручная сверка',
+    'Возвращено',
+  ]);
 });
 
 it('повторяет checkout с тем же ключом без суммы и не принимает чужой redirect', async () => {

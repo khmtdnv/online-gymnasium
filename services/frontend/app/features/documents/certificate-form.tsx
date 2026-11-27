@@ -26,6 +26,12 @@ export function CertificateForm({
   const lastInput = useRef<CertificateInput | null>(null);
   const label =
     kind === 'contract' ? 'Создать договор' : kind === 'act' ? 'Создать акт' : 'Создать справку';
+  const kindTitle =
+    kind === 'contract'
+      ? 'Договор об обучении'
+      : kind === 'act'
+        ? 'Акт об оказании услуг'
+        : 'Справка об обучении в гимназии';
   const {
     register,
     handleSubmit,
@@ -59,6 +65,7 @@ export function CertificateForm({
   ] as const;
   return (
     <form className="form-stack" noValidate onSubmit={handleSubmit(submit)}>
+      <h3 className="certificate-form-title">{kindTitle}</h3>
       {failure !== null && (
         <Alert tone="error" requestId={errorRequestId(failure)}>
           {unknownResult
