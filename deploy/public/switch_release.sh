@@ -28,6 +28,11 @@ services:
   schedule-api:
     volumes:
       - $RELEASES/$NAME/services/schedule/src:/app/src:ro
+  # Образы на сервере не пересобираются (нет доступа к docker.io), поэтому
+  # alembic-цепочка расписания берётся из релиз-каталога, как и src сервисов.
+  schedule-migrations:
+    volumes:
+      - $RELEASES/$NAME/services/schedule/migrations:/app/migrations:ro
   homework-api:
     volumes:
       - $RELEASES/$NAME/services/homework/src:/app/src:ro
@@ -64,7 +69,9 @@ with open(sys.argv[1], encoding="utf-8") as fh:
             names.append(m.group(1))
         elif line.strip() and not line.startswith(" "):
             break
-print(" ".join(names))
+# Одноразовые контейнеры (миграции, collectstatic) завершаются и не бывают
+# "running"; их успех гарантирует compose через depends_on, а не этот цикл.
+print(" ".join(n for n in names if not n.endswith("-migrations") and n != "backoffice-static"))
 PY
 )
 [ -n "$SERVICES" ] || { echo "не найдены сервисы в $OVERRIDE" >&2; exit 1; }

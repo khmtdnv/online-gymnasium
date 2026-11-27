@@ -25,7 +25,12 @@
    своё значение и не меняется.
 3. Сверка: каждый сервис из `RELEASE-CHANGED-SERVICES.txt` смонтирован в override
    (`compose.release-current.yaml` генерируется `switch_release.sh` на сервере
-   и в git не хранится).
+   и в git не хранится). Образы на сервере не пересобираются (docker.io
+   недоступен), поэтому `switch_release.sh` дополнительно монтирует
+   `services/schedule/migrations` в `schedule-migrations`: alembic-цепочка
+   бежит из релиз-кода, а не из устаревшего образа. Одноразовые контейнеры
+   (миграции, collectstatic) из ожидания готовности исключены: их успех
+   проверяет compose через `depends_on`, а не цикл готовности.
 4. Бэкап баз шагом скрипта (`before-switch-<метка>` создаёт сам `switch_release.sh`):
    на сервере `sudo /opt/online-gymnasium/deploy/public/switch_release.sh release-<дата>`
    — снимет копию баз, переключит override, перезапустит стек, дождётся готовности
