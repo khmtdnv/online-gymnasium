@@ -30,18 +30,18 @@ it('bootstrap ставит тёмную тему из localStorage до перв
   expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
 });
 
-it('без выбора в localStorage bootstrap ставит светлую тему', () => {
+it('без выбора в localStorage bootstrap ставит тёмную тему «Кварто»', () => {
   document.documentElement.removeAttribute('data-theme');
   localStorage.clear();
   runBootstrap();
-  expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+  expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
 });
 
-it('некорректное значение в localStorage трактуется как светлая тема', () => {
+it('некорректное значение в localStorage трактуется как тёмная тема', () => {
   document.documentElement.removeAttribute('data-theme');
   localStorage.setItem(THEME_STORAGE_KEY, 'blue');
   runBootstrap();
-  expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+  expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
 });
 
 it('inline-скрипт темы стоит в head раньше бандла и не тянет внешний src', () => {
@@ -59,12 +59,12 @@ it('inline-скрипт темы стоит в head раньше бандла и
   expect(THEME_BOOTSTRAP_SCRIPT).toContain("setAttribute('data-theme'");
 });
 
-it('токены содержат тёмные значения под [data-theme="dark"]', () => {
+it('токены содержат значения «Кварто» (navy/fog/aqua) для тёмной темы', () => {
   expect(tokensSource).toContain("[data-theme='dark']");
   const dark = tokensSource.slice(tokensSource.indexOf('[data-theme=', 1));
-  expect(dark).toContain('--canvas: #10141a');
-  expect(dark).toContain('--text: #e2e2e9');
-  expect(dark).toContain('--accent: #77a9e6');
+  expect(dark).toContain('--canvas: #0d1a2b');
+  expect(dark).toContain('--text: #d9e2ef');
+  expect(dark).toContain('--accent: #37e0d0');
 });
 
 it('applyTheme обновляет атрибут и localStorage, выбор читается обратно', () => {

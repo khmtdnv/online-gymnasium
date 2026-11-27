@@ -1,77 +1,106 @@
-:root {
-  /* Дизайн-система Stitch «Academic Stationery»: бумага и чернила. */
-  --canvas: #f8f9fd; /* стол */
-  --sidebar: #f4f3ef; /* корешок/панели */
-  --surface: #ffffff; /* лист */
-  --surface-dim: #f2f3f7;
-  --text: #191c1f; /* графитовые чернила */
-  --muted: #59616a; /* вторичные пометки */
-  --accent: #245892; /* чернильное действие */
-  --accent-hover: #1b4573;
-  --accent-soft: #ebf2fa; /* выделение, выбор */
-  --peach: #fffaf0; /* ожидание/возврат фон */
-  --border: #dcdad5; /* обрез листа */
-  --border-inner: #eceae4; /* линовка внутри */
-  --danger: #ba1a1a;
-  --danger-soft: #fff5f5;
-  --success: #276749;
-  --success-soft: #f0fff4;
-  --warn: #975a16; /* ожидание */
-  --warn-border: #feebc8;
-  --return: #c05621; /* вернули */
-  --radius: 4px; /* строгие края, без пилюль */
-  --radius-lg: 6px;
-  --shadow-overlay: 0 2px 8px rgba(30, 33, 36, 0.06), 0 1px 2px rgba(30, 33, 36, 0.04);
+:root,
+[data-theme='dark'] {
+  /* Дизайн-система «Кварто» (рилс Filip & Philip, правило 60/30/10):
+     navy 60% — глубокая основа, fog 30% — туманный текст и панели, aqua 10% —
+     единственный яркий акцент: кнопки, ссылки, активные состояния. */
+  --canvas: #0d1a2b; /* navy: фон сайта */
+  --sidebar: #0f1d31; /* navy+1: шапка, панели */
+  --surface: #15233a; /* navy+2: карточки, поля */
+  --surface-dim: #111f33; /* navy+1.5: приглушённые зоны */
+  --surface-raised: #1a2a44; /* navy+3: всплывающие панели */
+  --text: #d9e2ef; /* fog: основной текст */
+  --muted: #8f9db3; /* fog dim: подписи и метки */
+  --faint: #5f6d84; /* fog faint: третьестепенное */
+
+  /* Aqua 10%: заливки кнопок и текст-акцент — раздельные яркости. */
+  --accent: #37e0d0; /* акцент-текст и метки на navy */
+  --accent-hover: #63e9db;
+  --accent-fill: #37e0d0; /* заливка основной кнопки */
+  --accent-fill-hover: #5ae9db;
+  --on-accent: #082730; /* текст на заливке aqua — глубокий navy */
+  --accent-soft: rgba(55, 224, 208, 0.12); /* выделение, выбор, ховер */
+  --accent-border: rgba(55, 224, 208, 0.35);
+
+  /* Семантика статусов: тёмные подложки + светлые чернила. */
+  --peach: #1c2a3d; /* ожидание/возврат фон */
+  --danger: #ff7a70;
+  --danger-strong: #e5484d;
+  --danger-soft: rgba(229, 72, 77, 0.12);
+  --danger-border: rgba(229, 72, 77, 0.38);
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.12);
+  --success-border: rgba(74, 222, 128, 0.35);
+  --warn: #e8b25a;
+  --warn-border: rgba(232, 178, 90, 0.35);
+  --return: #e59866; /* «вернули» */
+
+  --border: rgba(184, 197, 216, 0.16); /* fog-кромка карточек */
+  --border-inner: rgba(184, 197, 216, 0.1);
+  --radius: 14px;
+  --radius-lg: 20px;
+  --shadow-overlay: 0 16px 48px rgba(3, 10, 20, 0.55), 0 2px 8px rgba(3, 10, 20, 0.4);
+  --focus-ring: 0 0 0 3px rgba(55, 224, 208, 0.28);
   --font-sans: 'Manrope', system-ui, sans-serif;
   --font-serif: 'Source Serif 4', Georgia, serif;
 
-  /* Предметные закладки: мягкие метки повторяющихся уроков. */
+  /* Предметные закладки: светлые чернила на navy. */
+  --subject-math: #6fa8ff;
+  --subject-russian: #e59866;
+  --subject-literature: #b49cff;
+  --subject-physics: #4ade80;
+  --subject-history: #e8c468;
+  --subject-nature: #4ade80;
+  --subject-language: #37e0d0;
+  --subject-default: #8f9db3;
+
+  color-scheme: dark;
+}
+
+/* Светлая «туманная» тема: fog-бумага, navy-чернила, тот же aqua-акцент. */
+[data-theme='light'] {
+  --canvas: #e7edf4;
+  --sidebar: #eff3f9;
+  --surface: #f7f9fc;
+  --surface-dim: #edf1f7;
+  --surface-raised: #ffffff;
+  --text: #15233a;
+  --muted: #56637a;
+  --faint: #8794a9;
+
+  /* На светлом фоне aqua-текст темнее, заливка — та же яркая. */
+  --accent: #0b8e81;
+  --accent-hover: #0aa393;
+  --accent-fill: #37e0d0;
+  --accent-fill-hover: #5ae9db;
+  --on-accent: #082730;
+  --accent-soft: rgba(11, 142, 129, 0.1);
+  --accent-border: rgba(11, 142, 129, 0.3);
+
+  --peach: #f2e7d4;
+  --danger: #c53030;
+  --danger-strong: #c53030;
+  --danger-soft: #fbeaea;
+  --danger-border: rgba(197, 48, 48, 0.25);
+  --success: #17784a;
+  --success-soft: #e7f4ec;
+  --success-border: rgba(23, 120, 74, 0.25);
+  --warn: #96690f;
+  --warn-border: rgba(150, 105, 15, 0.3);
+  --return: #b06a2e;
+
+  --border: #c9d3e0;
+  --border-inner: #d9e1eb;
+  --shadow-overlay: 0 2px 8px rgba(21, 35, 58, 0.08), 0 1px 2px rgba(21, 35, 58, 0.05);
+  --focus-ring: 0 0 0 3px rgba(11, 142, 129, 0.22);
+
   --subject-math: #2b6cb0;
-  --subject-russian: #c05621;
+  --subject-russian: #b05521;
   --subject-literature: #6b46c1;
   --subject-physics: #2f855a;
   --subject-history: #975a16;
   --subject-nature: #2f855a;
-  --subject-language: #0f766e;
-  --subject-default: #59616a;
+  --subject-language: #0b8e81;
+  --subject-default: #56637a;
 
   color-scheme: light;
-}
-
-/* Тёмная тема (этап 4). Источник значений — макеты s01._dark_mode_1/2
-   и палитра academic_stationery: «чернила на тёмной бумаге».
-   Поверхности — контейнеры тёмной схемы, действие — светлые чернила #77a9e6. */
-[data-theme='dark'] {
-  --canvas: #10141a; /* стол */
-  --sidebar: #151920; /* корешок/панели, шапка и подвал */
-  --surface: #151920; /* лист */
-  --surface-dim: #1b2027;
-  --text: #e2e2e9; /* светлые чернила */
-  --muted: #9aa0aa; /* вторичные пометки */
-  --accent: #77a9e6; /* чернильное действие */
-  --accent-hover: #92bcf0;
-  --accent-soft: #1a3d69; /* выделение, выбор */
-  --peach: #3b2c0a; /* ожидание/возврат фон */
-  --border: #282e38; /* обрез листа */
-  --border-inner: #20252d; /* линовка внутри */
-  --danger: #f87171;
-  --danger-soft: #3a1a1d;
-  --success: #4ade80;
-  --success-soft: #133820;
-  --warn: #fbbf24; /* ожидание */
-  --warn-border: #55461f;
-  --return: #e59866; /* вернули */
-  --shadow-overlay: 0 2px 8px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-
-  /* Предметные закладки: светлые чернила для тёмной бумаги. */
-  --subject-math: #77a9e6;
-  --subject-russian: #e59866;
-  --subject-literature: #b7a3f0;
-  --subject-physics: #4ade80;
-  --subject-history: #fbbf24;
-  --subject-nature: #4ade80;
-  --subject-language: #5eead4;
-  --subject-default: #9aa0aa;
-
-  color-scheme: dark;
 }

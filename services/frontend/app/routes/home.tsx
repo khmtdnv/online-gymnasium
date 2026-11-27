@@ -60,7 +60,7 @@ export function HomeContent({ user }: { user: CurrentUser }) {
       <PageHeader
         title="Онлайн-гимназия"
         eyebrow="Хороший день начинается здесь"
-        description="Ваше рабочее пространство для школьных дел."
+        description="Спокойный ритм. Ясные задачи."
       />
       <section className="card hero">
         <div>
