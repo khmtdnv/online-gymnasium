@@ -461,7 +461,12 @@ def test_last_entry_date_returns_anchor(monkeypatch) -> None:
         token=READ_TOKEN,
     )
     assert response.status_code == 200
-    assert response.json() == {"last_entry_date": "2026-11-26"}
+    assert response.json() == {
+        "last_entry_date": "2026-11-26",
+        "quarter": 2,
+        "quarter_from": "2026-11-09",
+        "quarter_to": "2026-12-26",
+    }
     uow.lesson_records.last_entry_date.assert_awaited_once_with(STUDENT_ID)
 
 
@@ -475,7 +480,12 @@ def test_last_entry_date_returns_none_without_entries(monkeypatch) -> None:
         token=READ_TOKEN,
     )
     assert response.status_code == 200
-    assert response.json() == {"last_entry_date": None}
+    assert response.json() == {
+        "last_entry_date": None,
+        "quarter": 2,
+        "quarter_from": "2026-11-09",
+        "quarter_to": "2026-12-26",
+    }
 
 
 def test_subject_averages_round_half_up(monkeypatch) -> None:
@@ -526,3 +536,65 @@ def test_lesson_entries_read_for_form(monkeypatch) -> None:
     assert response.status_code == 200
     assert response.json() == {"attendance": [], "grades": []}
     uow.lesson_records.list_lesson_entries.assert_awaited_once_with(42)
+
+
+def test_last_entry_date_accepts_reference_date(monkeypatch) -> None:
+    """Опорная дата задаёт четверть якоря без календаря у вызывающего."""
+    app, _ = make_app(monkeypatch, last_entry_date=date(2026, 11, 26))
+    response = request(
+        app,
+        "GET",
+        f"/internal/students/{STUDENT_ID}/last-entry-date",
+        token=READ_TOKEN,
+        params={"reference": "2026-09-15"},
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "last_entry_date": "2026-11-26",
+        "quarter": 1,
+        "quarter_from": "2026-09-01",
+        "quarter_to": "2026-10-30",
+    }
+
+
+def test_last_entry_date_rejects_reference_outside_year(monkeypatch) -> None:
+    """Опорная дата вне учебного года отклоняется."""
+    app, _unused = make_app(monkeypatch)
+    response = request(
+        app,
+        "GET",
+        f"/internal/students/{STUDENT_ID}/last-entry-date",
+        token=READ_TOKEN,
+        params={"reference": "2027-06-01"},
+    )
+    assert response.status_code == 422
+
+
+def test_diary_entries_accept_quarter_instead_of_dates(monkeypatch) -> None:
+    """Окно задаётся номером четверти; границы считает Journal."""
+    app, uow = make_app(monkeypatch)
+    response = request(
+        app,
+        "GET",
+        f"/internal/students/{STUDENT_ID}/diary-entries",
+        token=READ_TOKEN,
+        params={"quarter": 2},
+    )
+    assert response.status_code == 200
+    uow.lesson_records.list_student_entries.assert_awaited_once_with(
+        STUDENT_ID, date(2026, 11, 9), date(2026, 12, 26)
+    )
+
+
+def test_diary_entries_reject_quarter_and_dates_together(monkeypatch) -> None:
+    """Окно нельзя задать датами и четвертью одновременно."""
+    app, uow = make_app(monkeypatch)
+    response = request(
+        app,
+        "GET",
+        f"/internal/students/{STUDENT_ID}/diary-entries",
+        token=READ_TOKEN,
+        params={"quarter": 2, "date_from": "2026-11-09", "date_to": "2026-11-15"},
+    )
+    assert response.status_code == 422
+    uow.lesson_records.list_student_entries.assert_not_awaited()

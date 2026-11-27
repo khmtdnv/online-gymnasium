@@ -195,11 +195,14 @@ class SubjectAverageResult(BaseModel):
 
 
 class LastEntryDateResult(BaseModel):
-    """Дата последней записи ученика; None без записей."""
+    """Якорь дневника: последняя запись и четверть опорной даты."""
 
     model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
 
     last_entry_date: date | None
+    quarter: int = Field(strict=True, ge=1, le=MAX_QUARTER)
+    quarter_from: date
+    quarter_to: date
 
 
 def _round_half_up(value: Decimal) -> int:
@@ -346,26 +349,48 @@ class ListStudentDiaryEntriesHandler:
         self._uow_factory = uow_factory
 
     async def handle(
-        self, student_id: UUID, date_from: date, date_to: date
+        self,
+        student_id: UUID,
+        date_from: date | None,
+        date_to: date | None,
+        quarter: int | None = None,
     ) -> LessonEntriesResult:
         """Проверяет окно и читает записи ученика.
+
+        Окно задаётся либо датами (не длиннее четверти), либо номером
+        четверти — тогда границы вычисляет Journal из своей копии
+        календаря, и вызывающий сервис календаря не знает.
 
         Args:
             student_id: Ученик, чьи записи читаются.
             date_from: Начальная дата окна включительно.
             date_to: Конечная дата окна включительно.
+            quarter: Номер четверти вместо дат окна.
 
         Returns:
             Посещаемость и оценки окна.
 
         Raises:
-            LessonRecordValidationError: Окно длиннее четверти или
-                кончается раньше начала.
+            LessonRecordValidationError: Окно длиннее четверти, кончается
+                раньше начала, задано двумя способами сразу или номер
+                четверти вне 1–4.
         """
-        try:
-            validate_window(date_from, date_to)
-        except ValueError as exc:
-            raise LessonRecordValidationError("Invalid diary window") from exc
+        if quarter is not None:
+            if date_from is not None or date_to is not None:
+                raise LessonRecordValidationError(
+                    "Window must be set either by dates or by quarter"
+                )
+            try:
+                date_from, date_to = quarter_bounds(quarter)
+            except ValueError as exc:
+                raise LessonRecordValidationError("Invalid quarter") from exc
+        else:
+            if date_from is None or date_to is None:
+                raise LessonRecordValidationError("Window dates are required")
+            try:
+                validate_window(date_from, date_to)
+            except ValueError as exc:
+                raise LessonRecordValidationError("Invalid diary window") from exc
 
         async with self._uow_factory() as uow:
             attendance, grades = await uow.lesson_records.list_student_entries(
@@ -431,18 +456,42 @@ class GetLastEntryDateHandler:
         """
         self._uow_factory = uow_factory
 
-    async def handle(self, student_id: UUID) -> LastEntryDateResult:
-        """Читает максимум дат посещаемости и оценок ученика.
+    async def handle(
+        self, student_id: UUID, reference: date | None = None
+    ) -> LastEntryDateResult:
+        """Читает якорь дневника: последнюю запись и четверть.
+
+        Четверть вычисляется от опорной даты: явной ссылки, иначе
+        последней записи, иначе сегодняшней школьной даты. Календарь
+        знает только Journal — вызывающие сервисы копию не хранят.
 
         Args:
             student_id: Ученик, чья последняя запись ищется.
+            reference: Опорная дата четверти, если вызвана с ней.
 
         Returns:
-            Дата последней записи либо None без записей.
+            Дата последней записи (None без записей), номер и границы
+            четверти опорной даты.
+
+        Raises:
+            LessonRecordValidationError: Опорная дата вне учебного года.
         """
         async with self._uow_factory() as uow:
             last_entry_date = await uow.lesson_records.last_entry_date(student_id)
-        return LastEntryDateResult(last_entry_date=last_entry_date)
+        base = reference or last_entry_date or school_today()
+        try:
+            quarter = quarter_of(base)
+            quarter_from, quarter_to = quarter_bounds(quarter)
+        except ValueError as exc:
+            raise LessonRecordValidationError(
+                "Reference date is outside the study year"
+            ) from exc
+        return LastEntryDateResult(
+            last_entry_date=last_entry_date,
+            quarter=quarter,
+            quarter_from=quarter_from,
+            quarter_to=quarter_to,
+        )
 
 
 class ListLessonEntriesHandler:

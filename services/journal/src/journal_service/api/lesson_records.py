@@ -107,9 +107,12 @@ class SubjectAverageResponse(BaseModel):
 
 
 class LastEntryDateResponse(BaseModel):
-    """Дата последней записи ученика; None без записей."""
+    """Якорь дневника с четвертью опорной даты."""
 
     last_entry_date: date | None
+    quarter: int
+    quarter_from: date
+    quarter_to: date
 
 
 @router.post(
@@ -170,19 +173,21 @@ async def record_lesson_entries(
 )
 async def list_student_diary_entries(
     student_id: StudentId,
-    date_from: Annotated[date, Query()],
-    date_to: Annotated[date, Query()],
     handler: Annotated[
         ListStudentDiaryEntriesHandler,
         Depends(get_list_student_diary_entries_handler),
     ],
+    date_from: Annotated[date | None, Query()] = None,
+    date_to: Annotated[date | None, Query()] = None,
+    quarter: Annotated[int | None, Query(ge=1, le=MAX_QUARTER)] = None,
 ) -> LessonEntriesResponse:
-    """Читает записи ученика окном не длиннее четверти.
+    """Читает записи ученика окном: датами или номером четверти.
 
     Args:
         student_id: Ученик, чьи записи читаются.
         date_from: Начальная дата окна включительно.
         date_to: Конечная дата окна включительно.
+        quarter: Номер четверти вместо дат окна.
         handler: Обработчик чтения окна.
 
     Returns:
@@ -192,7 +197,7 @@ async def list_student_diary_entries(
         HTTPException: 422 при неверном окне, 503 при сбое базы.
     """
     try:
-        result = await handler.handle(student_id, date_from, date_to)
+        result = await handler.handle(student_id, date_from, date_to, quarter)
     except LessonRecordValidationError:
         raise HTTPException(status_code=422, detail="Invalid diary window") from None
     except (SQLAlchemyError, OSError) as exc:
@@ -213,21 +218,25 @@ async def list_student_diary_entries(
 async def get_last_entry_date(
     student_id: StudentId,
     handler: Annotated[GetLastEntryDateHandler, Depends(get_last_entry_date_handler)],
+    reference: Annotated[date | None, Query()] = None,
 ) -> LastEntryDateResponse:
-    """Возвращает дату последней записи ученика.
+    """Возвращает якорь дневника: последнюю запись и четверть.
 
     Args:
         student_id: Ученик, чья последняя запись ищется.
+        reference: Опорная дата четверти, если нужна именно она.
         handler: Обработчик чтения якоря дневника.
 
     Returns:
-        Дата последней записи либо None без записей.
+        Дата последней записи, номер и границы четверти опорной даты.
 
     Raises:
-        HTTPException: 503 при сбое базы.
+        HTTPException: 422 при опорной дате вне года, 503 при сбое базы.
     """
     try:
-        return await handler.handle(student_id)
+        return await handler.handle(student_id, reference)
+    except LessonRecordValidationError:
+        raise HTTPException(status_code=422, detail="Invalid reference date") from None
     except (SQLAlchemyError, OSError) as exc:
         raise HTTPException(status_code=503, detail="Journal unavailable") from exc
 
