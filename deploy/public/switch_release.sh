@@ -39,10 +39,12 @@ services:
   journal-outbox-relay:
     volumes:
       - $RELEASES/$NAME/services/journal/src:/app/src:ro
-  # Записи дневника: alembic-ревизия create_lesson_records приходит релиз-каталогом —
-  # запечённая в образ цепочка её не знает.
+  # Записи дневника: ревизия create_lesson_records и модели приходят
+  # релиз-каталогом — env.py импортирует модели, запечённые в образ
+  # цепочка и src их не знают.
   journal-migrations:
     volumes:
+      - $RELEASES/$NAME/services/journal/src:/app/src:ro
       - $RELEASES/$NAME/services/journal/migrations:/app/migrations:ro
   homework-api:
     volumes:
