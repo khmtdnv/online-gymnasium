@@ -372,6 +372,7 @@ class SqlDiaryStore:
             LessonAttendanceRow,
             LessonGradeRow,
         )
+        from journal_service.infrastructure.models.school_class import ClassRow
         from journal_service.infrastructure.models.student_class_period import (
             StudentClassPeriodRow,
         )
@@ -380,6 +381,10 @@ class SqlDiaryStore:
         self._attendance_row = LessonAttendanceRow
         self._grade_row = LessonGradeRow
         self._period_row = StudentClassPeriodRow
+        # FK lesson_attendance.class_id указывает на classes: таблица должна
+        # быть зарегистрирована в метаданных до вставки, иначе SQLAlchemy не
+        # разрешит внешний ключ.
+        self._class_row = ClassRow
 
     async def rosters_of_classes(self, class_ids) -> dict[int, list[str]]:
         """Current rosters: open class periods per class, ordered by id."""
