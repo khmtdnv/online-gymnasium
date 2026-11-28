@@ -9,6 +9,7 @@ import { createAnalyticsApi } from '../../features/analytics/api';
 import { createPenApi } from '../../features/pen/contracts';
 import { createBillingApi } from '../../features/billing/api';
 import { createNotificationsApi } from '../../features/notifications/api';
+import { createDiaryApi } from '../../features/diary/api';
 
 export interface Features {
   notifications: ReturnType<typeof createNotificationsApi>;
@@ -19,6 +20,7 @@ export interface Features {
   workload: ReturnType<typeof createWorkloadApi>;
   documents: ReturnType<typeof createDocumentsApi>;
   homework: ReturnType<typeof createHomeworkApi>;
+  diary: ReturnType<typeof createDiaryApi>;
 }
 export const FeaturesContext = createContext<Features | null>(null);
 
@@ -36,6 +38,7 @@ export function FeaturesProvider({ children }: { children: ReactNode }) {
       workload: createWorkloadApi(client),
       documents: createDocumentsApi(client),
       homework: createHomeworkApi(client),
+      diary: createDiaryApi(client),
     };
   }, [session]);
   return <FeaturesContext.Provider value={features}>{children}</FeaturesContext.Provider>;
