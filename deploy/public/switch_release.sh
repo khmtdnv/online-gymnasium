@@ -33,6 +33,17 @@ services:
   schedule-migrations:
     volumes:
       - $RELEASES/$NAME/services/schedule/migrations:/app/migrations:ro
+  journal-api:
+    volumes:
+      - $RELEASES/$NAME/services/journal/src:/app/src:ro
+  journal-outbox-relay:
+    volumes:
+      - $RELEASES/$NAME/services/journal/src:/app/src:ro
+  # Записи дневника: alembic-ревизия create_lesson_records приходит релиз-каталогом —
+  # запечённая в образ цепочка её не знает.
+  journal-migrations:
+    volumes:
+      - $RELEASES/$NAME/services/journal/migrations:/app/migrations:ro
   homework-api:
     volumes:
       - $RELEASES/$NAME/services/homework/src:/app/src:ro
