@@ -578,7 +578,7 @@ async def run_wipe(store_factory, session_factory) -> dict:
 
 
 async def main():
-    from journal_service.config import Settings
+    from journal_service.config import JournalSettings
     from journal_service.domain import study_quarters
     from journal_service.infrastructure.database import (
         create_engine,
@@ -586,7 +586,7 @@ async def main():
     )
 
     data = json.load(sys.stdin)
-    engine = create_engine(Settings().database_url)
+    engine = create_engine(JournalSettings().database_url)
     sessions = create_session_factory(engine)
     try:
         if data["mode"] == "wipe":
