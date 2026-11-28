@@ -68,6 +68,7 @@ class InitializeEnvTest(unittest.TestCase):
                     "BACKOFFICE_SERVICE_TOKEN",
                     "HOMEWORK_SERVICE_TOKEN",
                     "GATEWAY_READ_SERVICE_TOKEN",
+                    "GATEWAY_WRITE_SERVICE_TOKEN",
                     "BILLING_READ_SERVICE_TOKEN",
                 )
             ]
@@ -80,6 +81,10 @@ class InitializeEnvTest(unittest.TestCase):
             self.assertEqual(
                 journal["GATEWAY_READ_SERVICE_TOKEN"],
                 gateway["JOURNAL_READ_SERVICE_TOKEN"],
+            )
+            self.assertEqual(
+                journal["GATEWAY_WRITE_SERVICE_TOKEN"],
+                gateway["JOURNAL_WRITE_SERVICE_TOKEN"],
             )
             homework = read(root / "services/homework/.env")
             schedule = read(root / "services/schedule/.env")

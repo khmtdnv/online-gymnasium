@@ -59,6 +59,10 @@ def initialize(root: Path) -> int:
             ("journal/.env", "GATEWAY_READ_SERVICE_TOKEN"),
         ),
         (
+            ("gateway/.env", "JOURNAL_WRITE_SERVICE_TOKEN"),
+            ("journal/.env", "GATEWAY_WRITE_SERVICE_TOKEN"),
+        ),
+        (
             ("billing/.worker.env", "JOURNAL_SERVICE_TOKEN"),
             ("journal/.env", "BILLING_READ_SERVICE_TOKEN"),
         ),
