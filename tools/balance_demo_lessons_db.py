@@ -3,6 +3,13 @@
 Modes (JSON on stdin):
 - export: lessons of a window by classes/teachers with a "created by the
   demo script" flag;
+- diary_export: lessons of all demo classes for the diary generator —
+  the window is [September 1 of the study year, today in school time]
+  (the cutoff of tools/create_demo_data), every status included (the
+  generator skips the non-planned ones itself), each row carries the
+  school date derived from starts_at in Asia/Yekaterinburg (the
+  scheduled_lessons table has no date column). The demo classes are the
+  classes of managed lessons, so no new exporter is needed;
 - apply: atomically applies a rebuild plan (teacher, subject, time),
   checking that the lessons did not change since the export;
 - teacher_usage: planned lesson count of every teacher;
@@ -30,9 +37,10 @@ import asyncio
 import hashlib
 import json
 import sys
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from uuid import NAMESPACE_URL, UUID, uuid5
 
+from schedule_service.domain import school_calendar
 from schedule_service.domain.events import LessonSnapshot, ScheduleChanged
 from schedule_service.domain.school_periods import PERIODS, TIMEZONE
 
@@ -60,6 +68,45 @@ def serialize(lesson):
         "starts_at": lesson.starts_at.isoformat(),
         "ends_at": lesson.ends_at.isoformat(),
         "version": lesson.version,
+    }
+
+
+def lesson_school_date(starts_at: datetime) -> date:
+    """Возвращает школьную дату урока (Asia/Yekaterinburg).
+
+    Колонки `date` в `scheduled_lessons` нет: дата выводится из `starts_at`.
+    """
+    return starts_at.astimezone(TIMEZONE).date()
+
+
+def diary_window(today: date | None = None) -> tuple[date, date]:
+    """Окно экспорта дневника: [1 сентября, дата среза].
+
+    Дата среза — «сегодня» в школьном часовом поясе от импорта
+    `school_calendar`; начало — первый учебный день года из него же.
+
+    Raises:
+        ValueError: Срез раньше начала учебного года (манифест/календарь
+            рассинхронизированы — годовой пересев обязателен).
+    """
+    cutoff = today if today is not None else datetime.now(TIMEZONE).date()
+    start = school_calendar.STUDY_YEAR[0]
+    if cutoff < start:
+        raise ValueError(f"diary cutoff {cutoff} precedes the study year {start}")
+    return start, cutoff
+
+
+def serialize_diary(lesson) -> dict:
+    """Строка экспорта дневника: ключ урока, статус и школьная дата."""
+    return {
+        "lesson_id": lesson.id,
+        "class_id": lesson.class_id,
+        "subject_id": lesson.subject_id,
+        "teacher_id": str(lesson.teacher_id),
+        "starts_at": lesson.starts_at.isoformat(),
+        "ends_at": lesson.ends_at.isoformat(),
+        "status": lesson.status,
+        "date": lesson_school_date(lesson.starts_at).isoformat(),
     }
 
 
@@ -234,6 +281,21 @@ def in_batches(values, size: int = SQL_BATCH_SIZE):
     values = list(values)
     for start in range(0, len(values), size):
         yield values[start : start + size]
+
+
+def diary_export_rows(rows, managed_ids) -> list[dict]:
+    """Управляемые уроки окна в хронологическом порядке для дневника.
+
+    Все статусы сохраняются: пропуск отменённых — задача генератора
+    записей, а не экспорта. Порядок (starts_at, id) стабилен.
+    """
+    return [
+        serialize_diary(row)
+        for row in sorted(
+            (row for row in rows if row.id in managed_ids),
+            key=lambda row: (row.starts_at, row.id),
+        )
+    ]
 
 
 # ------------------------------------------------- wipe and create runs
@@ -499,6 +561,48 @@ async def main():
                 raise SystemExit(1)
             return
         async with sessions() as session, session.begin():
+            if data["mode"] == "diary_export":
+                start, cutoff = diary_window()
+                starts_from = datetime.combine(start, time.min, TIMEZONE)
+                starts_until = datetime.combine(
+                    cutoff + timedelta(days=1), time.min, TIMEZONE
+                )
+                all_rows = (
+                    await session.scalars(
+                        select(ScheduledLessonRow).where(
+                            ScheduledLessonRow.starts_at >= starts_from,
+                            ScheduledLessonRow.starts_at < starts_until,
+                        )
+                    )
+                ).all()
+                managed_ids = set(
+                    (
+                        await session.scalars(
+                            select(IdempotencyRequestRow.lesson_id).where(
+                                IdempotencyRequestRow.operation == "create_lesson",
+                                or_(
+                                    *(
+                                        IdempotencyRequestRow.idempotency_key.like(
+                                            pattern
+                                        )
+                                        for pattern in MANAGED_KEY_PREFIXES
+                                    )
+                                ),
+                                IdempotencyRequestRow.lesson_id.is_not(None),
+                            )
+                        )
+                    ).all()
+                )
+                print(
+                    json.dumps(
+                        {
+                            "cutoff": cutoff.isoformat(),
+                            "calendar_version": school_calendar.CALENDAR_VERSION,
+                            "lessons": diary_export_rows(all_rows, managed_ids),
+                        }
+                    )
+                )
+                return
             if data["mode"] == "export":
                 start, end = (
                     datetime.fromisoformat(data["start"]),
