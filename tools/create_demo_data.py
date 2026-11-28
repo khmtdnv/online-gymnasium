@@ -198,6 +198,34 @@ def build_accounts() -> list[dict]:
     return result
 
 
+def ensure_showcase_parents(gateway: Api, users: dict) -> list[dict]:
+    """Создаёт демо-родителей витринных классов и привязывает их к детям.
+
+    Родитель parentNN класса «А» связан с первым учеником этого класса —
+    учеником сгенерированной истории дневника (учётки и связи — через
+    закрытый API Gateway, как у существующего parent01). Возвращает
+    пары (родитель, ученик) для отчёта.
+    """
+    links = []
+    for account in build_accounts():
+        if account["role"] != "parent":
+            continue
+        grade = int(account["email"][6:8])
+        parent = ensure_user(gateway, account, users)
+        child = users.get(f"student{grade:02}.1@demo.og.test")
+        if child is None:
+            raise DemoError(
+                f"Нет ученика student{grade:02}.1@demo.og.test для демо-родителя"
+            )
+        gateway.request(
+            "PUT",
+            f"/internal/backoffice/parents/{parent['id']}/children/{child['id']}",
+            ok=(201, 204),
+        )
+        links.append({"parent": parent["email"], "child": child["email"]})
+    return links
+
+
 def study_weeks_of_year() -> list[list[date]]:
     """All study weeks of the school calendar (Monday-based lists).
 
@@ -918,8 +946,10 @@ def main() -> None:
 
         rebuild_year(journal, classes, users)
         create_year_scenarios(gateway, journal, schedule, public, users, summary)
+        links = ensure_showcase_parents(gateway, users)
         print(
-            f"Готово: {len(summary)} классов. Список: .demo-data/expanded-school.json"
+            f"Готово: {len(summary)} классов, {len(links)} демо-родителей"
+            " витринных классов. Список: .demo-data/expanded-school.json"
         )
         return
     print(
@@ -1116,6 +1146,8 @@ def main() -> None:
         "Для других классов замените 01 на номер класса с ведущим нулём: 02, 03, …, 11.",
         "",
         "Родитель: `parent01@demo.og.test`, связан с первым учеником. Родительский кабинет не заменяет ученический.",
+        "",
+        "Дневник: страница `/diary` — оценки за уроки с типом, посещаемость и ДЗ по неделям; в большом демо `--large` история генерируется инструментами `tools/balance_demo_diary_db.py` и `tools/balance_demo_homework_history_db.py` (шаги runbook). Ученик читает свой дневник, родитель — дневник ребёнка через переключатель на странице.",
         "",
         "Чужие права: `teacher.outside@demo.og.test` не имеет назначений; `student.outside@demo.og.test` не состоит в классе.",
         "",

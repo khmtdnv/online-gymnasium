@@ -21,7 +21,10 @@ from gateway_service.infrastructure.billing_client import BillingClient
 from gateway_service.infrastructure.document_client import DocumentClient
 from gateway_service.infrastructure.homework_client import HomeworkClient
 from gateway_service.infrastructure.homework_file_client import HomeworkFileClient
-from gateway_service.infrastructure.journal_client import JournalClient
+from gateway_service.infrastructure.journal_client import (
+    JournalClient,
+    JournalWriteClient,
+)
 from gateway_service.infrastructure.login_throttle import LoginThrottle
 from gateway_service.infrastructure.notification_client import NotificationClient
 from gateway_service.infrastructure.pen_client import PenClient
@@ -171,6 +174,19 @@ async def lifespan(app: FastAPI):
                 app.state.journal_client = JournalClient(
                     http_client, settings.journal_read_service_token
                 )
+            if app.state.journal_write_client is None and all(
+                (settings.journal_base_url, settings.journal_write_service_token)
+            ):
+                http_client = await stack.enter_async_context(
+                    httpx.AsyncClient(
+                        base_url=settings.journal_base_url,
+                        timeout=5.0,
+                        follow_redirects=False,
+                    )
+                )
+                app.state.journal_write_client = JournalWriteClient(
+                    http_client, settings.journal_write_service_token
+                )
             if app.state.homework_client is None and all(
                 (
                     settings.homework_base_url,
@@ -224,6 +240,7 @@ async def lifespan(app: FastAPI):
         app.state.homework_file_client = app.state.injected_homework_file_client
         app.state.schedule_client = app.state.injected_schedule_client
         app.state.journal_client = app.state.injected_journal_client
+        app.state.journal_write_client = app.state.injected_journal_write_client
         app.state.analytics_client = app.state.injected_analytics_client
         app.state.pen_client = app.state.injected_pen_client
         app.state.billing_client = app.state.injected_billing_client
@@ -408,6 +425,8 @@ def create_app(
     app.state.injected_schedule_client = schedule_client
     app.state.journal_client = journal_client
     app.state.injected_journal_client = journal_client
+    app.state.journal_write_client = None
+    app.state.injected_journal_write_client = None
     app.state.analytics_client = analytics_client
     app.state.injected_analytics_client = analytics_client
     app.state.pen_client = pen_client

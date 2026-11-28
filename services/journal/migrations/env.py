@@ -10,6 +10,10 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from journal_service.config import JournalSettings
 from journal_service.infrastructure.models.base import Base
+from journal_service.infrastructure.models.lesson_record import (  # noqa: F401
+    LessonAttendanceRow,
+    LessonGradeRow,
+)
 from journal_service.infrastructure.models.outbox_event import (
     JournalOutboxEventRow,  # noqa: F401
 )

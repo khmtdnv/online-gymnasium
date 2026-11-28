@@ -14,6 +14,7 @@ from journal_service.api.class_periods import router as class_periods_router
 from journal_service.api.classes import router
 from journal_service.api.health import router as health_router
 from journal_service.api.homework_reads import router as homework_reads_router
+from journal_service.api.lesson_records import router as lesson_records_router
 from journal_service.api.period_changes import router as period_changes_router
 from journal_service.api.teacher_classes import router as teacher_classes_router
 from journal_service.application.ports.errors import (
@@ -124,6 +125,7 @@ def create_app(
     app.include_router(period_changes_router)
     app.include_router(teacher_classes_router)
     app.include_router(homework_reads_router)
+    app.include_router(lesson_records_router)
     app.include_router(health_router)
 
     @app.exception_handler(StarletteHTTPException)

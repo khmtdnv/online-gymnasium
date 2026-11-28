@@ -7121,3 +7121,328 @@ textarea.input {
     grid-template-columns: 1fr;
   }
 }
+
+/* --- Дневник: страница недели, сводка и форма записи урока --- */
+.diary-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.diary-parent-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.diary-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.diary-week-label {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin: 0 6px;
+}
+.diary-cutoff {
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--warn-border);
+  border-radius: var(--radius-lg);
+  background: var(--peach);
+  color: var(--warn);
+  font-size: 14px;
+  align-self: flex-start;
+}
+.diary-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+.diary-day {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--sidebar);
+  overflow: hidden;
+}
+.diary-day-header {
+  margin: 0;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+  background: var(--surface-dim);
+}
+.diary-empty {
+  margin: 0;
+  padding: 14px 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.diary-lesson {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 10px 12px;
+  border-bottom: 1px solid var(--border-inner);
+}
+.diary-lesson:last-child {
+  border-bottom: none;
+}
+.diary-lesson-cancelled {
+  color: var(--muted);
+}
+.diary-lesson-time {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.diary-lesson-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.diary-grades {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.diary-grade {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.diary-grade small {
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--muted);
+}
+.diary-grade.grade-5 {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.diary-grade.grade-4 {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.diary-grade.grade-3 {
+  background: var(--peach);
+  color: var(--warn);
+}
+.diary-grade.grade-2 {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.diary-attendance,
+.diary-homework {
+  font-size: 12px;
+  font-weight: 700;
+}
+.diary-attendance.attendance-absent {
+  color: var(--danger);
+}
+.diary-attendance.attendance-unmarked {
+  color: var(--muted);
+}
+.diary-homework.homework-submitted {
+  color: var(--accent);
+}
+.diary-homework.homework-returned {
+  color: var(--return);
+}
+.diary-homework.homework-graded {
+  color: var(--success);
+}
+.diary-homework.homework-not_submitted {
+  color: var(--danger);
+}
+.diary-summary-bar {
+  display: flex;
+  justify-content: flex-end;
+}
+.diary-quarter-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.diary-quarter-select select {
+  font: inherit;
+}
+.diary-summary {
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  background: var(--surface);
+  padding: 22px 24px;
+}
+.diary-summary h3 {
+  margin: 0 0 14px;
+  font-size: 19px;
+}
+.diary-table-wrap {
+  overflow-x: auto;
+}
+.diary-summary-table {
+  width: 100%;
+  min-width: 420px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.diary-dynamics-table {
+  min-width: 460px;
+}
+.diary-summary-table th,
+.diary-summary-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-inner);
+  text-align: left;
+}
+.diary-summary-table thead th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.diary-summary-table tbody tr:last-child th,
+.diary-summary-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.diary-summary-table tbody th {
+  font-weight: 700;
+}
+.quarter-grade-5 {
+  color: var(--success);
+  font-weight: 800;
+}
+.quarter-grade-4 {
+  color: var(--accent);
+  font-weight: 800;
+}
+.quarter-grade-3 {
+  color: var(--warn);
+  font-weight: 800;
+}
+.quarter-grade-2 {
+  color: var(--danger);
+  font-weight: 800;
+}
+.diary-dynamics {
+  margin-top: 18px;
+}
+.diary-dynamics h4,
+.diary-absences h4 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+.diary-absences {
+  margin-top: 18px;
+}
+.diary-absences ul {
+  margin: 0;
+  padding-left: 20px;
+  columns: 2;
+  column-gap: 28px;
+}
+.diary-absences li {
+  margin: 3px 0;
+  font-size: 14px;
+}
+
+/* --- Форма записи урока (посещаемость и оценки) --- */
+.lesson-record-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lesson-record-saved {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--success-soft);
+  color: var(--success);
+  font-weight: 700;
+}
+.lesson-record-canceled {
+  margin: 0;
+  color: var(--muted);
+}
+.lesson-record-wrap {
+  overflow-x: auto;
+}
+.lesson-record-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+}
+.lesson-record-table th,
+.lesson-record-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-inner);
+  vertical-align: top;
+  text-align: left;
+}
+.lesson-record-table thead th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.lesson-record-table tbody tr:last-child th,
+.lesson-record-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.lesson-record-table tbody th {
+  font-weight: 700;
+  min-width: 140px;
+}
+.lesson-record-radios {
+  display: flex;
+  gap: 4px 12px;
+  flex-wrap: wrap;
+}
+.lesson-record-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.lesson-record-option input {
+  accent-color: var(--accent);
+}
+.lesson-record-grade {
+  display: flex;
+  gap: 8px;
+}
+.lesson-record-grade select {
+  font: inherit;
+  min-width: 96px;
+}
+
+@media (max-width: 900px) {
+  .diary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .diary-absences ul {
+    columns: 1;
+  }
+}
+@media (max-width: 640px) {
+  .diary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .diary-summary {
+    padding: 16px 14px;
+  }
+  .diary-summary-bar {
+    justify-content: flex-start;
+  }
+}

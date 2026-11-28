@@ -73,6 +73,16 @@ async def database(
     sessions = create_session_factory(engine)
     try:
         async with engine.begin() as connection:
+            grades = await connection.scalar(
+                text("SELECT to_regclass('public.lesson_grades')")
+            )
+            if grades is not None:
+                await connection.execute(text("DELETE FROM lesson_grades"))
+            attendance = await connection.scalar(
+                text("SELECT to_regclass('public.lesson_attendance')")
+            )
+            if attendance is not None:
+                await connection.execute(text("DELETE FROM lesson_attendance"))
             if (
                 await connection.scalar(
                     text("SELECT to_regclass('public.teacher_classes')")

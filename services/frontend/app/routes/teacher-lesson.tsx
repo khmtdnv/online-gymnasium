@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, CalendarDays, Clock3, PenLine, UserRound, Users } from 'lucide-react';
+import { BookOpen, CalendarDays, ClipboardList, Clock3, PenLine, UserRound, Users } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { PageHeader } from '../components/page-header';
 import { Alert } from '../components/ui/alert';
@@ -9,6 +9,7 @@ import { HomeworkForm } from '../features/homework/homework-form';
 import { HomeworkFiles } from '../features/homework/homework-files';
 import { displayHomeworkDescription } from '../features/homework/display-description';
 import { HomeworkAnswerReview } from '../features/homework/homework-answer-review';
+import { LessonRecordForm } from '../features/diary/lesson-record-form';
 import { useFeatures } from '../lib/api/context';
 import { explainError } from '../lib/api/errors';
 import StudentLessonPage from './student-lesson';
@@ -44,7 +45,9 @@ function TeacherLesson() {
   const { lessonId } = useParams();
   const id = Number(lessonId);
   const valid = Number.isInteger(id) && id > 0 && id <= 2147483647;
-  const { homework, pen, schedule } = useFeatures();
+  const { homework, pen, schedule, diary } = useFeatures();
+  const { state } = useSession();
+  const teacherId = state.status === 'authenticated' ? state.user.id : '';
   const query = useQuery({
     queryKey: ['homework', 'teacher-lesson', id],
     enabled: valid,
@@ -131,6 +134,41 @@ function TeacherLesson() {
                   </div>
                 </article>
               ))}
+            </section>
+            <section className="workspace-panel lesson-records" aria-labelledby="lesson-records-heading">
+              <div className="workspace-panel-head">
+                <div>
+                  <h2 id="lesson-records-heading">Посещаемость и оценки</h2>
+                  <p>
+                    Отметьте класс и поставьте оценки за урок — до двух
+                    с разными типами на ученика.
+                  </p>
+                </div>
+                <span className="workspace-icon">
+                  <ClipboardList size={20} />
+                </span>
+              </div>
+              {query.data.lesson.status !== 'planned' ? (
+                <p className="lesson-record-canceled">
+                  Урок отменён: записи посещаемости и оценок недоступны.
+                </p>
+              ) : roster.isError ? (
+                <p role="alert">Состав класса недоступен — записи не открыть.</p>
+              ) : roster.isSuccess ? (
+                <LessonRecordForm
+                  lessonId={id}
+                  teacherId={teacherId}
+                  lesson={{
+                    class_id: query.data.lesson.class_id,
+                    subject_id: query.data.lesson.subject_id,
+                    lesson_date: schoolDay(new Date(query.data.lesson.starts_at)),
+                  }}
+                  roster={roster.data ?? []}
+                  api={diary}
+                />
+              ) : (
+                <p role="status">Загружаем состав класса…</p>
+              )}
             </section>
             {query.data.lesson.status === 'canceled' && !query.data.homework_from_lesson.length ? (
               <Alert>Урок отменён. Выдать новое задание нельзя.</Alert>

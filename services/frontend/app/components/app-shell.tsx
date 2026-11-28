@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import {
+  BookOpen,
   CalendarDays,
   ChartNoAxesCombined,
   Files,
@@ -122,7 +123,10 @@ export function AppShell({
         ]
       : []),
     ...(['student', 'parent'].includes(user.role)
-      ? [{ to: '/billing', label: 'Оплата и биллинг', icon: Files }]
+      ? [
+          { to: '/diary', label: 'Дневник', icon: BookOpen },
+          { to: '/billing', label: 'Оплата и биллинг', icon: Files },
+        ]
       : []),
   ];
   const navigation = (

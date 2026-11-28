@@ -14,6 +14,7 @@ class GatewaySettings(BaseSettings):
     journal_service_token: str | None = None
     journal_base_url: str | None = None
     journal_read_service_token: str | None = None
+    journal_write_service_token: str | None = None
     homework_base_url: str | None = None
     homework_service_token: str | None = None
     schedule_base_url: str | None = None

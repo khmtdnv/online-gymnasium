@@ -2,6 +2,9 @@ from types import TracebackType
 from typing import Protocol, Self
 
 from journal_service.application.ports.class_repository import ClassRepository
+from journal_service.application.ports.lesson_record_repository import (
+    LessonRecordRepository,
+)
 from journal_service.application.ports.outbox_repository import OutboxRepository
 from journal_service.application.ports.student_class_period_repository import (
     StudentClassPeriodRepository,
@@ -17,6 +20,7 @@ class UnitOfWork(Protocol):
     classes: ClassRepository
     teacher_classes: TeacherClassRepository
     class_periods: StudentClassPeriodRepository
+    lesson_records: LessonRecordRepository
     outbox: OutboxRepository
 
     async def __aenter__(self) -> Self:

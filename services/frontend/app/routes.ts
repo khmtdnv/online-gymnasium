@@ -9,6 +9,7 @@ export default [
     route('notifications', 'routes/notifications.tsx'),
     route('my-schedule', 'routes/schedule-redirect.tsx'),
     route('schedule', 'routes/schedule-by-role.tsx'),
+    route('diary', 'routes/diary.tsx'),
     route('pen/lessons/:lessonId', 'routes/pen.tsx'),
     route('homework', 'routes/homework.tsx'),
     route('homework/:homeworkId', 'routes/homework-detail.tsx'),

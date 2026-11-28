@@ -11,6 +11,7 @@ from gateway_service.api.backoffice_analytics import (
 from gateway_service.api.backoffice_billing import router as backoffice_billing_router
 from gateway_service.api.backoffice_identity import router as backoffice_identity_router
 from gateway_service.api.billing import router as billing_router
+from gateway_service.api.diary import router as diary_router
 from gateway_service.api.documents import router as documents_router
 from gateway_service.api.health import router as health_router
 from gateway_service.api.homework import router as homework_router
@@ -59,3 +60,4 @@ router.include_router(schedule_admin_router)
 router.include_router(
     homework_list_router, dependencies=[Depends(require_learning_access)]
 )
+router.include_router(diary_router, dependencies=[Depends(require_learning_access)])

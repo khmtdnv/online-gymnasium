@@ -9,8 +9,10 @@ import importlib.util
 import json
 import sys
 import unittest
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
+from types import SimpleNamespace
+from uuid import UUID
 
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
 _SCHEDULE_SRC = str(
@@ -531,6 +533,77 @@ class HelperTests(unittest.TestCase):
     def test_outbox_row_rejects_unknown_events(self):
         with self.assertRaises(TypeError):
             balance.outbox_row(object())
+
+
+class DiaryExportTests(unittest.TestCase):
+    """Чистые помошники расширенного export-режима дневника."""
+
+    def test_diary_window_is_study_year_start_to_today(self):
+        from schedule_service.domain import school_calendar
+
+        today = date(2026, 11, 16)
+        self.assertEqual(
+            balance.diary_window(today),
+            (school_calendar.STUDY_YEAR[0], today),
+        )
+        with self.assertRaises(ValueError):
+            balance.diary_window(date(2026, 8, 31))
+
+    def test_lesson_school_date_derives_from_starts_at(self):
+        # 04:00 UTC = 09:00 школьного пояса того же дня.
+        morning = datetime(2026, 11, 16, 4, 0, tzinfo=UTC)
+        self.assertEqual(balance.lesson_school_date(morning), date(2026, 11, 16))
+        # 22:00 UTC = 03:00 следующего школьного дня.
+        late = datetime(2026, 11, 16, 22, 0, tzinfo=UTC)
+        self.assertEqual(balance.lesson_school_date(late), date(2026, 11, 17))
+
+    def test_serialize_diary_carries_status_and_school_date(self):
+        row = SimpleNamespace(
+            id=501,
+            class_id=7,
+            subject_id=3,
+            teacher_id=UUID(TEACHER),
+            starts_at=datetime(2026, 11, 16, 4, 0, tzinfo=UTC),
+            ends_at=datetime(2026, 11, 16, 4, 45, tzinfo=UTC),
+            status="planned",
+        )
+        self.assertEqual(
+            balance.serialize_diary(row),
+            {
+                "lesson_id": 501,
+                "class_id": 7,
+                "subject_id": 3,
+                "teacher_id": TEACHER,
+                "starts_at": "2026-11-16T04:00:00+00:00",
+                "ends_at": "2026-11-16T04:45:00+00:00",
+                "status": "planned",
+                "date": "2026-11-16",
+            },
+        )
+
+    def test_diary_export_rows_keep_managed_and_chronological(self):
+        def row(lesson_id, hour, status="planned"):
+            return SimpleNamespace(
+                id=lesson_id,
+                class_id=7,
+                subject_id=3,
+                teacher_id=UUID(TEACHER),
+                starts_at=datetime(2026, 11, 16, hour, 0, tzinfo=UTC),
+                ends_at=datetime(2026, 11, 16, hour, 45, tzinfo=UTC),
+                status=status,
+            )
+
+        rows = [row(2, 5), row(1, 4, "canceled"), row(3, 6)]
+        result = balance.diary_export_rows(rows, {1, 3})
+        self.assertEqual(
+            [item["lesson_id"] for item in result],
+            [1, 3],
+        )
+        # Статусы сохраняются: пропуск отменённых — задача генератора.
+        self.assertEqual(result[0]["status"], "canceled")
+        self.assertEqual(result[1]["status"], "planned")
+        unmanaged = balance.diary_export_rows(rows, {2})
+        self.assertEqual([item["lesson_id"] for item in unmanaged], [2])
 
 
 if __name__ == "__main__":

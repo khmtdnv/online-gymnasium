@@ -1,4 +1,5 @@
-from typing import Annotated
+from typing import Annotated, Literal
+from uuid import UUID
 
 from fastapi import Depends, Header, HTTPException, status
 
@@ -84,3 +85,26 @@ def get_backoffice_actor_id(
     if int(x_actor_id) > 9223372036854775807:
         raise HTTPException(status_code=422, detail="Invalid actor ID")
     return x_actor_id
+
+
+def get_lesson_record_actor(
+    service: Annotated[ServicePrincipal, Depends(get_authenticated_service)],
+    x_user_id: Annotated[UUID, Header(alias="X-User-ID")],
+    x_user_role: Annotated[Literal["teacher"], Header(alias="X-User-Role")],
+) -> UUID:
+    """Принимает учителя записи урока только от принципала записи Gateway.
+
+    Args:
+        service: Уже распознанный сервис и его права.
+        x_user_id: UUID учителя из заголовка, проставленного Gateway.
+        x_user_role: Роль пользователя; запись урока доступна только учителю.
+
+    Returns:
+        UUID автора команды записи.
+
+    Raises:
+        HTTPException: Сервису запрещена запись уроков.
+    """
+    if "lesson-records:write" not in service.permissions:
+        raise HTTPException(status_code=403, detail="Insufficient service permissions")
+    return x_user_id

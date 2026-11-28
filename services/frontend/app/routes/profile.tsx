@@ -7,7 +7,7 @@ import { useSession } from '../features/auth/session-context';
 import type { Role } from '../lib/api/contracts';
 
 const roleHints: Record<Role, string> = {
-  student: 'Дневник, расписание и домашние задания',
+  student: 'Профиль',
   teacher: 'Уроки, проверка работ и умная ручка',
   parent: 'Оплата, документы и уведомления',
   admin: 'Расписание, документы и аналитика',
