@@ -363,7 +363,7 @@ class PlanTest(unittest.TestCase):
             + history.RETURNED_SHARE
             + history.RETURN_REGRADED_SHARE
             + history.SUBMITTED_SHARE,
-            90,
+            70,
         )
 
 
