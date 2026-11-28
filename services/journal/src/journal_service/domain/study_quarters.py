@@ -2,7 +2,8 @@
 
 Единственный источник дат — `school_calendar.py` сервиса Schedule; импорт
 его кода в рантайме Journal запрещён, поэтому здесь хранится версия-копия
-с тем же `CALENDAR_VERSION`. Синхронность копии и оригинала проверяет
+`QUARTERS`/`VACATIONS`/`CALENDAR_VERSION` с теми же значениями.
+Синхронность копии и оригинала проверяет
 `tools/test_study_quarters_sync.py`; при годовом обновлении календаря
 поднимается версия и в том, и в другом модуле.
 """
@@ -21,6 +22,12 @@ QUARTERS: tuple[tuple[date, date], ...] = (
     (date(2027, 3, 30), date(2027, 5, 29)),
 )
 
+VACATIONS: tuple[tuple[date, date], ...] = (
+    (date(2026, 10, 31), date(2026, 11, 8)),
+    (date(2026, 12, 27), date(2027, 1, 10)),
+    (date(2027, 3, 20), date(2027, 3, 29)),
+)
+
 SCHOOL_TIMEZONE = ZoneInfo("Asia/Yekaterinburg")
 
 _MAX_WINDOW_DAYS: int = max((end - start).days + 1 for start, end in QUARTERS)
@@ -31,7 +38,8 @@ def _validate_copy() -> None:
 
     Raises:
         ValueError: Четверть заканчивается раньше начала, выходит за
-            учебный год или пересекается с другой.
+            учебный год, пересекается с другой или каникулы
+            пересекаются с четвертью.
     """
     year_start, year_end = STUDY_YEAR
     for i, (start_a, end_a) in enumerate(QUARTERS):
@@ -43,6 +51,17 @@ def _validate_copy() -> None:
             if start_a <= end_b and start_b <= end_a:
                 raise ValueError(
                     f"quarters {start_a}..{end_a} and {start_b}..{end_b} overlap"
+                )
+    for vacation_start, vacation_end in VACATIONS:
+        if vacation_start > vacation_end:
+            raise ValueError(
+                f"vacation {vacation_start}..{vacation_end} ends before it starts"
+            )
+        for quarter_start, quarter_end in QUARTERS:
+            if vacation_start <= quarter_end and quarter_start <= vacation_end:
+                raise ValueError(
+                    f"vacation {vacation_start}..{vacation_end} overlaps"
+                    f" quarter {quarter_start}..{quarter_end}"
                 )
 
 
