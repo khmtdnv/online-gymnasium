@@ -216,6 +216,13 @@ function ParentDay() {
             </div>
           </section>
         ))}
+      <section className="day-panel day-diary" aria-labelledby="day-diary-heading">
+        <div className="day-panel-head">
+          <h2 id="day-diary-heading">Дневник ребёнка</h2>
+          <Link to="/diary">Открыть</Link>
+        </div>
+        <p>Оценки за уроки, посещаемость и сводка по четвертям.</p>
+      </section>
       <section className="day-panel day-notifications">
         <div className="day-panel-head">
           <h2>Уведомления</h2>
